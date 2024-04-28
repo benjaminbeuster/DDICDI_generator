@@ -1,0 +1,6 @@
+pandas==1.5.3
+pyreadstat==1.2.2
+dash==2.13.0
+dash-bootstrap-components==1.5.0
+flask==2.1.2
+lxml==4.9.3
