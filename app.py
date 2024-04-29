@@ -208,14 +208,15 @@ def update_instruction_text_style(data):
     [State('upload-data', 'filename'),
      State('table2', 'data')]
 )
-
 def combined_callback(contents, selected_rows, filename, table2_data):
     # Initialization
     df_meta = None
 
+    # If contents is None, reset the tables and XML output
     if not contents:
-        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
+        return [], [], [], [], [], [], "", {'display': 'none'}
 
+    # ... [The rest of your code remains unchanged]
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
 
@@ -241,7 +242,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        # Generate xml-LD based on selected rows
+        # Generate xml based on selected rows
         if selected_rows and table2_data and df_meta:
             vars = []
             for row_index in selected_rows:

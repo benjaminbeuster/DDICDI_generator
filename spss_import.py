@@ -3,14 +3,19 @@ import typing as t
 from pathlib import Path
 import pandas as pd
 import pyreadstat as pyr
+
+# Set pandas options
 pd.set_option('display.max_rows', 2500)
 pd.set_option('display.max_columns', None)
 pd.options.mode.chained_assignment = None
-import datetime
 
-######################################################################
+# Define constants
+ROW_LIMIT = 5
+ENCODINGS = ["utf-8", "LATIN1"]
+MISSING_DATE = "1582-10-14"
+REPLACEMENT_DATE = "1678-01-01"
 
-def read_sav(filename: Path, encoding="utf-8", missings=True, disable_datetime_conversion=True):
+def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
     kwargs = dict(
         user_missing=missings,
         dates_as_pandas_datetime=False,  # Do not interpret dates initially
@@ -21,47 +26,57 @@ def read_sav(filename: Path, encoding="utf-8", missings=True, disable_datetime_c
     if extension not in ['.sav', '.dta']:
         raise ValueError("Unsupported file type!")
 
-    if extension == '.sav':
+    # Try reading the file with different encodings
+    for encoding in ENCODINGS:
         try:
-            df, meta = pyr.read_sav(filename, encoding=encoding, row_limit=5, **kwargs)
-        except Exception:
-            df, meta = pyr.read_sav(filename, encoding="LATIN1", row_limit=5, **kwargs)
-
-    elif extension == '.dta':
-        try:
-            df, meta = pyr.read_dta(filename, encoding=encoding, row_limit=5, **kwargs)
-        except Exception:
-            df, meta = pyr.read_dta(filename, encoding="LATIN1", row_limit=5, **kwargs)
-
-    # Since you are already limiting the rows while reading,
-    # the following line is redundant and can be removed.
-    # df = df.head()
+            if extension == '.sav':
+                df, meta = pyr.read_sav(filename, encoding=encoding, row_limit=ROW_LIMIT, **kwargs)
+            elif extension == '.dta':
+                df, meta = pyr.read_dta(filename, encoding=encoding, row_limit=ROW_LIMIT, **kwargs)
+            # Fill NA values based on the data type of each column
+            for col in df.columns:
+                if df[col].dtype.kind in 'biufc':
+                    df[col].fillna(0, inplace=True)
+                else:
+                    df[col].fillna('', inplace=True)
+            break
+        except Exception as e:
+            print(f"Failed to read file with encoding {encoding}: {e}")
+            continue
+    else:
+        raise ValueError("Could not read file with any encoding!")
 
     # Manually handle the problematic date columns
     for col in df.columns:
         if "datetime" in str(df[col].dtype) or "date" in str(df[col].dtype):
-            df[col] = df[col].apply(lambda x: "1678-01-01" if str(x) == "1582-10-14" else x)
+            df[col] = df[col].apply(lambda x: REPLACEMENT_DATE if str(x) == MISSING_DATE else x)
             df[col] = pd.to_datetime(df[col], errors='coerce')
-
-    # Recode dtype
-    df = df.convert_dtypes()
 
     # Recode string variables
     for var in df.columns:
-        if df[var].dtype == 'string':
+        if df[var].dtype == 'string' or df[var].dtype == 'object':
             df[[var]].replace({'': pd.NA}, inplace=True)
+    
+    # Recode dtype for non-object columns and convert object columns to string type
+    for col in df.columns:
+        if df[var].dtype != 'string' and df[var].dtype != 'object':
+            df[col] = df[col].convert_dtypes()
 
     df.attrs["datafile"] = "file"
     return df, meta
 
 
 ###################################################################
+def create_dataframe_from_dict(d: dict, column_names: list):
+    if d:
+        df_list = [{'name': k, column_names[1]: str(v)} for k, v in d.items()]  # Convert values to string
+        return pd.DataFrame(df_list)
+    else:
+        return pd.DataFrame(columns=column_names)
 
-def create_variable_view(df_meta):
+def create_variable_view_common(df_meta):
     # Extract the attributes from df_meta
     label = df_meta.column_names_to_labels
-    values = df_meta.variable_value_labels
-    missing = df_meta.missing_ranges
     format = df_meta.original_variable_types
     measure = df_meta.variable_measure
 
@@ -70,62 +85,52 @@ def create_variable_view(df_meta):
     df_format = pd.DataFrame(list(format.items()), columns=['name', 'format'])
     df_measure = pd.DataFrame(list(measure.items()), columns=['name', 'measure'])
 
-    # For values and missing, handle them differently due to dictionaries/lists inside
-    df_values_list = [{'name': k, 'values': str(v)} for k, v in values.items()]  # Convert values to string
-    df_values = pd.DataFrame(df_values_list)
-
-    df_missing_list = [{'name': k, 'missing': str(v)} for k, v in missing.items()]  # Convert missing values to string
-    df_missing = pd.DataFrame(df_missing_list)
-
     # Merge dataframes on the 'name' column
-    variable_view = df_label
-    if not df_values.empty:
-        variable_view = variable_view.merge(df_values, on='name', how='outer')
-
-    if not df_missing.empty:
-        variable_view = variable_view.merge(df_missing, on='name', how='outer')
-
-    variable_view = variable_view \
+    variable_view = df_label \
         .merge(df_format, on='name', how='outer') \
         .merge(df_measure, on='name', how='outer')
 
-    # Ensure 'values' and 'missing' columns are present
-    if 'values' not in variable_view.columns:
+    return variable_view
+
+def create_variable_view(df_meta):
+    if df_meta is None:
+        raise ValueError("df_meta cannot be None")
+
+    variable_view = create_variable_view_common(df_meta)
+
+    # For values and missing, handle them differently due to dictionaries/lists inside
+    df_values = create_dataframe_from_dict(df_meta.variable_value_labels, ['name', 'values'])
+    df_missing = create_dataframe_from_dict(df_meta.missing_ranges, ['name', 'missing'])
+
+    # Merge dataframes on the 'name' column
+    if not df_values.empty:
+        variable_view = variable_view.merge(df_values, on='name', how='outer')
+    else:
         variable_view['values'] = pd.NA
 
-    if 'missing' not in variable_view.columns:
+    if not df_missing.empty:
+        variable_view = variable_view.merge(df_missing, on='name', how='outer')
+    else:
         variable_view['missing'] = pd.NA
 
     return variable_view[['name', 'format', 'label', 'values', 'missing', 'measure']]
 
-
 def create_variable_view2(df_meta):
-    # Extract the attributes from df_meta
-    label = df_meta.column_names_to_labels
-    values = df_meta.variable_value_labels
+    if df_meta is None:
+        raise ValueError("df_meta cannot be None")
+
+    variable_view = create_variable_view_common(df_meta)
 
     # Convert user-defined missing values to the desired format
     missing = {}
     for key, vals in df_meta.missing_user_values.items():
         missing[key] = [{"lo": val, "hi": val} for val in vals]
 
-    format = df_meta.original_variable_types
-    measure = df_meta.variable_measure
-
-    # Convert dictionaries into individual dataframes
-    df_label = pd.DataFrame(list(label.items()), columns=['name', 'label'])
-    df_format = pd.DataFrame(list(format.items()), columns=['name', 'format'])
-    df_measure = pd.DataFrame(list(measure.items()), columns=['name', 'measure'])
-
     # For values and missing, handle them differently due to dictionaries/lists inside
-    df_values_list = [{'name': k, 'values': str(v)} for k, v in values.items()]  # Convert values to string
-    df_values = pd.DataFrame(df_values_list)
-
-    df_missing_list = [{'name': k, 'missing': str(v)} for k, v in missing.items()]  # Convert missing values to string
-    df_missing = pd.DataFrame(df_missing_list)
+    df_values = create_dataframe_from_dict(df_meta.variable_value_labels, ['name', 'values'])
+    df_missing = create_dataframe_from_dict(missing, ['name', 'missing'])
 
     # Merge dataframes on the 'name' column
-    variable_view = df_label
     if not df_values.empty:
         variable_view = variable_view.merge(df_values, on='name', how='outer')
     else:
@@ -134,17 +139,6 @@ def create_variable_view2(df_meta):
     if not df_missing.empty:
         variable_view = variable_view.merge(df_missing, on='name', how='outer')
     else:
-        variable_view['missing'] = pd.NA
-
-    variable_view = variable_view \
-        .merge(df_format, on='name', how='outer') \
-        .merge(df_measure, on='name', how='outer')
-
-    # Ensure 'values' and 'missing' columns are present
-    if 'values' not in variable_view.columns:
-        variable_view['values'] = pd.NA
-
-    if 'missing' not in variable_view.columns:
         variable_view['missing'] = pd.NA
 
     return variable_view[['name', 'format', 'label', 'values', 'missing', 'measure']]
