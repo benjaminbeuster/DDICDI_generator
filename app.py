@@ -296,5 +296,7 @@ def download_xml(n_clicks, xml_data, filename):
     return dict(content=xml_data, filename=download_filename, type='text/xml')
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 8000))  # Azure expects the app to run on port 8000 by default
-    app.run(host='0.0.0.0', port=port)  # Use 'app' instead of 'server'
+    # Get the PORT from environment variables and use 8000 as fallback
+    port = int(os.getenv('PORT', 8000))
+    # Run the server
+    server.run(host='0.0.0.0', port=port)
