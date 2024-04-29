@@ -1,0 +1,15 @@
+# .gitignore
+__pycache__/
+*.py[cod]
+*$py.class
+
+# If you are using PyCharm
+.idea/
+
+# If you are using Jupyter notebooks
+.ipynb_checkpoints
+
+# The directory named venv, or any other name you gave to your virtual environment directory
+venv/
+#backup files
+backup/
