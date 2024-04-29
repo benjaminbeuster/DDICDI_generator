@@ -10,6 +10,6 @@ __pycache__/
 .ipynb_checkpoints
 
 # The directory named venv, or any other name you gave to your virtual environment directory
-venv/
+.venv/
 #backup files
-backup/
+.backup/
