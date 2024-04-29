@@ -1,9 +1,0 @@
-change multiplicity in PrimaryKey-Components
-changes and check all class IDs (harmonize with XML)
-change classification level (CV) in ValueAndConceptDescription
-change physicalDataset, add allowsDuplicates', "false"
-change PhysicalRecordSegment, add allowsDuplicates', "false", add PhysicalRecordSegment_has_DataPointPosition
-change PhysicalSegmentLayout, add allowsDuplicates', "false", remove  'delimiter', add 'isFixedWidth'
-change ValueMapping, add defaultValue
-change DataPoint, describes InstanceVariable, not InstanceValue?
-change instanceValue, add InstanceValue hasValueFrom ValueDomain
