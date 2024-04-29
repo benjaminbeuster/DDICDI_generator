@@ -13,3 +13,6 @@ __pycache__/
 .venv/
 #backup files
 .backup/
+
+#backup files
+.github/
