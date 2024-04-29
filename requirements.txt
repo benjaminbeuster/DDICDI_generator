@@ -1,4 +1,4 @@
-pip=24.0
+pip==24.0
 pandas==1.5.3
 pyreadstat==1.2.2
 dash==2.13.0
