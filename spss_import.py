@@ -2,6 +2,7 @@ from __future__ import annotations
 import typing as t
 from pathlib import Path
 import pandas as pd
+import numpy as np
 import pyreadstat as pyr
 
 # Set pandas options
@@ -61,6 +62,8 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
     for col in df.columns:
         if df[var].dtype != 'string' and df[var].dtype != 'object':
             df[col] = df[col].convert_dtypes()
+    
+    df.replace({np.nan: None, pd.NA: None}, inplace=True)
 
     df.attrs["datafile"] = "file"
     return df, meta
@@ -112,6 +115,8 @@ def create_variable_view(df_meta):
         variable_view = variable_view.merge(df_missing, on='name', how='outer')
     else:
         variable_view['missing'] = pd.NA
+    
+    variable_view.replace({np.nan: None, pd.NA: None}, inplace=True)
 
     return variable_view[['name', 'format', 'label', 'values', 'missing', 'measure']]
 
@@ -140,5 +145,7 @@ def create_variable_view2(df_meta):
         variable_view = variable_view.merge(df_missing, on='name', how='outer')
     else:
         variable_view['missing'] = pd.NA
+
+    variable_view.replace({np.nan: None, pd.NA: None}, inplace=True)
 
     return variable_view[['name', 'format', 'label', 'values', 'missing', 'measure']]
