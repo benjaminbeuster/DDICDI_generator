@@ -1,27 +1,28 @@
 import datetime
 
-# Modified html_text to use markdown
-markdown_text = """
+prefix = "https://ddi-cdi-resources.bitbucket.io/2024-03-12/field-level-documentation/DDICDILibrary/Classes"
+
+markdown_text = r"""
 ## DDI-CDI Subset
 
 This profile utilizes 25 classes from the DDI-CDI model (2024-03-12).
 
 |         |         |
 |------------------|------------------|
-| PhysicalDataStructure | DataStore |
-| PhysicalDataset | LogicalRecord |
-| PhysicalRecordSegment | WideDataSet |
-| PhysicalSegmentLayout | WideDataStructure |
-| ValueMapping | IdentifierComponent |
-| ValueMappingPosition | MeasureComponent |
-| DataPoint | PrimaryKey |
-| DataPointPosition | PrimaryKeyComponent |
-| InstanceValue | InstanceVariable |
-| SubstantiveValueDomain | SentinelValueDomain |
-| ValueAndConceptDescription | Codelist |
-| Code | Category |
-| Notation |  |
-"""
+| [PhysicalDataSetStructure]({0}/FormatDescription/PhysicalDataSetStructure.html) | [DataStore]({0}/FormatDescription/DataStore.html) |
+| [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) |
+| [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) |
+| [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) |
+| [ValueMapping]({0}/FormatDescription/ValueMapping.html) | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) |
+| [ValueMappingPosition]({0}/FormatDescription/ValueMappingPosition.html) | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) |
+| [DataPoint]({0}/DataDescription/DataPoint.html) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) |
+| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) |
+| [InstanceValue]({0}/DataDescription/InstanceValue.html) | [InstanceVariable]({0}/Conceptual/InstanceVariable.html) |
+| [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) |
+| [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) |
+| [Code]({0}/Representations/Code.html) | [Category]({0}/Conceptual/Category.html) |
+| [Notation]({0}/DataDescription/Notation.html) |  |
+""".format(prefix)
 
 from datetime import datetime
 
