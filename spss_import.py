@@ -11,11 +11,13 @@ pd.set_option('display.max_columns', None)
 pd.options.mode.chained_assignment = None
 
 # Define constants
-ROW_LIMIT = 5
-ENCODINGS = ["utf-8", "LATIN1"]
+ROW_LIMIT = 66
+ENCODINGS = ["utf-8", "LATIN1", "cp1252", "iso-8859-1"]
 MISSING_DATE = "1582-10-14"
 REPLACEMENT_DATE = "1678-01-01"
 
+
+# import of spss and stata files
 def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
     kwargs = dict(
         user_missing=missings,
@@ -37,9 +39,12 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
             # Fill NA values based on the data type of each column
             for col in df.columns:
                 if df[col].dtype.kind in 'biufc':
-                    df[col].fillna(0, inplace=True)
+                    df[col].fillna(pd.NA, inplace=True)
+                    # Only convert to Int64 if all values are integers
+                    if all(df[col].dropna().astype(float).map(float.is_integer)):
+                        df[col] = df[col].astype('Int64')
                 else:
-                    df[col].fillna('', inplace=True)
+                    df[col].fillna(np.nan, inplace=True)
             break
         except Exception as e:
             print(f"Failed to read file with encoding {encoding}: {e}")
@@ -57,12 +62,12 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
     for var in df.columns:
         if df[var].dtype == 'string' or df[var].dtype == 'object':
             df[[var]].replace({'': pd.NA}, inplace=True)
-    
+
     # Recode dtype for non-object columns and convert object columns to string type
     for col in df.columns:
-        if df[var].dtype != 'string' and df[var].dtype != 'object':
+        if df[col].dtype != 'string' and df[col].dtype != 'object':
             df[col] = df[col].convert_dtypes()
-    
+
     df.replace({np.nan: None, pd.NA: None}, inplace=True)
 
     df.attrs["datafile"] = "file"
@@ -76,6 +81,7 @@ def create_dataframe_from_dict(d: dict, column_names: list):
         return pd.DataFrame(df_list)
     else:
         return pd.DataFrame(columns=column_names)
+
 
 def create_variable_view_common(df_meta):
     # Extract the attributes from df_meta
@@ -94,6 +100,7 @@ def create_variable_view_common(df_meta):
         .merge(df_measure, on='name', how='outer')
 
     return variable_view
+
 
 def create_variable_view(df_meta):
     if df_meta is None:
@@ -115,10 +122,11 @@ def create_variable_view(df_meta):
         variable_view = variable_view.merge(df_missing, on='name', how='outer')
     else:
         variable_view['missing'] = pd.NA
-    
+
     variable_view.replace({np.nan: None, pd.NA: None}, inplace=True)
 
     return variable_view[['name', 'format', 'label', 'values', 'missing', 'measure']]
+
 
 def create_variable_view2(df_meta):
     if df_meta is None:
