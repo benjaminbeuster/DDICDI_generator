@@ -5,7 +5,7 @@ prefix = "https://ddi-cdi-resources.bitbucket.io/2024-03-12/field-level-document
 markdown_text = r"""
 ## DDI-CDI Subset
 
-This profile utilizes 25 classes from the DDI-CDI model (2024-03-12).
+This profile utilizes 25 classes from the DDI-CDI model (12.03.2024).
 
 |         |         |
 |------------------|------------------|
@@ -26,11 +26,14 @@ This profile utilizes 25 classes from the DDI-CDI model (2024-03-12).
 
 from datetime import datetime
 
-about_text = '''
+# Get current date and format it
+current_date = datetime.now().strftime('%d.%m.%Y')
+
+about_text = f'''
 This is a prototype developed for the DDI-CDI group, intended for model and implementation testing,
 as well as for CDI training activities at Sikt. For contact, please reach out to benjamin.beuster@sikt.no.
 
-Last update: 25.04.2024
+Last update: {current_date}
 '''
 
 app_title = 'DDI-CDI Converter: Wide Table Generation for STATA & SPSS'
