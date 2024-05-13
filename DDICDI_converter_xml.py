@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import sys
+
 sys.path.append("..")
 import os
 import pandas as pd
@@ -46,7 +47,7 @@ def generate_LogicalRecord(df_meta):
 
 
 # WideDataSet
-def generate_WideDataSet(df_meta):       
+def generate_WideDataSet(df_meta):
     element = add_cdi_element(root, 'WideDataSet')
     add_identifier(element, f"#wideDataSet")
     DataSet_isStructuredBy_DataStructure = add_cdi_element(element, 'DataSet_isStructuredBy_DataStructure')
@@ -61,13 +62,15 @@ def generate_WideDataSet(df_meta):
 def generate_WideDataStructure(df_meta):
     element = add_cdi_element(root, 'WideDataStructure')
     add_identifier(element, f"#wideDataStructure")
-    
+
     DataStructure_has_DataStructureComponent = add_cdi_element(element, 'DataStructure_has_DataStructureComponent')
-    add_ddiref(DataStructure_has_DataStructureComponent, f"#identifierComponent-{df_meta.column_names[0]}", agency, "IdentifierComponent")
-    
-    for x, variable in enumerate(df_meta.column_names[1:]): 
+    add_ddiref(DataStructure_has_DataStructureComponent, f"#identifierComponent-{df_meta.column_names[0]}", agency,
+               "IdentifierComponent")
+
+    for x, variable in enumerate(df_meta.column_names[1:]):
         DataStructure_has_DataStructureComponent = add_cdi_element(element, 'DataStructure_has_DataStructureComponent')
-        add_ddiref(DataStructure_has_DataStructureComponent, f"#measureComponent-{variable}", agency, "MeasureComponent")
+        add_ddiref(DataStructure_has_DataStructureComponent, f"#measureComponent-{variable}", agency,
+                   "MeasureComponent")
 
     DataStructure_has_PrimaryKey = add_cdi_element(element, 'DataStructure_has_PrimaryKey')
     add_ddiref(DataStructure_has_PrimaryKey, f"#primaryKey", agency, "PrimaryKey")
@@ -81,8 +84,10 @@ def generate_WideDataStructure(df_meta):
 def generate_IdentifierComponent(df_meta):
     element = add_cdi_element(root, 'IdentifierComponent')
     add_identifier(element, f"#identifierComponent-{df_meta.column_names[0]}")
-    DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(element, 'DataStructureComponent_isDefinedBy_RepresentedVariable')
-    add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{df_meta.column_names[0]}", agency, "InstanceVariable")
+    DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(element,
+                                                                             'DataStructureComponent_isDefinedBy_RepresentedVariable')
+    add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{df_meta.column_names[0]}",
+               agency, "InstanceVariable")
     return root
 
 
@@ -91,11 +96,13 @@ def generate_IdentifierComponent(df_meta):
 
 # MeasureComponent
 def generate_MeasureComponent(df_meta):
-    for x, variable in enumerate(df_meta.column_names[1:]): 
+    for x, variable in enumerate(df_meta.column_names[1:]):
         MeasureComponent = add_cdi_element(root, 'MeasureComponent')
         add_identifier(MeasureComponent, f"#measureComponent-{variable}")
-        DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(MeasureComponent, 'DataStructureComponent_isDefinedBy_RepresentedVariable')
-        add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+        DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(MeasureComponent,
+                                                                                 'DataStructureComponent_isDefinedBy_RepresentedVariable')
+        add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{variable}", agency,
+                   "InstanceVariable")
     return root
 
 
@@ -106,7 +113,8 @@ def generate_MeasureComponent(df_meta):
 def generate_PrimaryKey(df_meta):
     element = add_cdi_element(root, 'PrimaryKey')
     add_identifier(element, f"#primaryKey")
-    PrimaryKey_isComposedOf_PrimaryKeyComponent = add_cdi_element(element, 'PrimaryKey_isComposedOf_PrimaryKeyComponent')
+    PrimaryKey_isComposedOf_PrimaryKeyComponent = add_cdi_element(element,
+                                                                  'PrimaryKey_isComposedOf_PrimaryKeyComponent')
     add_ddiref(PrimaryKey_isComposedOf_PrimaryKeyComponent, f"#primaryKeyComponent", agency, "PrimaryKeyComponent")
     return root
 
@@ -118,8 +126,10 @@ def generate_PrimaryKey(df_meta):
 def generate_PrimaryKeyComponent(df_meta):
     element = add_cdi_element(root, 'PrimaryKeyComponent')
     add_identifier(element, f"#primaryKeyComponent")
-    PrimaryKeyComponent_correspondsTo_DataStructureComponent = add_cdi_element(element, 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')
-    add_ddiref(PrimaryKeyComponent_correspondsTo_DataStructureComponent, f"#identifierComponent-{df_meta.column_names[0]}", agency, "IdentifierComponent")
+    PrimaryKeyComponent_correspondsTo_DataStructureComponent = add_cdi_element(element,
+                                                                               'PrimaryKeyComponent_correspondsTo_DataStructureComponent')
+    add_ddiref(PrimaryKeyComponent_correspondsTo_DataStructureComponent,
+               f"#identifierComponent-{df_meta.column_names[0]}", agency, "IdentifierComponent")
     return root
 
 
@@ -140,13 +150,20 @@ def generate_InstanceVariable(df_meta):
         add_cdi_element(hasIntendedDataType, 'name', f"{df_meta.original_variable_types[variable]}")
 
         # Check if variable has sentinel concepts
-        if variable in df_meta.missing_ranges or (len(df_meta.missing_ranges) == 0 and variable in df_meta.missing_user_values):
-            RepresentedVariable_takesSentinelValuesFrom_SentinelValueDomain = add_cdi_element(element, 'RepresentedVariable_takesSentinelValuesFrom_SentinelValueDomain')
-            add_ddiref(RepresentedVariable_takesSentinelValuesFrom_SentinelValueDomain, f"#sentinelValueDomain-{variable}", agency, "SentinelValueDomain")
-        RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain = add_cdi_element(element, 'RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain')
-        add_ddiref(RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain, f"#substantiveValueDomain-{variable}", agency, 'SubstantiveValueDomain')
-        InstanceVariable_has_PhysicalSegmentLayout = add_cdi_element(element, 'InstanceVariable_has_PhysicalSegmentLayout')
-        add_ddiref(InstanceVariable_has_PhysicalSegmentLayout, f"#physicalSegmentLayout", agency, "PhysicalSegmentLayout")
+        if variable in df_meta.missing_ranges or (
+                len(df_meta.missing_ranges) == 0 and variable in df_meta.missing_user_values):
+            RepresentedVariable_takesSentinelValuesFrom_SentinelValueDomain = add_cdi_element(element,
+                                                                                              'RepresentedVariable_takesSentinelValuesFrom_SentinelValueDomain')
+            add_ddiref(RepresentedVariable_takesSentinelValuesFrom_SentinelValueDomain,
+                       f"#sentinelValueDomain-{variable}", agency, "SentinelValueDomain")
+        RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain = add_cdi_element(element,
+                                                                                                'RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain')
+        add_ddiref(RepresentedVariable_takesSubstantiveValuesFrom_SubstantiveValueDomain,
+                   f"#substantiveValueDomain-{variable}", agency, 'SubstantiveValueDomain')
+        InstanceVariable_has_PhysicalSegmentLayout = add_cdi_element(element,
+                                                                     'InstanceVariable_has_PhysicalSegmentLayout')
+        add_ddiref(InstanceVariable_has_PhysicalSegmentLayout, f"#physicalSegmentLayout", agency,
+                   "PhysicalSegmentLayout")
         InstanceVariable_has_ValueMapping = add_cdi_element(element, 'InstanceVariable_has_ValueMapping')
         add_ddiref(InstanceVariable_has_ValueMapping, f"#valueMapping-{variable}", agency, "ValueMapping")
     return root
@@ -161,10 +178,14 @@ def generate_SubstantiveValueDomain(df_meta):
         element = add_cdi_element(root, 'SubstantiveValueDomain')
         add_identifier(element, f"#substantiveValueDomain-{var}")
         if var in df_meta.variable_value_labels:
-            SubstantiveValueDomain_takesValuesFrom_EnumerationDomain = add_cdi_element(element, 'SubstantiveValueDomain_takesValuesFrom_EnumerationDomain')
-            add_ddiref(SubstantiveValueDomain_takesValuesFrom_EnumerationDomain, f"#substantiveCodelist-{var}", agency, 'CodeList')
-        SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription = add_cdi_element(element, 'SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription')
-        add_ddiref(SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription, f"#substantiveValueAndConceptDescription-{var}", agency, "ValueAndConceptDescription")
+            SubstantiveValueDomain_takesValuesFrom_EnumerationDomain = add_cdi_element(element,
+                                                                                       'SubstantiveValueDomain_takesValuesFrom_EnumerationDomain')
+            add_ddiref(SubstantiveValueDomain_takesValuesFrom_EnumerationDomain, f"#substantiveCodelist-{var}", agency,
+                       'CodeList')
+        SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription = add_cdi_element(element,
+                                                                                          'SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription')
+        add_ddiref(SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription,
+                   f"#substantiveValueAndConceptDescription-{var}", agency, "ValueAndConceptDescription")
     return root
 
 
@@ -179,12 +200,16 @@ def generate_SentinelValueDomain(df_meta):
     for variable in relevant_variables:
         element = add_cdi_element(root, 'SentinelValueDomain')
         add_identifier(element, f"#sentinelValueDomain-{variable}")
-        
+
         if variable in df_meta.variable_value_labels:
-            SentinelValueDomain_takesValuesFrom_EnumerationDomain = add_cdi_element(element, 'SentinelValueDomain_takesValuesFrom_EnumerationDomain')
-            add_ddiref(SentinelValueDomain_takesValuesFrom_EnumerationDomain, f"#sentinelCodelist-{variable}", agency, 'CodeList')
-        SentinelValueDomain_isDescribedBy_ValueAndConceptDescription = add_cdi_element(element, 'SentinelValueDomain_isDescribedBy_ValueAndConceptDescription')
-        add_ddiref(SentinelValueDomain_isDescribedBy_ValueAndConceptDescription, f"#sentinelValueAndConceptDescription-{variable}", agency, "ValueAndConceptDescription")
+            SentinelValueDomain_takesValuesFrom_EnumerationDomain = add_cdi_element(element,
+                                                                                    'SentinelValueDomain_takesValuesFrom_EnumerationDomain')
+            add_ddiref(SentinelValueDomain_takesValuesFrom_EnumerationDomain, f"#sentinelCodelist-{variable}", agency,
+                       'CodeList')
+        SentinelValueDomain_isDescribedBy_ValueAndConceptDescription = add_cdi_element(element,
+                                                                                       'SentinelValueDomain_isDescribedBy_ValueAndConceptDescription')
+        add_ddiref(SentinelValueDomain_isDescribedBy_ValueAndConceptDescription,
+                   f"#sentinelValueAndConceptDescription-{variable}", agency, "ValueAndConceptDescription")
     return root
 
 
@@ -193,8 +218,6 @@ def generate_SentinelValueDomain(df_meta):
 
 # ValueAndConceptDescription
 def generate_ValueAndConceptDescription(df_meta):
-
-    
     # Determine the relevant variables based on the presence of missing values
     relevant_variables = {}
     if df_meta.missing_ranges:
@@ -221,7 +244,7 @@ def generate_ValueAndConceptDescription(df_meta):
                 max_val = max(all_hi_values)
             else:
                 min_val, max_val = min(values), max(values)
-        
+
             element = add_cdi_element(root, 'ValueAndConceptDescription')
             description = add_cdi_element(element, 'description')
             languageSpecificString = add_cdi_element(description, 'languageSpecificString')
@@ -254,7 +277,7 @@ def generate_CodeList(df_meta):
 
         name = add_cdi_element(element, 'name')
         add_cdi_element(name, 'name', f"#substantiveCodelist-{variable_name}")
-        
+
         add_cdi_element(element, 'allowsDuplicates', "false")
 
         excluded_values = set()
@@ -288,7 +311,7 @@ def generate_CodeList(df_meta):
 
         for value in values_dict.keys():
             excluded_values_str = {str(i) for i in excluded_values}
-            if (not value in excluded_values) and (not str(value) in excluded_values_str) :
+            if (not value in excluded_values) and (not str(value) in excluded_values_str):
                 CodeList_has_Code = add_cdi_element(element, 'CodeList_has_Code')
                 add_ddiref(CodeList_has_Code, f"#code-{value}-{variable_name}", agency, "Code")
     return root
@@ -317,9 +340,9 @@ def generate_SentinelCodelist(df_meta):
 
         name = add_cdi_element(element, 'name')
         add_cdi_element(name, 'name', f"#sentinelCodelist-{variable_name}")
-        
+
         add_cdi_element(element, 'allowsDuplicates', "false")
-            
+
         if variable_name in relevant_variables:
             if variable_name in df_meta.missing_ranges:
                 # Use a for loop to generate the hasTopConcept list
@@ -359,7 +382,7 @@ def generate_Code(df_meta):
 def generate_Category_Notation(df_meta):
     notations = list(set(key for values_dict in df_meta.variable_value_labels.values() for key in values_dict.keys()))
     cats = list(set(value for values_dict in df_meta.variable_value_labels.values() for value in values_dict.values()))
-    
+
     for cat in cats:
         element = add_cdi_element(root, 'Category')
         displayLabel = add_cdi_element(element, 'displayLabel')
@@ -382,11 +405,14 @@ def generate_Category_Notation(df_meta):
 def generate_PhysicalDataSetStructure(df_meta):
     element = add_cdi_element(root, 'PhysicalDataSetStructure')
     add_identifier(element, f"#physicalDataSetStructure")
-    PhysicalDataSetStructure_correspondsTo_DataStructure = add_cdi_element(element, 'PhysicalDataSetStructure_correspondsTo_DataStructure')
+    PhysicalDataSetStructure_correspondsTo_DataStructure = add_cdi_element(element,
+                                                                           'PhysicalDataSetStructure_correspondsTo_DataStructure')
     add_ddiref(PhysicalDataSetStructure_correspondsTo_DataStructure, f"#wideDataStructure", agency, "WideDataStructure")
-    PhysicalDataSetStructure_structures_PhysicalDataSet = add_cdi_element(element, 'PhysicalDataSetStructure_structures_PhysicalDataSet')
+    PhysicalDataSetStructure_structures_PhysicalDataSet = add_cdi_element(element,
+                                                                          'PhysicalDataSetStructure_structures_PhysicalDataSet')
     add_ddiref(PhysicalDataSetStructure_structures_PhysicalDataSet, f"#physicalDataSet", agency, "PhysicalDataSet")
     return root
+
 
 # PhysicalDataset
 def generate_PhysicalDataset(df_meta, spssfile):
@@ -411,19 +437,22 @@ def generate_PhysicalRecordSegment(df, df_meta):
     element = add_cdi_element(root, 'PhysicalRecordSegment')
     add_cdi_element(element, 'allowsDuplicates', "false")
     add_identifier(element, f"#physicalRecordSegment")
-   
-    PhysicalRecordSegment_has_PhysicalSegmentLayout = add_cdi_element(element, f"PhysicalRecordSegment_has_PhysicalSegmentLayout")
-    add_ddiref(PhysicalRecordSegment_has_PhysicalSegmentLayout, f"#physicalSegmentLayout", agency, "PhysicalSegmentLayout")
+
+    PhysicalRecordSegment_has_PhysicalSegmentLayout = add_cdi_element(element,
+                                                                      f"PhysicalRecordSegment_has_PhysicalSegmentLayout")
+    add_ddiref(PhysicalRecordSegment_has_PhysicalSegmentLayout, f"#physicalSegmentLayout", agency,
+               "PhysicalSegmentLayout")
     PhysicalRecordSegment_mapsTo_LogicalRecord = add_cdi_element(element, f"PhysicalRecordSegment_mapsTo_LogicalRecord")
     add_ddiref(PhysicalRecordSegment_mapsTo_LogicalRecord, f"#logicalRecord", agency, "LogicalRecord")
 
     # Iterate through column names and associated index
     for idx, variable in enumerate(df_meta.column_names):
 
-
         for i, x in enumerate(df[variable]):
-            PhysicalRecordSegment_has_DataPointPosition = add_cdi_element(element, f"PhysicalRecordSegment_has_DataPointPosition")
-            add_ddiref(PhysicalRecordSegment_has_DataPointPosition, f"#dataPointPosition-{i}-{variable}", agency, "DataPointPosition")
+            PhysicalRecordSegment_has_DataPointPosition = add_cdi_element(element,
+                                                                          f"PhysicalRecordSegment_has_DataPointPosition")
+            add_ddiref(PhysicalRecordSegment_has_DataPointPosition, f"#dataPointPosition-{i}-{variable}", agency,
+                       "DataPointPosition")
     return root
 
 
@@ -437,7 +466,8 @@ def generate_PhysicalSegmentLayout(df_meta):
     add_identifier(element, f"#physicalSegmentLayout")
     add_cdi_element(element, 'isDelimited', "false")
     add_cdi_element(element, 'isFixedWidth', "false")
-    PhysicalSegmentLayout_formats_LogicalRecord = add_cdi_element(element, 'PhysicalSegmentLayout_formats_LogicalRecord')
+    PhysicalSegmentLayout_formats_LogicalRecord = add_cdi_element(element,
+                                                                  'PhysicalSegmentLayout_formats_LogicalRecord')
     add_ddiref(PhysicalSegmentLayout_formats_LogicalRecord, f"#logicalRecord", agency, "LogicalRecord")
 
     for x, variable in enumerate(df_meta.column_names):
@@ -445,8 +475,10 @@ def generate_PhysicalSegmentLayout(df_meta):
         add_ddiref(PhysicalSegmentLayout_has_ValueMapping, f"#valueMapping-{variable}", agency, "ValueMapping")
 
     for x, variable in enumerate(df_meta.column_names):
-        PhysicalSegmentLayout_has_ValueMappingPosition = add_cdi_element(element, f"PhysicalSegmentLayout_has_ValueMappingPosition")
-        add_ddiref(PhysicalSegmentLayout_has_ValueMappingPosition, f"#valueMappingPosition-{variable}", agency, "ValueMappingPosition")
+        PhysicalSegmentLayout_has_ValueMappingPosition = add_cdi_element(element,
+                                                                         f"PhysicalSegmentLayout_has_ValueMappingPosition")
+        add_ddiref(PhysicalSegmentLayout_has_ValueMappingPosition, f"#valueMappingPosition-{variable}", agency,
+                   "ValueMappingPosition")
     return root
 
 
@@ -455,7 +487,6 @@ def generate_PhysicalSegmentLayout(df_meta):
 
 # ValueMapping
 def generate_ValueMapping(df, df_meta):
-    
     # Iterate through column names and associated index
     for idx, variable in enumerate(df_meta.column_names):
         element = add_cdi_element(root, 'ValueMapping')
@@ -473,13 +504,13 @@ def generate_ValueMapping(df, df_meta):
 
 # ValueMappingPosition
 def generate_ValueMappingPosition(df_meta):
-
     # Iterate through column names and associated index
     for idx, variable in enumerate(df_meta.column_names):
         element = add_cdi_element(root, 'ValueMappingPosition')
         add_identifier(element, f"#valueMappingPosition-{variable}")
         add_cdi_element(element, 'value', idx)
-        ValueMappingPosition_indexes_ValueMapping = add_cdi_element(element, 'ValueMappingPosition_indexes_ValueMapping')
+        ValueMappingPosition_indexes_ValueMapping = add_cdi_element(element,
+                                                                    'ValueMappingPosition_indexes_ValueMapping')
         add_ddiref(ValueMappingPosition_indexes_ValueMapping, f"#valueMapping-{variable}", agency, "ValueMapping")
     return root
 
@@ -489,14 +520,15 @@ def generate_ValueMappingPosition(df_meta):
 
 # DataPoint
 def generate_DataPoint(df, df_meta):
-
     # Iterate through column names and associated index
     for variable in (df_meta.column_names):
         for idx, value in enumerate(df[variable]):
             element = add_cdi_element(root, 'DataPoint')
             add_identifier(element, f"#dataPoint-{idx}-{variable}")
-            DataPoint_isDescribedBy_InstanceVariable = add_cdi_element(element, 'DataPoint_isDescribedBy_InstanceVariable')
-            add_ddiref(DataPoint_isDescribedBy_InstanceVariable, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+            DataPoint_isDescribedBy_InstanceVariable = add_cdi_element(element,
+                                                                       'DataPoint_isDescribedBy_InstanceVariable')
+            add_ddiref(DataPoint_isDescribedBy_InstanceVariable, f"#instanceVariable-{variable}", agency,
+                       "InstanceVariable")
     return root
 
 
@@ -505,7 +537,6 @@ def generate_DataPoint(df, df_meta):
 
 # DataPointPosition
 def generate_DataPointPosition(df, df_meta):
-
     # Iterate through column names and associated index
     for variable in (df_meta.column_names):
         for idx, value in enumerate(df[variable]):
@@ -519,8 +550,7 @@ def generate_DataPointPosition(df, df_meta):
 
 # In[ ]:
 
-def generate_InstanceValue(df, df_meta):    
-
+def generate_InstanceValue(df, df_meta):
     # Iterate through column names and associated index
     for variable in (df_meta.column_names):
         for idx, value in enumerate(df[variable]):
@@ -534,21 +564,29 @@ def generate_InstanceValue(df, df_meta):
                     if value is not None and isinstance(range_dict['lo'], float):
                         # convert value to float for comparison
                         value = float(value)
-                    if value is not None and range_dict['lo'] <= value <= range_dict['hi'] and isinstance(value, (str, int, float)):
-                        InstanceValue_hasValueFrom_ValueDomain = add_cdi_element(element, 'InstanceValue_hasValueFrom_ValueDomain')
-                        add_ddiref(InstanceValue_hasValueFrom_ValueDomain, f"#sentinelValueDomain-{variable}", agency, "SentinelValueDomain")
+                    if value is not None and range_dict['lo'] <= value <= range_dict['hi'] and isinstance(value, (
+                    str, int, float)):
+                        InstanceValue_hasValueFrom_ValueDomain = add_cdi_element(element,
+                                                                                 'InstanceValue_hasValueFrom_ValueDomain')
+                        add_ddiref(InstanceValue_hasValueFrom_ValueDomain, f"#sentinelValueDomain-{variable}", agency,
+                                   "SentinelValueDomain")
                         break
                 else:
-                    InstanceValue_hasValueFrom_ValueDomain = add_cdi_element(element, 'InstanceValue_hasValueFrom_ValueDomain')
-                    add_ddiref(InstanceValue_hasValueFrom_ValueDomain, f"#substantiveValueDomain-{variable}", agency, "SubstantiveValueDomain")
+                    InstanceValue_hasValueFrom_ValueDomain = add_cdi_element(element,
+                                                                             'InstanceValue_hasValueFrom_ValueDomain')
+                    add_ddiref(InstanceValue_hasValueFrom_ValueDomain, f"#substantiveValueDomain-{variable}", agency,
+                               "SubstantiveValueDomain")
 
             else:
-                InstanceValue_hasValueFrom_ValueDomain = add_cdi_element(element, 'InstanceValue_hasValueFrom_ValueDomain')
-                add_ddiref(InstanceValue_hasValueFrom_ValueDomain, f"#substantiveValueDomain-{variable}", agency, "SubstantiveValueDomain")
+                InstanceValue_hasValueFrom_ValueDomain = add_cdi_element(element,
+                                                                         'InstanceValue_hasValueFrom_ValueDomain')
+                add_ddiref(InstanceValue_hasValueFrom_ValueDomain, f"#substantiveValueDomain-{variable}", agency,
+                           "SubstantiveValueDomain")
 
             InstanceValue_isStoredIn_DataPoint = add_cdi_element(element, 'InstanceValue_isStoredIn_DataPoint')
             add_ddiref(InstanceValue_isStoredIn_DataPoint, f"#dataPoint-{idx}-{variable}", agency, "DataPoint")
     return root
+
 
 # In[ ]:
 
@@ -562,7 +600,7 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
     root.set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation',
              'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2024-03-12/encoding/xml-schema/ddi-cdi.xsd')
     global agency
-    agency='int.esseric'
+    agency = 'int.esseric'
 
     generate_PhysicalDataSetStructure(df_meta)
     generate_PhysicalDataset(df_meta, spssfile)
@@ -590,7 +628,6 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
     generate_Code(df_meta)
     generate_Category_Notation(df_meta)
 
-
     # Add XML declaration and write XML file
     xml_string = etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)
 
@@ -609,6 +646,7 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
 
     return xml_string_with_comment
 
+
 # # Repeat function for using multiple PrimaryKeyComponents
 
 # In[ ]:
@@ -618,7 +656,7 @@ def generate_complete_xml(df, df_meta, spssfile='name'):
 def generate_WideDataStructure2(df_meta, vars=None):
     # Add a CDI element to the root
     element = add_cdi_element(root, 'WideDataStructure')
-    
+
     # Add an identifier to the element
     add_identifier(element, "#wideDataStructure")
 
@@ -627,36 +665,36 @@ def generate_WideDataStructure2(df_meta, vars=None):
         for x, variable in enumerate(df_meta.column_names):
             # Add a CDI element to the element
             DataStructureComponent = add_cdi_element(element, 'DataStructure_has_DataStructureComponent')
-            
+
             # Add a DDI reference to the DataStructureComponent
             add_ddiref(DataStructureComponent, f"#measureComponent-{variable}", agency, "MeasureComponent")
-    
+
     # If vars is not None
-    else: 
+    else:
         # Iterate through all variables in vars
         for var in vars:
             # Add a CDI element to the element
             DataStructureComponent = add_cdi_element(element, 'DataStructure_has_DataStructureComponent')
-            
+
             # Add a DDI reference to the DataStructureComponent
             add_ddiref(DataStructureComponent, f"#identifierComponent-{var}", agency, "IdentifierComponent")
-        
+
         # Iterate through all column names in df_meta
         for x, variable in enumerate(df_meta.column_names):
             # If the variable is not in vars
             if variable not in vars:
                 # Add a CDI element to the element
                 DataStructureComponent = add_cdi_element(element, 'DataStructure_has_DataStructureComponent')
-                
+
                 # Add a DDI reference to the DataStructureComponent
                 add_ddiref(DataStructureComponent, f"#measureComponent-{variable}", agency, "MeasureComponent")
 
     # Add a CDI element to the element
     DataStructure_has_PrimaryKey = add_cdi_element(element, 'DataStructure_has_PrimaryKey')
-    
+
     # Add a DDI reference to the DataStructure_has_PrimaryKey
     add_ddiref(DataStructure_has_PrimaryKey, f"#primaryKey", agency, "PrimaryKey")
-    
+
     return root
 
 
@@ -669,8 +707,10 @@ def generate_IdentifierComponent2(df_meta, vars=None):
         for var in vars:
             element = add_cdi_element(root, 'IdentifierComponent')
             add_identifier(element, f"#identifierComponent-{var}")
-            DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(element, 'DataStructureComponent_isDefinedBy_RepresentedVariable')
-            add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{var}", agency, "InstanceVariable")
+            DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(element,
+                                                                                     'DataStructureComponent_isDefinedBy_RepresentedVariable')
+            add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{var}", agency,
+                       "InstanceVariable")
     return root
 
 
@@ -680,18 +720,22 @@ def generate_IdentifierComponent2(df_meta, vars=None):
 # MeasureComponent2
 def generate_MeasureComponent2(df_meta, vars=None):
     if vars is None:
-        for variable in df_meta.column_names: 
+        for variable in df_meta.column_names:
             MeasureComponent = add_cdi_element(root, 'MeasureComponent')
             add_identifier(MeasureComponent, f"#measureComponent-{variable}")
-            DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(MeasureComponent, 'DataStructureComponent_isDefinedBy_RepresentedVariable')
-            add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+            DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(MeasureComponent,
+                                                                                     'DataStructureComponent_isDefinedBy_RepresentedVariable')
+            add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{variable}", agency,
+                       "InstanceVariable")
     else:
         for variable in (df_meta.column_names):
             if variable not in vars:
                 MeasureComponent = add_cdi_element(root, 'MeasureComponent')
                 add_identifier(MeasureComponent, f"#measureComponent-{variable}")
-                DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(MeasureComponent, 'DataStructureComponent_isDefinedBy_RepresentedVariable')
-                add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+                DataStructureComponent_isDefinedBy_RepresentedVariable = add_cdi_element(MeasureComponent,
+                                                                                         'DataStructureComponent_isDefinedBy_RepresentedVariable')
+                add_ddiref(DataStructureComponent_isDefinedBy_RepresentedVariable, f"#instanceVariable-{variable}",
+                           agency, "InstanceVariable")
     return root
 
 
@@ -704,8 +748,10 @@ def generate_PrimaryKey2(df_meta, vars=None):
     add_identifier(element, f"#primaryKey")
     if vars is not None:
         for var in vars:
-            PrimaryKey_isComposedOf_PrimaryKeyComponent = add_cdi_element(element, 'PrimaryKey_isComposedOf_PrimaryKeyComponent')
-            add_ddiref(PrimaryKey_isComposedOf_PrimaryKeyComponent, f"#primaryKeyComponent-{var}", agency, f"PrimaryKeyComponent")
+            PrimaryKey_isComposedOf_PrimaryKeyComponent = add_cdi_element(element,
+                                                                          'PrimaryKey_isComposedOf_PrimaryKeyComponent')
+            add_ddiref(PrimaryKey_isComposedOf_PrimaryKeyComponent, f"#primaryKeyComponent-{var}", agency,
+                       f"PrimaryKeyComponent")
     return root
 
 
@@ -718,8 +764,10 @@ def generate_PrimaryKeyComponent2(df_meta, vars=None):
         for var in vars:
             element = add_cdi_element(root, 'PrimaryKeyComponent')
             add_identifier(element, f"#primaryKeyComponent-{var}")
-            PrimaryKeyComponent_correspondsTo_DataStructureComponent = add_cdi_element(element, 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')
-            add_ddiref(PrimaryKeyComponent_correspondsTo_DataStructureComponent, f"#identifierComponent-{var}", agency, "IdentifierComponent")
+            PrimaryKeyComponent_correspondsTo_DataStructureComponent = add_cdi_element(element,
+                                                                                       'PrimaryKeyComponent_correspondsTo_DataStructureComponent')
+            add_ddiref(PrimaryKeyComponent_correspondsTo_DataStructureComponent, f"#identifierComponent-{var}", agency,
+                       "IdentifierComponent")
     return root
 
 
@@ -735,7 +783,7 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
     root.set('{http://www.w3.org/2001/XMLSchema-instance}schemaLocation',
              'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ https://ddi-cdi-resources.bitbucket.io/2024-03-12/encoding/xml-schema/ddi-cdi.xsd')
     global agency
-    agency='int.esseric'
+    agency = 'int.esseric'
 
     generate_PhysicalDataSetStructure(df_meta)
     generate_PhysicalDataset(df_meta, spssfile)
@@ -772,7 +820,6 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
 
     # Create the comment string and encode it to bytes
     comment = f'<!-- CDI version 1, generated: {current_time} -->'.encode('utf-8')
-
 
     # Replace the XML declaration with the declaration followed by the comment
     xml_string_with_comment = xml_string.replace(b'?>', b'?>\n' + comment, 1)
