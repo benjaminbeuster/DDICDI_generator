@@ -519,7 +519,6 @@ def generate_DataPointPosition(df, df_meta):
 
 # In[ ]:
 
-
 def generate_InstanceValue(df, df_meta):    
 
     # Iterate through column names and associated index
@@ -532,10 +531,10 @@ def generate_InstanceValue(df, df_meta):
 
             if variable in df_meta.missing_ranges:
                 for range_dict in df_meta.missing_ranges[variable]:
-                    if isinstance(range_dict['lo'], float):
+                    if value is not None and isinstance(range_dict['lo'], float):
                         # convert value to float for comparison
                         value = float(value)
-                    if range_dict['lo'] <= value <= range_dict['hi'] and isinstance(value, (str, int, float)):
+                    if value is not None and range_dict['lo'] <= value <= range_dict['hi'] and isinstance(value, (str, int, float)):
                         InstanceValue_hasValueFrom_ValueDomain = add_cdi_element(element, 'InstanceValue_hasValueFrom_ValueDomain')
                         add_ddiref(InstanceValue_hasValueFrom_ValueDomain, f"#sentinelValueDomain-{variable}", agency, "SentinelValueDomain")
                         break
@@ -550,7 +549,6 @@ def generate_InstanceValue(df, df_meta):
             InstanceValue_isStoredIn_DataPoint = add_cdi_element(element, 'InstanceValue_isStoredIn_DataPoint')
             add_ddiref(InstanceValue_isStoredIn_DataPoint, f"#dataPoint-{idx}-{variable}", agency, "DataPoint")
     return root
-
 
 # In[ ]:
 
