@@ -11,11 +11,8 @@ pd.set_option('display.max_columns', None)
 pd.options.mode.chained_assignment = None
 
 # Define constants
-<<<<<<< HEAD
-ROW_LIMIT = 66
-=======
 ROW_LIMIT = 3
->>>>>>> c81e3f5b6128176fdfcef807f68a1d0b5b1d5f22
+
 ENCODINGS = ["utf-8", "LATIN1", "cp1252", "iso-8859-1"]
 MISSING_DATE = "1582-10-14"
 REPLACEMENT_DATE = "1678-01-01"
