@@ -21,16 +21,6 @@ server = Flask(__name__)
 # Define the Dash app and associate it with the Flask server
 app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.SUPERHERO])
 
-# Now you can use app.get_asset_url because 'app' refers to the Dash app
-sikt_logo = html.Img(
-    src=app.get_asset_url('sikt.jpg'),
-    style={
-        'height': '40px',
-        'maxWidth': '100%',
-        'objectFit': 'contain',
-        'marginRight': '10px'
-    }
-)
 # add title
 app.title = app_title
 
@@ -38,10 +28,68 @@ brand_section = html.Div([
     dbc.NavLink(app_title, href="#", style={'verticalAlign': 'middle'}, className='ml-0')  # Add className='ml-0' and remove marginRight
 ])
 
+logo_section = html.Div(
+    children=[
+        html.Img(
+            src=app.get_asset_url('sikt.jpg'),
+            style={
+                'height': '60px',  # Change the height to 60px to match the other logo
+                'maxWidth': '100%',
+                'objectFit': 'contain',
+                'marginRight': '10px'
+            }
+        ),
+        html.Img(
+            src=app.get_asset_url('petals_logos.2.0-01.webp'),
+            style={
+                'height': '60px',
+                'width': 'auto',
+                'marginRight': '10px',
+                'opacity': '0.8'  # Adjust the opacity value to make the image more or less transparent
+            }
+        )
+    ],
+    style={
+        'display': 'flex',
+        'alignItems': 'center',  # This will vertically align the images
+        'justifyContent': 'center'  # This will horizontally align the images
+    }
+)
+
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink(app_description, href="#")),
-        sikt_logo  # This places the logo right after the app_description
+        html.Div(
+            children=[
+                dbc.Col([
+                    html.Img(
+                        src=app.get_asset_url('petals_logos.2.0-01.webp'),
+                        style={
+                            'height': '60px',
+                            'width': 'auto',
+                            'marginRight': '10px',
+                            'opacity': '0.8'  # Adjust the opacity value to make the image more or less transparent
+                        }
+                    )
+                ]),
+                dbc.Col([
+                    html.Img(
+                        src=app.get_asset_url('sikt.jpg'),
+                        style={
+                            'height': '60px',  # Change the height to 60px to match the other logo
+                            'maxWidth': '100%',
+                            'objectFit': 'contain',
+                            'marginRight': '10px'
+                        }
+                    )
+                ])
+            ],
+            style={
+                'display': 'flex',
+                'alignItems': 'center',  # This will vertically align the images
+                'justifyContent': 'center'  # This will horizontally align the images
+            }
+        )
     ],
     brand=brand_section,
     brand_href="#",
@@ -51,11 +99,10 @@ navbar = dbc.NavbarSimple(
 
 about_section = dbc.Card(
     dbc.CardBody(
-        html.P(about_text, className="card-text")
+        dcc.Markdown(about_text, className="card-text")
     ),
     className="mt-4",  # Adding some margin at the top for spacing
 )
-
 
 
 app.layout = dbc.Container([
