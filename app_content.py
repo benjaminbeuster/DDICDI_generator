@@ -36,7 +36,7 @@ as well as for CDI training activities at Sikt. For contact, please reach out to
 Last update: {current_date}
 '''
 
-app_title = 'DDI-CDI Converter: Wide Table Generation for STATA & SPSS'
+app_title = 'DDI-CDI Converter (Prototype): Wide Table Generation for STATA & SPSS'
 app_description = ''
 
 colors = {'background': '#111111', 'text': '#7FDBFF'}
