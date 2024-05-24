@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import sys
+import xml.etree.ElementTree as ET
 
 sys.path.append("..")
 import os
@@ -701,7 +702,7 @@ def generate_WideDataStructure2(df_meta, vars=None):
 # In[ ]:
 
 
-# IdentifierComponent
+# IdentifierComponent2
 def generate_IdentifierComponent2(df_meta, vars=None):
     if vars is not None:
         for var in vars:
@@ -785,31 +786,31 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
     global agency
     agency = 'int.esseric'
 
-    generate_PhysicalDataSetStructure(df_meta)
-    generate_PhysicalDataset(df_meta, spssfile)
-    generate_PhysicalRecordSegment(df, df_meta)
-    generate_PhysicalSegmentLayout(df_meta)
-    generate_ValueMapping(df, df_meta)
-    generate_ValueMappingPosition(df_meta)
-    generate_DataPoint(df, df_meta)
-    generate_DataPointPosition(df, df_meta)
-    generate_InstanceValue(df, df_meta)
-    generate_DataStore(df_meta)
-    generate_LogicalRecord(df_meta)
-    generate_WideDataSet(df_meta)
+    #generate_PhysicalDataSetStructure(df_meta)
+    #generate_PhysicalDataset(df_meta, spssfile)
+    #generate_PhysicalRecordSegment(df, df_meta)
+    #generate_PhysicalSegmentLayout(df_meta)
+    #generate_ValueMapping(df, df_meta)
+    #generate_ValueMappingPosition(df_meta)
+    #generate_DataPoint(df, df_meta)
+    #generate_DataPointPosition(df, df_meta)
+    #generate_InstanceValue(df, df_meta)
+    #generate_DataStore(df_meta)
+    #generate_LogicalRecord(df_meta)
+    #generate_WideDataSet(df_meta)
     generate_WideDataStructure2(df_meta, vars)
     generate_IdentifierComponent2(df_meta, vars)
     generate_MeasureComponent2(df_meta, vars)
     generate_PrimaryKey2(df_meta, vars)
     generate_PrimaryKeyComponent2(df_meta, vars)
-    generate_InstanceVariable(df_meta)
-    generate_SubstantiveValueDomain(df_meta)
-    generate_SentinelValueDomain(df_meta)
-    generate_ValueAndConceptDescription(df_meta)
-    generate_CodeList(df_meta)
-    generate_SentinelCodelist(df_meta)
-    generate_Code(df_meta)
-    generate_Category_Notation(df_meta)
+    #generate_InstanceVariable(df_meta)
+    #generate_SubstantiveValueDomain(df_meta)
+    #generate_SentinelValueDomain(df_meta)
+    #generate_ValueAndConceptDescription(df_meta)
+    #generate_CodeList(df_meta)
+    #generate_SentinelCodelist(df_meta)
+    #generate_Code(df_meta)
+    #generate_Category_Notation(df_meta)
 
     # Add XML declaration and write XML file
     xml_string = etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)
@@ -829,5 +830,27 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
 
     return xml_string_with_comment
 
+# Function to update XML
+def update_xml(original_xml, new_xml):
+    # Parse the XMLs into ElementTree objects
+    original_tree = ET.ElementTree(ET.fromstring(original_xml))
+    new_tree = ET.ElementTree(ET.fromstring(new_xml))
 
+    # Get the root elements
+    original_root = original_tree.getroot()
+    new_root = new_tree.getroot()
 
+    # Get the tags of the elements directly under the new root
+    new_tags = {child.tag for child in new_root}
+
+    # Remove all children of the original root that have the same tag as any of the new elements
+    original_root[:] = [child for child in original_root if child.tag not in new_tags]
+
+    # Add all children from the new root to the original root
+    for child in new_root:
+        original_root.append(child)
+
+    # Convert the updated original tree back into a string
+    updated_xml = ET.tostring(original_root, encoding='utf-8').decode()
+
+    return updated_xml

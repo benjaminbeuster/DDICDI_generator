@@ -10,7 +10,7 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import pyreadstat
 import pandas as pd
-from DDICDI_converter_xml import generate_complete_xml, generate_complete_xml2
+from DDICDI_converter_xml import generate_complete_xml, generate_complete_xml2, update_xml
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 
@@ -241,6 +241,7 @@ def update_instruction_text_style(data):
         return {'display': 'none'}
 
 
+
 @app.callback(
     [Output('table1', 'data'),
      Output('table1', 'columns'),
@@ -259,15 +260,12 @@ def combined_callback(contents, selected_rows, filename, table2_data):
     # Initialization
     df_meta = None
 
-    # If contents is None, reset the tables and XML output
     if not contents:
         return [], [], [], [], [], [], "", {'display': 'none'}
 
-    # ... [The rest of your code remains unchanged]
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
 
-    # Use the original file's extension for the temporary file
     file_extension = os.path.splitext(filename)[1]
     tmp_fd, tmp_filename = tempfile.mkstemp(suffix=file_extension)
 
@@ -276,7 +274,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 
     try:
         if '.dta' in tmp_filename:
-            df, df_meta = read_sav(tmp_filename)  # Assuming read_sav can also handle .dta files
+            df, df_meta = read_sav(tmp_filename)
             df2 = create_variable_view2(df_meta)
         elif '.sav' in tmp_filename:
             df, df_meta = read_sav(tmp_filename)
@@ -289,28 +287,39 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        # Generate xml based on selected rows
+        xml_data = generate_complete_xml(df, df_meta, spssfile=filename)
+        xml_data = xml_data.decode('utf-8')
+
         if selected_rows and table2_data and df_meta:
             vars = []
             for row_index in selected_rows:
                 selected_row_data = table2_data[row_index]
                 vars.append(selected_row_data["name"])
-            xml_data = generate_complete_xml2(df, df_meta, vars, spssfile=filename)
-            xml_data = xml_data.decode('utf-8')  # Decode the bytes to a string
-        else:
-            xml_data = generate_complete_xml(df, df_meta, spssfile=filename)
-            xml_data = xml_data.decode('utf-8')  # Decode the bytes to a string
+            new_xml_data = generate_complete_xml2(df, df_meta, vars, spssfile=filename)
+            new_xml_data = new_xml_data.decode('utf-8')
+            xml_data = update_xml(xml_data, new_xml_data)
 
-        return (df.to_dict('records'), columns1, conditional_styles1, df2.to_dict('records'),
-                columns2, conditional_styles2, xml_data, {'display': 'block'})
+        return (df.to_dict('records'), columns1, conditional_styles1,
+                df2.to_dict('records'), columns2, conditional_styles2,
+                xml_data, {'display': 'block'})
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], f"An error occurred while processing the file.", {'display': 'none'}
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}
 
     finally:
         os.remove(tmp_filename)
 
+# reset selected rows in datatable
+@app.callback(
+    Output('table2', 'selected_rows'),
+    [Input('upload-data', 'contents')]
+)
+def reset_selected_rows(contents):
+    if contents is not None:
+        return [0]
+    else:
+        raise dash.exceptions.PreventUpdate
 
 
 @app.callback(
