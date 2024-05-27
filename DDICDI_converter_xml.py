@@ -15,6 +15,12 @@ from spss_import import read_sav
 from lxml import etree
 from xml_functions import remove_empty_elements, add_cdi_element, add_identifier, add_ddiref
 
+# Define the namespaces
+nsmap = {
+    'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/',
+    'r': 'ddi:reusable:3_3'  # Replace with the actual URI for the 'r' namespace
+}
+
 
 # In[ ]:
 
