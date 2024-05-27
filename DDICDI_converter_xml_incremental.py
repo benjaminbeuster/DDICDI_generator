@@ -273,6 +273,158 @@ def generate_SentinelCodelist_incremental(xf, df_meta, agency):
                         if value in excluded_values:
                             with xf.element(etree.QName(nsmap['cdi'], 'CodeList_has_Code')):
                                 add_ddiref_incremental(xf, f"#code-{value}-{variable_name}", agency, "Code")
+
+
+def generate_Code_incremental(xf, df_meta, agency):
+    for variable_name, values_dict in df_meta.variable_value_labels.items():
+        for key, value in values_dict.items():
+            with xf.element(etree.QName(nsmap['cdi'], 'Code')):
+                add_identifier_incremental(xf, f"#code-{key}-{variable_name}", agency)
+                with xf.element(etree.QName(nsmap['cdi'], 'Code_denotes_Category')):
+                    add_ddiref_incremental(xf, f"#category-{value}", agency, "Category")
+                with xf.element(etree.QName(nsmap['cdi'], 'Code_uses_Notation')):
+                    add_ddiref_incremental(xf, f"#notation-{key}", agency, "Notation")
+
+def generate_Category_incremental(xf, df_meta, agency):
+    cats = list(set(value for values_dict in df_meta.variable_value_labels.values() for value in values_dict.values()))
+    for cat in cats:
+        with xf.element(etree.QName(nsmap['cdi'], 'Category')):
+            with xf.element(etree.QName(nsmap['cdi'], 'displayLabel')):
+                with xf.element(etree.QName(nsmap['cdi'], 'languageSpecificString')):
+                    add_cdi_element_incremental(xf, 'content', f"{cat}")
+            add_identifier_incremental(xf, f"#category-{cat}", agency)
+            with xf.element(etree.QName(nsmap['cdi'], 'name')):
+                add_cdi_element_incremental(xf, 'name', f"{cat}")
+
+def generate_Notation_incremental(xf, df_meta, agency):
+    notations = list(set(key for values_dict in df_meta.variable_value_labels.values() for key in values_dict.keys()))
+    for note in notations:
+        with xf.element(etree.QName(nsmap['cdi'], 'Notation')):
+            with xf.element(etree.QName(nsmap['cdi'], 'content')):
+                add_cdi_element_incremental(xf, 'content', f"{note}")
+            add_identifier_incremental(xf, f"#notation-{note}", agency)
+
+def generate_PhysicalDataSetStructure_incremental(xf, agency):
+    with xf.element(etree.QName(nsmap['cdi'], 'PhysicalDataSetStructure')):
+        add_identifier_incremental(xf, f"#physicalDataSetStructure", agency)
+        with xf.element(etree.QName(nsmap['cdi'], 'PhysicalDataSetStructure_correspondsTo_DataStructure')):
+            add_ddiref_incremental(xf, f"#wideDataStructure", agency, "WideDataStructure")
+        with xf.element(etree.QName(nsmap['cdi'], 'PhysicalDataSetStructure_structures_PhysicalDataSet')):
+            add_ddiref_incremental(xf, f"#physicalDataSet", agency, "PhysicalDataSet")
+
+def generate_PhysicalDataset_incremental(xf, df_meta, spssfile, agency):
+    with xf.element(etree.QName(nsmap['cdi'], 'PhysicalDataSet')):
+        add_cdi_element_incremental(xf, 'allowsDuplicates', "false")
+        add_identifier_incremental(xf, f"#physicalDataset", agency)
+        add_cdi_element_incremental(xf, 'physicalFileName', spssfile)
+        with xf.element(etree.QName(nsmap['cdi'], 'PhysicalDataSet_correspondsTo_DataSet')):
+            add_ddiref_incremental(xf, f"#wideDataset", agency, "WideDataSet")
+        with xf.element(etree.QName(nsmap['cdi'], 'PhysicalDataSet_formats_DataStore')):
+            add_ddiref_incremental(xf, f"#dataStore", agency, "DataStore")
+        with xf.element(etree.QName(nsmap['cdi'], 'PhysicalDataSet_has_PhysicalRecordSegment')):
+            add_ddiref_incremental(xf, f"#physicalRecordSegment", agency, "PhysicalRecordSegment")
+
+def generate_PhysicalRecordSegment_incremental(xf, df, df_meta, agency):
+    with xf.element(etree.QName(nsmap['cdi'], 'PhysicalRecordSegment')):
+        add_cdi_element_incremental(xf, 'allowsDuplicates', "false")
+        add_identifier_incremental(xf, f"#physicalRecordSegment", agency)
+        with xf.element(etree.QName(nsmap['cdi'], 'PhysicalRecordSegment_has_PhysicalSegmentLayout')):
+            add_ddiref_incremental(xf, f"#physicalSegmentLayout", agency, "PhysicalSegmentLayout")
+        with xf.element(etree.QName(nsmap['cdi'], 'PhysicalRecordSegment_mapsTo_LogicalRecord')):
+            add_ddiref_incremental(xf, f"#logicalRecord", agency, "LogicalRecord")
+
+        # Iterate through column names and associated index
+        for idx, variable in enumerate(df_meta.column_names):
+            # Assuming there are multiple DataPointPositions per variable, and the index (i) is relevant
+            for i in range(len(df[variable])):
+                with xf.element(etree.QName(nsmap['cdi'], 'PhysicalRecordSegment_has_DataPointPosition')):
+                    add_ddiref_incremental(xf, f"#dataPointPosition-{i}-{variable}", agency, "DataPointPosition")
+
+
+def generate_PhysicalSegmentLayout_incremental(xf, df_meta, agency):
+    with xf.element(etree.QName(nsmap['cdi'], 'PhysicalSegmentLayout')):
+        add_cdi_element_incremental(xf, 'allowsDuplicates', "false")
+        add_identifier_incremental(xf, f"#physicalSegmentLayout", agency)
+        add_cdi_element_incremental(xf, 'isDelimited', "false")
+        add_cdi_element_incremental(xf, 'isFixedWidth', "false")
+        with xf.element(etree.QName(nsmap['cdi'], 'PhysicalSegmentLayout_formats_LogicalRecord')):
+            add_ddiref_incremental(xf, f"#logicalRecord", agency, "LogicalRecord")
+
+        for variable in df_meta.column_names:
+            with xf.element(etree.QName(nsmap['cdi'], 'PhysicalSegmentLayout_has_ValueMapping')):
+                add_ddiref_incremental(xf, f"#valueMapping-{variable}", agency, "ValueMapping")
+
+        for variable in df_meta.column_names:
+            with xf.element(etree.QName(nsmap['cdi'], 'PhysicalSegmentLayout_has_ValueMappingPosition')):
+                add_ddiref_incremental(xf, f"#valueMappingPosition-{variable}", agency, "ValueMappingPosition")
+
+def generate_ValueMapping_incremental(xf, df, df_meta, agency):
+    for variable in df_meta.column_names:
+        with xf.element(etree.QName(nsmap['cdi'], 'ValueMapping')):
+            add_cdi_element_incremental(xf, 'defaultValue', "")
+            add_identifier_incremental(xf, f"#valueMapping-{variable}", agency)
+
+            # Assuming there are multiple DataPoints per variable, and the index (i) is relevant
+            for i in range(len(df[variable])):
+                with xf.element(etree.QName(nsmap['cdi'], 'ValueMapping_formats_DataPoint')):
+                    add_ddiref_incremental(xf, f"#dataPoint-{i}-{variable}", agency, "DataPoint")
+
+def generate_ValueMappingPosition_incremental(xf, df_meta, agency):
+    for idx, variable in enumerate(df_meta.column_names):
+        with xf.element(etree.QName(nsmap['cdi'], 'ValueMappingPosition')):
+            add_identifier_incremental(xf, f"#valueMappingPosition-{variable}", agency)
+            add_cdi_element_incremental(xf, 'value', idx)
+            with xf.element(etree.QName(nsmap['cdi'], 'ValueMappingPosition_indexes_ValueMapping')):
+                add_ddiref_incremental(xf, f"#valueMapping-{variable}", agency, "ValueMapping")
+
+def generate_DataPoint_incremental(xf, df, df_meta, agency):
+    for variable in df_meta.column_names:
+        # Assuming there are multiple DataPoints per variable, and the index (idx) is relevant
+        for idx in range(len(df[variable])):
+            with xf.element(etree.QName(nsmap['cdi'], 'DataPoint')):
+                add_identifier_incremental(xf, f"#dataPoint-{idx}-{variable}", agency)
+                with xf.element(etree.QName(nsmap['cdi'], 'DataPoint_isDescribedBy_InstanceVariable')):
+                    add_ddiref_incremental(xf, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+
+
+def generate_DataPointPosition_incremental(xf, df, df_meta, agency):
+    for variable in df_meta.column_names:
+        # Assuming there are multiple DataPointPositions per variable, and the index (idx) is relevant
+        for idx in range(len(df[variable])):
+            with xf.element(etree.QName(nsmap['cdi'], 'DataPointPosition')):
+                add_identifier_incremental(xf, f"#dataPointPosition-{idx}-{variable}", agency)
+                add_cdi_element_incremental(xf, 'value', idx)
+                with xf.element(etree.QName(nsmap['cdi'], 'DataPointPosition_indexes_DataPoint')):
+                    add_ddiref_incremental(xf, f"#dataPoint-{idx}-{variable}", agency, "DataPoint")
+
+def generate_InstanceValue_incremental(xf, df, df_meta, agency):
+    for variable in df_meta.column_names:
+        for idx, value in enumerate(df[variable]):
+            with xf.element(etree.QName(nsmap['cdi'], 'InstanceValue')):
+                with xf.element(etree.QName(nsmap['cdi'], 'content')):
+                    add_cdi_element_incremental(xf, 'content', value)
+                add_identifier_incremental(xf, f"#instanceValue-{idx}-{variable}", agency)
+
+                if variable in df_meta.missing_ranges:
+                    for range_dict in df_meta.missing_ranges[variable]:
+                        if value is not None and isinstance(range_dict['lo'], float):
+                            # convert value to float for comparison
+                            value = float(value)
+                        if value is not None and range_dict['lo'] <= value <= range_dict['hi'] and isinstance(value, (str, int, float)):
+                            with xf.element(etree.QName(nsmap['cdi'], 'InstanceValue_hasValueFrom_ValueDomain')):
+                                add_ddiref_incremental(xf, f"#sentinelValueDomain-{variable}", agency, "SentinelValueDomain")
+                            break
+                    else:
+                        with xf.element(etree.QName(nsmap['cdi'], 'InstanceValue_hasValueFrom_ValueDomain')):
+                            add_ddiref_incremental(xf, f"#substantiveValueDomain-{variable}", agency, "SubstantiveValueDomain")
+                else:
+                    with xf.element(etree.QName(nsmap['cdi'], 'InstanceValue_hasValueFrom_ValueDomain')):
+                        add_ddiref_incremental(xf, f"#substantiveValueDomain-{variable}", agency, "SubstantiveValueDomain")
+
+                with xf.element(etree.QName(nsmap['cdi'], 'InstanceValue_isStoredIn_DataPoint')):
+                    add_ddiref_incremental(xf, f"#dataPoint-{idx}-{variable}", agency, "DataPoint")
+
+
 ###########################################################################
 
 
@@ -306,6 +458,19 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
             generate_ValueAndConceptDescription_incremental(xf, df_meta, agency)
             generate_CodeList_incremental(xf, df_meta, agency)
             generate_SentinelCodelist_incremental(xf, df_meta, agency)
+            generate_Code_incremental(xf, df_meta, agency)
+            generate_Category_incremental(xf, df_meta, agency)
+            generate_Notation_incremental(xf, df_meta, agency)
+            generate_PhysicalDataSetStructure_incremental(xf, agency)
+            generate_PhysicalDataset_incremental(xf, df_meta, spssfile, agency)
+            generate_PhysicalRecordSegment_incremental(xf, df, df_meta, agency)
+            generate_PhysicalSegmentLayout_incremental(xf, df_meta, agency)
+            generate_ValueMapping_incremental(xf, df, df_meta, agency)
+            generate_ValueMappingPosition_incremental(xf, df_meta, agency)
+            generate_DataPoint_incremental(xf, df, df_meta, agency)
+            generate_DataPointPosition_incremental(xf, df, df_meta, agency)
+            generate_InstanceValue_incremental(xf, df, df_meta, agency)
+                
             # ... other elements would be generated here incrementally
 
     # After the file has been written incrementally, pretty-print it to the final output file
@@ -316,4 +481,73 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
     os.remove(temp_file)
 
 # Call the function to generate the XML and write to a file
-generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file='output.xml')
+generate_complete_xml_incremental(df, df_meta, spssfile=file_name, output_file='output.xml')
+
+
+###########################################################################
+
+def generate_WideDataStructure2_incremental(xf, df_meta, vars, agency):
+    with xf.element(etree.QName(nsmap['cdi'], 'WideDataStructure')):
+        add_identifier_incremental(xf, "#wideDataStructure", agency)
+
+        # If vars is None, iterate through all column names in df_meta
+        if vars is None:
+            for variable in df_meta.column_names:
+                with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+                    add_ddiref_incremental(xf, f"#measureComponent-{variable}", agency, "MeasureComponent")
+
+        # If vars is not None
+        else:
+            # Iterate through all variables in vars
+            for var in vars:
+                with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+                    add_ddiref_incremental(xf, f"#identifierComponent-{var}", agency, "IdentifierComponent")
+
+            # Iterate through all column names in df_meta
+            for variable in df_meta.column_names:
+                # If the variable is not in vars
+                if variable not in vars:
+                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+                        add_ddiref_incremental(xf, f"#measureComponent-{variable}", agency, "MeasureComponent")
+
+        with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_PrimaryKey')):
+            add_ddiref_incremental(xf, f"#primaryKey", agency, "PrimaryKey")
+
+def generate_IdentifierComponent2_incremental(xf, df_meta, vars, agency):
+    if vars is not None:
+        for var in vars:
+            with xf.element(etree.QName(nsmap['cdi'], 'IdentifierComponent')):
+                add_identifier_incremental(xf, f"#identifierComponent-{var}", agency)
+                with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
+                    add_ddiref_incremental(xf, f"#instanceVariable-{var}", agency, "InstanceVariable")
+
+def generate_MeasureComponent2_incremental(xf, df_meta, vars, agency):
+    if vars is None:
+        for variable in df_meta.column_names:
+            with xf.element(etree.QName(nsmap['cdi'], 'MeasureComponent')):
+                add_identifier_incremental(xf, f"#measureComponent-{variable}", agency)
+                with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
+                    add_ddiref_incremental(xf, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+    else:
+        for variable in df_meta.column_names:
+            if variable not in vars:
+                with xf.element(etree.QName(nsmap['cdi'], 'MeasureComponent')):
+                    add_identifier_incremental(xf, f"#measureComponent-{variable}", agency)
+                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
+                        add_ddiref_incremental(xf, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+
+def generate_PrimaryKey2_incremental(xf, df_meta, vars, agency):
+    with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKey')):
+        add_identifier_incremental(xf, f"#primaryKey", agency)
+        if vars is not None:
+            for var in vars:
+                with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKey_isComposedOf_PrimaryKeyComponent')):
+                    add_ddiref_incremental(xf, f"#primaryKeyComponent-{var}", agency, "PrimaryKeyComponent")
+
+def generate_PrimaryKeyComponent2_incremental(xf, df_meta, vars, agency):
+    if vars is not None:
+        for var in vars:
+            with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent')):
+                add_identifier_incremental(xf, f"#primaryKeyComponent-{var}", agency)
+                with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')):
+                    add_ddiref_incremental(xf, f"#identifierComponent-{var}", agency, "IdentifierComponent")
