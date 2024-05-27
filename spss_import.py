@@ -11,7 +11,8 @@ pd.set_option('display.max_columns', None)
 pd.options.mode.chained_assignment = None
 
 # Define constants
-ROW_LIMIT = 5
+ROW_LIMIT = 11
+#, row_limit=ROW_LIMIT,
 
 ENCODINGS = ["utf-8", "LATIN1", "cp1252", "iso-8859-1"]
 MISSING_DATE = "1582-10-14"
@@ -34,9 +35,11 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
     for encoding in ENCODINGS:
         try:
             if extension == '.sav':
-                df, meta = pyr.read_sav(filename, encoding=encoding, row_limit=ROW_LIMIT, **kwargs)
+                df, meta = pyr.read_sav(filename, encoding=encoding, **kwargs)
             elif extension == '.dta':
-                df, meta = pyr.read_dta(filename, encoding=encoding, row_limit=ROW_LIMIT, **kwargs)
+                df, meta = pyr.read_dta(filename, encoding=encoding, **kwargs)
+            # keep just 5 rows
+            df = df.head(5)
             # Fill NA values based on the data type of each column
             for col in df.columns:
                 if df[col].dtype.kind in 'biufc':

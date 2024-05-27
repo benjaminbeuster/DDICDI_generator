@@ -2,7 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+test.py
+test.ipynb
 # If you are using PyCharm
 .idea/
 
@@ -16,3 +17,13 @@ __pycache__/
 
 #backup files
 .github/
+files/ESS10-subset_stata.zip
+files/ESS10-subset.sav
+files/ESS10-subset.dta
+files/ESS10-subset.sav
+files/ESS10-subset.sav
+files/ESS10-subset.zip
+files/ESS10-subset.sav
+files/ESS10-subset.sav
+files/ESS10.dta
+files/ESS10.sav

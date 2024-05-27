@@ -287,7 +287,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        xml_data = generate_complete_xml(df, df_meta, spssfile=filename)
+        xml_data = generate_complete_xml(df.head(), df_meta, spssfile=filename)
         xml_data = xml_data.decode('utf-8')
 
         if selected_rows and table2_data and df_meta:
@@ -295,7 +295,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
             for row_index in selected_rows:
                 selected_row_data = table2_data[row_index]
                 vars.append(selected_row_data["name"])
-            new_xml_data = generate_complete_xml2(df, df_meta, vars, spssfile=filename)
+            new_xml_data = generate_complete_xml2(df.head(), df_meta, vars, spssfile=filename)
             new_xml_data = new_xml_data.decode('utf-8')
             xml_data = update_xml(xml_data, new_xml_data)
 
