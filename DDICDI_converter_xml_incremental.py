@@ -161,23 +161,23 @@ def generate_ValueAndConceptDescription_incremental(xf, df_meta, agency):
 
     # Recode classification level
     class_level = {'nominal': 'Nominal', 'scale': 'Continuous', 'ordinal': 'Ordinal', 'unknown': 'Nominal'}
-    
     for variable in df_meta.column_names:
         with xf.element(etree.QName(nsmap['cdi'], 'ValueAndConceptDescription')):
             add_cdi_element_incremental(xf, 'classificationLevel', class_level[df_meta.variable_measure[variable]])
             add_identifier_incremental(xf, f"#substantiveValueAndConceptDescription-{variable}", agency)
 
-            # Add sentinelValueAndConceptDescription only if the condition is met
-            if variable in relevant_variables:
-                values = relevant_variables[variable]
-                if isinstance(values[0], dict):  # Check if the values are dictionaries
-                    all_lo_values = [d['lo'] for d in values]
-                    all_hi_values = [d['hi'] for d in values]
-                    min_val = min(all_lo_values)
-                    max_val = max(all_hi_values)
-                else:
-                    min_val, max_val = min(values), max(values)
+        # Add sentinelValueAndConceptDescription only if the condition is met
+        if variable in relevant_variables:
+            values = relevant_variables[variable]
+            if isinstance(values[0], dict):  # Check if the values are dictionaries
+                all_lo_values = [d['lo'] for d in values]
+                all_hi_values = [d['hi'] for d in values]
+                min_val = min(all_lo_values)
+                max_val = max(all_hi_values)
+            else:
+                min_val, max_val = min(values), max(values)
 
+            with xf.element(etree.QName(nsmap['cdi'], 'ValueAndConceptDescription')):
                 with xf.element(etree.QName(nsmap['cdi'], 'description')):
                     with xf.element(etree.QName(nsmap['cdi'], 'languageSpecificString')):
                         add_cdi_element_incremental(xf, 'content', str(values))
@@ -185,6 +185,94 @@ def generate_ValueAndConceptDescription_incremental(xf, df_meta, agency):
                 add_cdi_element_incremental(xf, "maximumValueExclusive", str(max_val))
                 add_cdi_element_incremental(xf, "minimumValueExclusive", str(min_val))
 
+def generate_CodeList_incremental(xf, df_meta, agency):
+    # Determine the relevant variables based on the presence of missing values
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+
+    for variable_name, values_dict in df_meta.variable_value_labels.items():
+        with xf.element(etree.QName(nsmap['cdi'], 'CodeList')):
+            add_identifier_incremental(xf, f"#substantiveCodelist-{variable_name}", agency)
+            with xf.element(etree.QName(nsmap['cdi'], 'name')):
+                add_cdi_element_incremental(xf, 'name', f"#substantiveCodelist-{variable_name}")
+            add_cdi_element_incremental(xf, 'allowsDuplicates', "false")
+
+            excluded_values = set()
+
+            # Check if variable_name is in relevant_variables
+            if variable_name in relevant_variables:
+                # If the relevant variable data is based on ranges and contains dictionaries
+                if isinstance(relevant_variables[variable_name], list) and all(
+                        isinstance(item, dict) for item in relevant_variables[variable_name]):
+                    for dict_range in relevant_variables[variable_name]:
+                        lo_is_numeric = isinstance(dict_range['lo'], (int, float)) or (
+                                isinstance(dict_range['lo'], str) and dict_range['lo'].isnumeric()
+                        )
+                        hi_is_numeric = isinstance(dict_range['hi'], (int, float)) or (
+                                isinstance(dict_range['hi'], str) and dict_range['hi'].isnumeric()
+                        )
+
+                        if lo_is_numeric and hi_is_numeric:
+                            excluded_values.update(
+                                range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1)
+                            )
+                        elif isinstance(dict_range['lo'], str):
+                            excluded_values.add(dict_range['lo'])
+                        else:
+                            print(f"Warning: Unsupported 'lo' value: {dict_range['lo']}")
+
+                # If the relevant variable data contains strings (user-defined missing values)
+                elif isinstance(relevant_variables[variable_name], list):
+                    excluded_values.update(set(map(str, relevant_variables[variable_name])))
+
+            for value in values_dict.keys():
+                excluded_values_str = {str(i) for i in excluded_values}
+                if (not value in excluded_values) and (not str(value) in excluded_values_str):
+                    with xf.element(etree.QName(nsmap['cdi'], 'CodeList_has_Code')):
+                        add_ddiref_incremental(xf, f"#code-{value}-{variable_name}", agency, "Code")
+
+
+def is_value_in_range(value, ranges):
+    """Check if a value is in any of the given ranges."""
+    for range_dict in ranges:
+        if range_dict['lo'] <= value <= range_dict['hi']:
+            return True
+    return False
+
+def generate_SentinelCodelist_incremental(xf, df_meta, agency):
+    # Check if there are any missing ranges or user-defined missing values for any variable
+    has_missing_values = any(len(df_meta.missing_ranges.get(var, [])) > 0 or
+                             len(df_meta.missing_user_values.get(var, [])) > 0
+                             for var in df_meta.column_names)
+
+    # If there are no missing values for any variable, return early without generating XML
+    if not has_missing_values:
+        return
+
+    for variable_name, values_dict in df_meta.variable_value_labels.items():
+        # Determine if the current variable has missing values defined
+        variable_has_missing = variable_name in df_meta.missing_ranges or \
+                               variable_name in df_meta.missing_user_values
+
+        # Only generate XML elements for variables with missing values
+        if variable_has_missing:
+            with xf.element(etree.QName(nsmap['cdi'], 'CodeList')):
+                add_identifier_incremental(xf, f"#sentinelCodelist-{variable_name}", agency)
+                with xf.element(etree.QName(nsmap['cdi'], 'name')):
+                    add_cdi_element_incremental(xf, 'name', f"#sentinelCodelist-{variable_name}")
+                add_cdi_element_incremental(xf, 'allowsDuplicates', "false")
+
+                if variable_name in df_meta.missing_ranges:
+                    # Use a for loop to generate the hasTopConcept list
+                    for value in values_dict.keys():
+                        if is_value_in_range(value, df_meta.missing_ranges[variable_name]):
+                            with xf.element(etree.QName(nsmap['cdi'], 'CodeList_has_Code')):
+                                add_ddiref_incremental(xf, f"#code-{value}-{variable_name}", agency, "Code")
+                elif variable_name in df_meta.missing_user_values:
+                    excluded_values = set(df_meta.missing_user_values[variable_name])
+                    for value in values_dict.keys():
+                        if value in excluded_values:
+                            with xf.element(etree.QName(nsmap['cdi'], 'CodeList_has_Code')):
+                                add_ddiref_incremental(xf, f"#code-{value}-{variable_name}", agency, "Code")
 ###########################################################################
 
 
@@ -216,6 +304,8 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
             generate_SubstantiveValueDomain_incremental(xf, df_meta, agency)
             generate_SentinelValueDomain_incremental(xf, df_meta, agency)
             generate_ValueAndConceptDescription_incremental(xf, df_meta, agency)
+            generate_CodeList_incremental(xf, df_meta, agency)
+            generate_SentinelCodelist_incremental(xf, df_meta, agency)
             # ... other elements would be generated here incrementally
 
     # After the file has been written incrementally, pretty-print it to the final output file
