@@ -240,8 +240,6 @@ def update_instruction_text_style(data):
     else:
         return {'display': 'none'}
 
-
-
 @app.callback(
     [Output('table1', 'data'),
      Output('table1', 'columns'),
@@ -250,7 +248,8 @@ def update_instruction_text_style(data):
      Output('table2', 'columns'),
      Output('table2', 'style_data_conditional'),
      Output('xml-ld-output', 'children'),
-     Output('btn-download', 'style')],
+     Output('btn-download', 'style'),
+     Output('table1-instruction', 'children')],  # Output for the instruction text
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows')],
     [State('upload-data', 'filename'),
@@ -259,9 +258,11 @@ def update_instruction_text_style(data):
 def combined_callback(contents, selected_rows, filename, table2_data):
     # Initialization
     df_meta = None
+    file_name = None
+    n_rows = None
 
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}
+        return [], [], [], [], [], [], "", {'display': 'none'}, ""  # Return empty instruction text
 
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -274,10 +275,10 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 
     try:
         if '.dta' in tmp_filename:
-            df, df_meta = read_sav(tmp_filename)
+            df, df_meta, file_name, n_rows = read_sav(tmp_filename)
             df2 = create_variable_view2(df_meta)
         elif '.sav' in tmp_filename:
-            df, df_meta = read_sav(tmp_filename)
+            df, df_meta, file_name, n_rows = read_sav(tmp_filename)
             df2 = create_variable_view(df_meta)
         else:
             raise ValueError("Unsupported file type")
@@ -299,13 +300,15 @@ def combined_callback(contents, selected_rows, filename, table2_data):
             new_xml_data = new_xml_data.decode('utf-8')
             xml_data = update_xml(xml_data, new_xml_data)
 
+        # Update the instruction text with file_name and n_rows
+        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. Please note that the generated XML output will only include these 5 rows, even though the full dataset contains {n_rows} rows."
         return (df.to_dict('records'), columns1, conditional_styles1,
                 df2.to_dict('records'), columns2, conditional_styles2,
-                xml_data, {'display': 'block'})
+                xml_data, {'display': 'block'}, instruction_text)
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, ""
 
     finally:
         os.remove(tmp_filename)

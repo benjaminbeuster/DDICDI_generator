@@ -75,7 +75,9 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
     df.replace({np.nan: None, pd.NA: None}, inplace=True)
 
     df.attrs["datafile"] = "file"
-    return df, meta
+
+    nrows = meta.number_rows
+    return df, meta, filename, nrows
 
 
 ###################################################################
