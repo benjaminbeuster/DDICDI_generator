@@ -786,31 +786,11 @@ def generate_complete_xml2(df, df_meta, vars=None, spssfile='name'):
     global agency
     agency = 'int.esseric'
 
-    #generate_PhysicalDataSetStructure(df_meta)
-    #generate_PhysicalDataset(df_meta, spssfile)
-    #generate_PhysicalRecordSegment(df, df_meta)
-    #generate_PhysicalSegmentLayout(df_meta)
-    #generate_ValueMapping(df, df_meta)
-    #generate_ValueMappingPosition(df_meta)
-    #generate_DataPoint(df, df_meta)
-    #generate_DataPointPosition(df, df_meta)
-    #generate_InstanceValue(df, df_meta)
-    #generate_DataStore(df_meta)
-    #generate_LogicalRecord(df_meta)
-    #generate_WideDataSet(df_meta)
     generate_WideDataStructure2(df_meta, vars)
     generate_IdentifierComponent2(df_meta, vars)
     generate_MeasureComponent2(df_meta, vars)
     generate_PrimaryKey2(df_meta, vars)
     generate_PrimaryKeyComponent2(df_meta, vars)
-    #generate_InstanceVariable(df_meta)
-    #generate_SubstantiveValueDomain(df_meta)
-    #generate_SentinelValueDomain(df_meta)
-    #generate_ValueAndConceptDescription(df_meta)
-    #generate_CodeList(df_meta)
-    #generate_SentinelCodelist(df_meta)
-    #generate_Code(df_meta)
-    #generate_Category_Notation(df_meta)
 
     # Add XML declaration and write XML file
     xml_string = etree.tostring(root, encoding='UTF-8', xml_declaration=True, pretty_print=True)

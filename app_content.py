@@ -30,7 +30,7 @@ from datetime import datetime
 current_date = datetime.now().strftime('%d.%m.%Y')
 
 about_text = f'''
-This prototype was developed by Sikt as part of the [Worldfair Project](https://worldfair-project.eu/). It is designed to facilitate the implementation of [DDI-CDI](https://ddialliance.org/Specification/DDI-CDI/) and to support training activities within the DDI community. For further information or inquiries, please contact [Benjamin Beuster](mailto:benjamin.beuster@sikt.no). Last updated on: {current_date}
+This prototype was developed by Sikt as part of the [Worldfair Project](https://worldfair-project.eu/). It is designed to facilitate the implementation of [DDI-CDI](https://ddialliance.org/Specification/DDI-CDI/) and to support training activities within the DDI community. For further information, please contact [Benjamin Beuster](mailto:benjamin.beuster@sikt.no). Last updated on: {current_date}
 '''
 
 app_title = 'DDI-CDI Converter (Prototype): Wide Table Generation for STATA & SPSS'
