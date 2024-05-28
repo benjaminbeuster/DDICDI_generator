@@ -1,4 +1,5 @@
 from lxml import etree
+import xml.etree.ElementTree as ET
 from spss_import import read_sav
 
 # Load your dataframe and metadata here
@@ -481,7 +482,7 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
     os.remove(temp_file)
 
 # Call the function to generate the XML and write to a file
-generate_complete_xml_incremental(df, df_meta, spssfile=file_name, output_file='output.xml')
+#generate_complete_xml_incremental(df, df_meta, spssfile=file_name, output_file='output.xml')
 
 
 ###########################################################################
@@ -551,3 +552,55 @@ def generate_PrimaryKeyComponent2_incremental(xf, df_meta, vars, agency):
                 add_identifier_incremental(xf, f"#primaryKeyComponent-{var}", agency)
                 with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')):
                     add_ddiref_incremental(xf, f"#identifierComponent-{var}", agency, "IdentifierComponent")
+
+def generate_complete_xml_incremental2(df, df_meta, spssfile='name', output_file='output2.xml'):
+    temp_file = 'temp_output2.xml'
+    schema_location = ('http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ '
+                       'https://ddi-cdi-resources.bitbucket.io/2024-03-12/encoding/xml-schema/ddi-cdi.xsd')
+    with etree.xmlfile(temp_file, encoding='UTF-8') as xf:
+        xf.write_declaration(standalone=True)
+        # Define the root element with the schemaLocation attribute
+        with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap, 
+                        attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):
+
+            generate_WideDataStructure2_incremental(xf, df_meta, vars, agency)
+            generate_IdentifierComponent2_incremental(xf, df_meta, vars, agency)
+            generate_MeasureComponent2_incremental(xf, df_meta, vars, agency)
+            generate_PrimaryKey2_incremental(xf, df_meta, vars, agency)
+            generate_PrimaryKeyComponent2_incremental(xf, df_meta, agency)
+
+                
+            # ... other elements would be generated here incrementally
+
+    # After the file has been written incrementally, pretty-print it to the final output file
+    pretty_print_xml(temp_file2, output_file2)
+
+    # Optionally, remove the temporary file
+    import os
+    os.remove(temp_file2)
+
+from lxml import etree
+
+def update_xml(original_xml, new_xml):
+    # Parse the XMLs into lxml Element objects
+    original_tree = etree.fromstring(original_xml.encode('utf-8'))
+    new_tree = etree.fromstring(new_xml.encode('utf-8'))
+
+    # Get the root elements
+    original_root = original_tree
+    new_root = new_tree
+
+    # Get the tags of the elements directly under the new root
+    new_tags = {etree.QName(child).localname for child in new_root}
+
+    # Remove all children of the original root that have the same tag as any of the new elements
+    original_root[:] = [child for child in original_root if etree.QName(child).localname not in new_tags]
+
+    # Add all children from the new root to the original root
+    for child in new_root:
+        original_root.append(child)
+
+    # Convert the updated original tree back into a pretty-printed string
+    updated_xml = etree.tostring(original_root, pretty_print=True, encoding='utf-8').decode()
+
+    return updated_xml

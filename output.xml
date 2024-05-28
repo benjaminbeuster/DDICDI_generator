@@ -5803,137 +5803,18 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>Israel</cdi:content>
+        <cdi:content>Hungary</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Israel</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-Hungary</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>Israel</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Austria</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Austria</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Austria</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Portugal</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Portugal</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Portugal</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Denmark</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Denmark</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Denmark</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Romania</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Romania</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Romania</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>A few times a week</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-A few times a week</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>A few times a week</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Most people try to take advantage of me</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Most people try to take advantage of me</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Most people try to take advantage of me</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>1</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-1</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>1</cdi:name>
+      <cdi:name>Hungary</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
@@ -5956,52 +5837,18 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>United Kingdom</cdi:content>
+        <cdi:content>People mostly try to be helpful</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-United Kingdom</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-People mostly try to be helpful</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>United Kingdom</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Slovakia</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Slovakia</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Slovakia</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Hungary</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Hungary</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Hungary</cdi:name>
+      <cdi:name>People mostly try to be helpful</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
@@ -6024,57 +5871,6 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>Lithuania</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Lithuania</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Lithuania</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Ukraine</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Ukraine</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Ukraine</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Germany</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Germany</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Germany</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
         <cdi:content>Estonia</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
@@ -6092,18 +5888,188 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>Switzerland</cdi:content>
+        <cdi:content>Italy</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Switzerland</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-Italy</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>Switzerland</cdi:name>
+      <cdi:name>Italy</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Portugal</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Portugal</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Portugal</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Refusal</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Refusal</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Refusal</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Montenegro</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Montenegro</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Montenegro</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Romania</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Romania</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Romania</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>1</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-1</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>1</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>6</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-6</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>6</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Poland</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Poland</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Poland</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Luxembourg</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Luxembourg</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Luxembourg</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>7</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-7</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>7</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Czechia</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Czechia</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Czechia</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
@@ -6126,35 +6092,188 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>3</cdi:content>
+        <cdi:content>8</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-3</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-8</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>3</cdi:name>
+      <cdi:name>8</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>7</cdi:content>
+        <cdi:content>Denmark</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-7</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-Denmark</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>7</cdi:name>
+      <cdi:name>Denmark</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>9</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-9</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>9</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Only occasionally</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Only occasionally</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Only occasionally</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Cyprus</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Cyprus</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Cyprus</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>People mostly look out for themselves</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-People mostly look out for themselves</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>People mostly look out for themselves</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Germany</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Germany</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Germany</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Ukraine</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Ukraine</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Ukraine</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Most days</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Most days</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Most days</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Most people try to take advantage of me</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Most people try to take advantage of me</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Most people try to take advantage of me</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Slovakia</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Slovakia</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Slovakia</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
@@ -6194,142 +6313,6 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>Czechia</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Czechia</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Czechia</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Not applicable</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Not applicable</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Not applicable</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Italy</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Italy</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Italy</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Slovenia</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Slovenia</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Slovenia</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>No answer</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-No answer</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>No answer</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>8</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-8</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>8</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Never</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Never</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Never</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>North Macedonia</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-North Macedonia</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>North Macedonia</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
         <cdi:content>Serbia</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
@@ -6342,227 +6325,6 @@
     </cdi:identifier>
     <cdi:name>
       <cdi:name>Serbia</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Russian Federation</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Russian Federation</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Russian Federation</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Refusal</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Refusal</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Refusal</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Belgium</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Belgium</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Belgium</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>4</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-4</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>4</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Ireland</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Ireland</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Ireland</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Bulgaria</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Bulgaria</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Bulgaria</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>France</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-France</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>France</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Albania</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Albania</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Albania</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Turkey</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Turkey</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Turkey</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Only occasionally</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Only occasionally</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Only occasionally</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Croatia</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Croatia</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Croatia</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>People mostly look out for themselves</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-People mostly look out for themselves</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>People mostly look out for themselves</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Most days</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Most days</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Most days</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
@@ -6585,222 +6347,18 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>5</cdi:content>
+        <cdi:content>Croatia</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-5</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-Croatia</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>5</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Latvia</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Latvia</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Latvia</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Finland</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Finland</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Finland</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Luxembourg</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Luxembourg</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Luxembourg</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>6</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-6</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>6</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Iceland</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Iceland</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Iceland</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Most people can be trusted</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Most people can be trusted</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Most people can be trusted</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>People mostly try to be helpful</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-People mostly try to be helpful</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>People mostly try to be helpful</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Greece</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Greece</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Greece</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Norway</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Norway</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Norway</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Cyprus</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Cyprus</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Cyprus</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Most people try to be fair</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Most people try to be fair</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Most people try to be fair</cdi:name>
-    </cdi:name>
-  </cdi:Category>
-  <cdi:Category>
-    <cdi:displayLabel>
-      <cdi:languageSpecificString>
-        <cdi:content>Poland</cdi:content>
-      </cdi:languageSpecificString>
-    </cdi:displayLabel>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Poland</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-    <cdi:name>
-      <cdi:name>Poland</cdi:name>
+      <cdi:name>Croatia</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
@@ -6823,35 +6381,86 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>9</cdi:content>
+        <cdi:content>3</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-9</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-3</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>9</cdi:name>
+      <cdi:name>3</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>Spain</cdi:content>
+        <cdi:content>Russian Federation</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Spain</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-Russian Federation</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>Spain</cdi:name>
+      <cdi:name>Russian Federation</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Slovenia</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Slovenia</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Slovenia</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Finland</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Finland</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Finland</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Never</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Never</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Never</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Category>
@@ -6874,18 +6483,409 @@
   <cdi:Category>
     <cdi:displayLabel>
       <cdi:languageSpecificString>
-        <cdi:content>Montenegro</cdi:content>
+        <cdi:content>Israel</cdi:content>
       </cdi:languageSpecificString>
     </cdi:displayLabel>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#category-Montenegro</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#category-Israel</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
     </cdi:identifier>
     <cdi:name>
-      <cdi:name>Montenegro</cdi:name>
+      <cdi:name>Israel</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Belgium</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Belgium</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Belgium</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>North Macedonia</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-North Macedonia</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>North Macedonia</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>France</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-France</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>France</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>No answer</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-No answer</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>No answer</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Albania</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Albania</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Albania</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>4</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-4</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>4</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Not applicable</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Not applicable</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Not applicable</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>5</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-5</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>5</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Switzerland</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Switzerland</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Switzerland</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Greece</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Greece</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Greece</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Ireland</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Ireland</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Ireland</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Most people can be trusted</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Most people can be trusted</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Most people can be trusted</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Most people try to be fair</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Most people try to be fair</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Most people try to be fair</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>A few times a week</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-A few times a week</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>A few times a week</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Turkey</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Turkey</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Turkey</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Austria</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Austria</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Austria</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Latvia</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Latvia</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Latvia</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Iceland</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Iceland</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Iceland</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Bulgaria</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Bulgaria</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Bulgaria</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Lithuania</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Lithuania</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Lithuania</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>United Kingdom</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-United Kingdom</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>United Kingdom</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Spain</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Spain</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Spain</cdi:name>
+    </cdi:name>
+  </cdi:Category>
+  <cdi:Category>
+    <cdi:displayLabel>
+      <cdi:languageSpecificString>
+        <cdi:content>Norway</cdi:content>
+      </cdi:languageSpecificString>
+    </cdi:displayLabel>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#category-Norway</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+    <cdi:name>
+      <cdi:name>Norway</cdi:name>
     </cdi:name>
   </cdi:Category>
   <cdi:Notation>
@@ -6938,6 +6938,42 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
+      <cdi:content>EE</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-EE</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>MK</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-MK</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>SI</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-SI</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
       <cdi:content>4.0</cdi:content>
     </cdi:content>
     <cdi:identifier>
@@ -6962,11 +6998,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>6.0</cdi:content>
+      <cdi:content>7.0</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-6.0</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-7.0</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -6974,11 +7010,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>7.0</cdi:content>
+      <cdi:content>ME</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-7.0</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-ME</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7022,35 +7058,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>10.0</cdi:content>
+      <cdi:content>6.0</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-10.0</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>DE</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-DE</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>NO</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-NO</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-6.0</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7070,11 +7082,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>SK</cdi:content>
+      <cdi:content>10.0</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-SK</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-10.0</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7082,11 +7094,287 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>GB</cdi:content>
+      <cdi:content>CH</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-GB</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-CH</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>RO</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-RO</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>IS</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-IS</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>IE</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-IE</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>UA</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-UA</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>PT</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-PT</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>FR</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-FR</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>DK</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-DK</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>BE</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-BE</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>8888.0</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-8888.0</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>RU</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-RU</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>LV</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-LV</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>HR</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-HR</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>ES</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-ES</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>DE</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-DE</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>77.0</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-77.0</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>BG</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-BG</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>GR</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-GR</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>IT</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-IT</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>CY</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-CY</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>88.0</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-88.0</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>FI</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-FI</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>LT</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-LT</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>AL</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-AL</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7106,11 +7394,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>IL</cdi:content>
+      <cdi:content>AT</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-IL</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-AT</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7118,11 +7406,71 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>RU</cdi:content>
+      <cdi:content>HU</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-RU</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-HU</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>LU</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-LU</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>7777.0</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-7777.0</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>SE</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-SE</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>99.0</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-99.0</cdi:dataIdentifier>
+        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
+        <cdi:versionIdentifier>1</cdi:versionIdentifier>
+      </cdi:ddiIdentifier>
+    </cdi:identifier>
+  </cdi:Notation>
+  <cdi:Notation>
+    <cdi:content>
+      <cdi:content>GB</cdi:content>
+    </cdi:content>
+    <cdi:identifier>
+      <cdi:ddiIdentifier>
+        <cdi:dataIdentifier>#notation-GB</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7154,11 +7502,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>LT</cdi:content>
+      <cdi:content>NO</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-LT</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-NO</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7166,239 +7514,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>DK</cdi:content>
+      <cdi:content>SK</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-DK</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>CH</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-CH</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>ES</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-ES</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>LU</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-LU</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>8888.0</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-8888.0</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>ME</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-ME</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>IS</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-IS</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>AL</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-AL</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>SE</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-SE</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>GR</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-GR</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>HR</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-HR</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>CY</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-CY</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>77.0</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-77.0</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>IE</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-IE</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>GE</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-GE</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>RS</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-RS</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>MK</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-MK</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>88.0</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-88.0</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>BG</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-BG</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>7777.0</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-7777.0</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-SK</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7418,11 +7538,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>99.0</cdi:content>
+      <cdi:content>GE</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-99.0</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-GE</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7430,95 +7550,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>EE</cdi:content>
+      <cdi:content>IL</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-EE</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>IT</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-IT</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>FI</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-FI</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>FR</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-FR</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>RO</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-RO</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>HU</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-HU</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>LV</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-LV</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>PT</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-PT</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-IL</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
@@ -7538,47 +7574,11 @@
   </cdi:Notation>
   <cdi:Notation>
     <cdi:content>
-      <cdi:content>BE</cdi:content>
+      <cdi:content>RS</cdi:content>
     </cdi:content>
     <cdi:identifier>
       <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-BE</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>SI</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-SI</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>UA</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-UA</cdi:dataIdentifier>
-        <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
-        <cdi:versionIdentifier>1</cdi:versionIdentifier>
-      </cdi:ddiIdentifier>
-    </cdi:identifier>
-  </cdi:Notation>
-  <cdi:Notation>
-    <cdi:content>
-      <cdi:content>AT</cdi:content>
-    </cdi:content>
-    <cdi:identifier>
-      <cdi:ddiIdentifier>
-        <cdi:dataIdentifier>#notation-AT</cdi:dataIdentifier>
+        <cdi:dataIdentifier>#notation-RS</cdi:dataIdentifier>
         <cdi:registrationAuthorityIdentifier>int.esseric</cdi:registrationAuthorityIdentifier>
         <cdi:versionIdentifier>1</cdi:versionIdentifier>
       </cdi:ddiIdentifier>
