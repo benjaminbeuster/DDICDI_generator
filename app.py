@@ -205,7 +205,7 @@ app.layout = dbc.Container([
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody(
-                            dcc.Markdown(markdown_text),
+                            dcc.Markdown(markdown_text, dangerously_allow_html=True),
                             style={
                                 'overflowY': 'scroll',  # Add scroll if content is too long
                                 'height': '400px',  # Adjust based on your requirement
@@ -248,6 +248,7 @@ def update_instruction_text_style(data):
     else:
         return {'display': 'none'}
 
+# ... [The initial imports and other code remains unchanged]
 
 @app.callback(
     [Output('table1', 'data'),
@@ -337,9 +338,14 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         # Clean up the temporary XML file
         os.remove(temp_xml_filename)
 
+        # Parse the XML data and pretty-print it
+        parser = etree.XMLParser(remove_blank_text=True)
+        xml_tree = etree.fromstring(xml_data.encode('utf-8'), parser)
+        xml_data_pretty = etree.tostring(xml_tree, pretty_print=True, encoding='utf-8').decode()
+
         # Update the instruction text with file_name and n_rows
         instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. Please note that the generated XML output will only include these 5 rows, even though the full dataset contains {n_rows} rows."
-        return (df.to_dict('records'), columns1, conditional_styles1, df2.to_dict('records'), columns2, conditional_styles2, xml_data, {'display': 'block'}, instruction_text)
+        return (df.to_dict('records'), columns1, conditional_styles1, df2.to_dict('records'), columns2, conditional_styles2, xml_data_pretty, {'display': 'block'}, instruction_text)
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
@@ -347,8 +353,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 
     finally:
         os.remove(tmp_filename)
-
-
+       
 
 # reset selected rows in datatable
 @app.callback(

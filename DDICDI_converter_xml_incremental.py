@@ -444,24 +444,7 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
         xf.write_declaration(standalone=True)
         # Define the root element with the schemaLocation attribute
         with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap, 
-                        attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):
-            generate_DataStore_incremental(xf, df_meta, agency)
-            generate_LogicalRecord_incremental(xf, df_meta, agency)
-            generate_WideDataSet_incremental(xf, df_meta, agency)
-            generate_WideDataStructure_incremental(xf, df_meta, agency)
-            generate_IdentifierComponent_incremental(xf, df_meta, agency)
-            generate_MeasureComponent_incremental(xf, df_meta, agency)
-            generate_PrimaryKey_incremental(xf, agency)
-            generate_PrimaryKeyComponent_incremental(xf, df_meta, agency)
-            generate_InstanceVariable_incremental(xf, df_meta, agency)
-            generate_SubstantiveValueDomain_incremental(xf, df_meta, agency)
-            generate_SentinelValueDomain_incremental(xf, df_meta, agency)
-            generate_ValueAndConceptDescription_incremental(xf, df_meta, agency)
-            generate_CodeList_incremental(xf, df_meta, agency)
-            generate_SentinelCodelist_incremental(xf, df_meta, agency)
-            generate_Code_incremental(xf, df_meta, agency)
-            generate_Category_incremental(xf, df_meta, agency)
-            generate_Notation_incremental(xf, df_meta, agency)
+                        attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):  
             generate_PhysicalDataSetStructure_incremental(xf, agency)
             generate_PhysicalDataset_incremental(xf, df_meta, spssfile, agency)
             generate_PhysicalRecordSegment_incremental(xf, df, df_meta, agency)
@@ -471,6 +454,28 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
             generate_DataPoint_incremental(xf, df, df_meta, agency)
             generate_DataPointPosition_incremental(xf, df, df_meta, agency)
             generate_InstanceValue_incremental(xf, df, df_meta, agency)
+            generate_SubstantiveValueDomain_incremental(xf, df_meta, agency)
+            generate_SentinelValueDomain_incremental(xf, df_meta, agency)
+            generate_ValueAndConceptDescription_incremental(xf, df_meta, agency)
+            generate_CodeList_incremental(xf, df_meta, agency)
+            generate_SentinelCodelist_incremental(xf, df_meta, agency)
+            generate_Code_incremental(xf, df_meta, agency)
+            generate_Category_incremental(xf, df_meta, agency)
+            generate_Notation_incremental(xf, df_meta, agency)
+            generate_DataStore_incremental(xf, df_meta, agency)
+            generate_LogicalRecord_incremental(xf, df_meta, agency)
+            generate_WideDataSet_incremental(xf, df_meta, agency)
+            generate_WideDataStructure_incremental(xf, df_meta, agency)
+            generate_IdentifierComponent_incremental(xf, df_meta, agency)
+            generate_MeasureComponent_incremental(xf, df_meta, agency)
+            generate_PrimaryKey_incremental(xf, agency)
+            generate_PrimaryKeyComponent_incremental(xf, df_meta, agency)
+            generate_InstanceVariable_incremental(xf, df_meta, agency)
+
+
+
+
+
                 
             # ... other elements would be generated here incrementally
 
@@ -553,31 +558,7 @@ def generate_PrimaryKeyComponent2_incremental(xf, df_meta, vars, agency):
                 with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')):
                     add_ddiref_incremental(xf, f"#identifierComponent-{var}", agency, "IdentifierComponent")
 
-def generate_complete_xml_incremental2(df, df_meta, spssfile='name', output_file='output2.xml'):
-    temp_file = 'temp_output2.xml'
-    schema_location = ('http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ '
-                       'https://ddi-cdi-resources.bitbucket.io/2024-03-12/encoding/xml-schema/ddi-cdi.xsd')
-    with etree.xmlfile(temp_file, encoding='UTF-8') as xf:
-        xf.write_declaration(standalone=True)
-        # Define the root element with the schemaLocation attribute
-        with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap, 
-                        attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):
-
-            generate_WideDataStructure2_incremental(xf, df_meta, vars, agency)
-            generate_IdentifierComponent2_incremental(xf, df_meta, vars, agency)
-            generate_MeasureComponent2_incremental(xf, df_meta, vars, agency)
-            generate_PrimaryKey2_incremental(xf, df_meta, vars, agency)
-            generate_PrimaryKeyComponent2_incremental(xf, df_meta, agency)
-
-                
-            # ... other elements would be generated here incrementally
-
-    # After the file has been written incrementally, pretty-print it to the final output file
-    pretty_print_xml(temp_file2, output_file2)
-
-    # Optionally, remove the temporary file
-    import os
-    os.remove(temp_file2)
+#################################################################################################################################
 
 from lxml import etree
 
