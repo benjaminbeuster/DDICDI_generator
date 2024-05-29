@@ -2,8 +2,8 @@ from lxml import etree
 import xml.etree.ElementTree as ET
 from spss_import import read_sav
 
-# Load your dataframe and metadata here
-df, df_meta, file_name, n_rows = read_sav("files/ESS10-subset.sav")
+# Load your dataframe and metadata here for testing
+#df, df_meta, file_name, n_rows = read_sav("files/ESS10-subset.sav")
 
 # Define the namespaces
 nsmap = {
@@ -66,26 +66,26 @@ def generate_WideDataStructure_incremental(xf, df_meta, agency):
         add_identifier_incremental(xf, f"#wideDataStructure", agency)
         
         # IdentifierComponent for the first column
-        with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
-            add_ddiref_incremental(xf, f"#identifierComponent-{df_meta.column_names[0]}", agency, "IdentifierComponent")
+        # with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+        #     add_ddiref_incremental(xf, f"#identifierComponent-{df_meta.column_names[0]}", agency, "IdentifierComponent")
         
         # MeasureComponent for the remaining columns
-        for variable in df_meta.column_names[1:]:
+        for variable in df_meta.column_names[:]:
             with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
                 add_ddiref_incremental(xf, f"#measureComponent-{variable}", agency, "MeasureComponent")
         
         # PrimaryKey
-        with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_PrimaryKey')):
-            add_ddiref_incremental(xf, f"#primaryKey", agency, "PrimaryKey")
+        # with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_PrimaryKey')):
+        #     add_ddiref_incremental(xf, f"#primaryKey", agency, "PrimaryKey")
 
-def generate_IdentifierComponent_incremental(xf, df_meta, agency):
-    with xf.element(etree.QName(nsmap['cdi'], 'IdentifierComponent')):
-        add_identifier_incremental(xf, f"#identifierComponent-{df_meta.column_names[0]}", agency)
-        with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
-            add_ddiref_incremental(xf, f"#instanceVariable-{df_meta.column_names[0]}", agency, "InstanceVariable")
+# def generate_IdentifierComponent_incremental(xf, df_meta, agency):
+#     with xf.element(etree.QName(nsmap['cdi'], 'IdentifierComponent')):
+#         add_identifier_incremental(xf, f"#identifierComponent-{df_meta.column_names[0]}", agency)
+#         with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
+#             add_ddiref_incremental(xf, f"#instanceVariable-{df_meta.column_names[0]}", agency, "InstanceVariable")
 
 def generate_MeasureComponent_incremental(xf, df_meta, agency):
-    for variable in df_meta.column_names[1:]:
+    for variable in df_meta.column_names[:]:
         with xf.element(etree.QName(nsmap['cdi'], 'MeasureComponent')):
             add_identifier_incremental(xf, f"#measureComponent-{variable}", agency)
             with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
@@ -458,10 +458,7 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
             generate_LogicalRecord_incremental(xf, df_meta, agency)
             generate_WideDataSet_incremental(xf, df_meta, agency)
             generate_WideDataStructure_incremental(xf, df_meta, agency)
-            generate_IdentifierComponent_incremental(xf, df_meta, agency)
             generate_MeasureComponent_incremental(xf, df_meta, agency)
-            generate_PrimaryKey_incremental(xf, agency)
-            generate_PrimaryKeyComponent_incremental(xf, df_meta, agency)
             generate_InstanceVariable_incremental(xf, df_meta, agency)
             generate_SubstantiveValueDomain_incremental(xf, df_meta, agency)
             generate_SentinelValueDomain_incremental(xf, df_meta, agency)
@@ -472,11 +469,6 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
             generate_Category_incremental(xf, df_meta, agency)
             generate_Notation_incremental(xf, df_meta, agency)
 
-
-
-
-
-                
             # ... other elements would be generated here incrementally
 
     # After the file has been written incrementally, pretty-print it to the final output file
@@ -486,11 +478,12 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
     import os
     os.remove(temp_file)
 
-# Call the function to generate the XML and write to a file
+# Call the function to generate the XML and write to a file for testing
 #generate_complete_xml_incremental(df, df_meta, spssfile=file_name, output_file='output.xml')
 
 
 ###########################################################################
+# Functions to add the primary key and its components incrementally. This updates the XML incrementally.
 
 def generate_WideDataStructure2_incremental(xf, df_meta, vars, agency):
     with xf.element(etree.QName(nsmap['cdi'], 'WideDataStructure')):

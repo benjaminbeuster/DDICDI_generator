@@ -171,7 +171,7 @@ app.layout = dbc.Container([
                                 id='table2',
                                 editable=False,  # Allow content to be editable
                                 row_selectable="multi",  # Allow multiple rows to be selected
-                                selected_rows=[0],
+                                selected_rows=[],
                                 style_table=table_style,
                                 style_header=header_dict,
                                 style_cell=style_dict
@@ -362,7 +362,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 )
 def reset_selected_rows(contents):
     if contents is not None:
-        return [0]
+        return []  # Return an empty list to have no selection by default
     else:
         raise dash.exceptions.PreventUpdate
 
