@@ -4,7 +4,7 @@ The DDI-CDI Converter Prototype is a Python-based web application developed to c
 
 ## Example Application
 
-An example application is available to demonstrate the capabilities of this prototype. This prototype was developed by Sikt as part of the [Worldfair Project](https://worldfair-project.eu/) and supported by the DDI-CDI-Working Group.
+An [example application](https://ddi-cdi-converter-app.azurewebsites.net/) is available to demonstrate the capabilities of this prototype. This prototype was developed by Sikt as part of the [Worldfair Project](https://worldfair-project.eu/) and supported by the DDI-CDI-Working Group.
 
 ## Disclaimer
 
