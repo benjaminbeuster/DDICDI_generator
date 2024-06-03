@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+
 from flask import Flask
 import os
 import base64
@@ -112,7 +113,6 @@ about_section = dbc.Card(
     className="mt-4",  # Adding some margin at the top for spacing
 )
 
-
 app.layout = dbc.Container([
     navbar,
     dbc.Row([
@@ -223,8 +223,6 @@ app.layout = dbc.Container([
     about_section  # <-- add this line to include the about_section
 ], fluid=True)
 
-# ... [The initial imports and other code remains unchanged]
-
 def style_data_conditional(df):
     style_data_conditional = []
     for col in df.columns:
@@ -237,6 +235,7 @@ def style_data_conditional(df):
                 'height': 'auto',
             })
     return style_data_conditional
+
 # Define callbacks
 @app.callback(
     Output('table1-instruction', 'style'),
@@ -247,8 +246,6 @@ def update_instruction_text_style(data):
         return {'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px', 'display': 'block'}
     else:
         return {'display': 'none'}
-
-# ... [The initial imports and other code remains unchanged]
 
 @app.callback(
     [Output('table1', 'data'),
@@ -353,7 +350,6 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 
     finally:
         os.remove(tmp_filename)
-       
 
 # reset selected rows in datatable
 @app.callback(
@@ -365,7 +361,6 @@ def reset_selected_rows(contents):
         return []  # Return an empty list to have no selection by default
     else:
         raise dash.exceptions.PreventUpdate
-
 
 @app.callback(
     [Output("table1-col", "style"),
@@ -382,7 +377,6 @@ def switch_table(n_clicks, style1, style2):
         return {'display': 'block'}, {'display': 'none'}
     else:
         return {'display': 'none'}, {'display': 'block'}
-
 
 @app.callback(
     Output('download-xml', 'data'),
