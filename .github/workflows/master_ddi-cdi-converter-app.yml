@@ -68,7 +68,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         run: |
-          az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+          az login --service-principal --username $AZURE_CLIENT_ID --password $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
           deployments=$(az webapp deployment list --resource-group your-resource-group --name ddi-cdi-converter-app --query "[].id" -o tsv)
           for deployment in $deployments; do
             az webapp deployment delete --resource-group your-resource-group --name ddi-cdi-converter-app --id $deployment
