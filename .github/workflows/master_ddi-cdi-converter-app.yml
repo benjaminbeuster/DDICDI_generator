@@ -35,6 +35,9 @@ jobs:
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
 
+      - name: Check ZIP file size
+        run: du -h release.zip
+
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
         with:
@@ -59,11 +62,4 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
-      - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v2
-        id: deploy-to-webapp
-        with:
-          app-name: 'DDI-CDI-Converter-APp'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C421E00AB7CB4C0FBA299601D9FFAF0A }}
+      - name: Clean up old deployments▍
