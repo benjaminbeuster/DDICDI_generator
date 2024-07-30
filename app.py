@@ -17,7 +17,7 @@ from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 
 
-# Define the namespaces for DDI
+# Define the namespaces
 nsmap = {
     'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/',
     'r': 'ddi:reusable:3_3'  # Replace with the actual URI for the 'r' namespace
