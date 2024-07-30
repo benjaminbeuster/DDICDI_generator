@@ -17,16 +17,6 @@ test.ipynb
 
 #backup files
 .github/
-files/ESS10-subset_stata.zip
-files/ESS10-subset.sav
-files/ESS10-subset.dta
-files/ESS10-subset.sav
-files/ESS10-subset.sav
-files/ESS10-subset.zip
-files/ESS10-subset.sav
-files/ESS10-subset.sav
-files/ESS10.dta
-files/ESS10.sav
-files/ESS10-subset.sav
+files/
 output.xml
 temp_output2.xml
