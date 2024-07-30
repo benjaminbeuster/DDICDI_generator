@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'DDI-CDI-Converter-APp'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_153883C07B9549B89FDE6575AE99A1FE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C421E00AB7CB4C0FBA299601D9FFAF0A }}
