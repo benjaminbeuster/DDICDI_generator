@@ -7,10 +7,10 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "3.9.13"
+python = "^3.9"
 pip = "24.2"
 pandas = "1.5.3"
-numpy = "1.21.0"
+numpy = "^1.23.2"
 pyreadstat = "1.2.7"
 dash = "2.13.0"
 dash-bootstrap-components = "1.5.0"
