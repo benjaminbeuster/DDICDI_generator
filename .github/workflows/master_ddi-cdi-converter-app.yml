@@ -33,10 +33,7 @@ jobs:
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip ./*
-
-      - name: Check ZIP file size
-        run: du -h release.zip
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v3
@@ -62,18 +59,7 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      - name: Clean up old deployments
-        env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: |
-          az login --service-principal --username $AZURE_CLIENT_ID --password $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-          deployments=$(az webapp deployment list --resource-group your-resource-group --name ddi-cdi-converter-app --query "[].id" -o tsv)
-          for deployment in $deployments; do
-            az webapp deployment delete --resource-group your-resource-group --name ddi-cdi-converter-app --id $deployment
-          done
-
+      
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
