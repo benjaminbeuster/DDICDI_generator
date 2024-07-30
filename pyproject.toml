@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "ddi-cdi-converter-app"
+version = "0.1.0"
+description = ""
+authors = ["Benjamin Beuster <benjamin.beuster@sikt.no>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "3.9.13"
+pip = "24.2"
+pandas = "1.5.3"
+numpy = "1.21.0"
+pyreadstat = "1.2.7"
+dash = "2.13.0"
+dash-bootstrap-components = "1.5.0"
+flask = "2.1.2"
+lxml = "4.9.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
