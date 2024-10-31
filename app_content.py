@@ -1,6 +1,6 @@
 import datetime
 
-prefix = "https://ddi-cdi-resources.bitbucket.io/2024-03-12/field-level-documentation/DDICDILibrary/Classes"
+prefix = "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/field-level-documentation/DDICDILibrary/Classes"
 
 markdown_text = r"""
 ## DDI-CDI Subset

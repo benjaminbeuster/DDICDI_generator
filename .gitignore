@@ -18,6 +18,8 @@ test.ipynb
 #backup files
 .github/
 files/
+/test
 output.xml
 temp_output2.xml
 pyproject.toml
+.DS_Store
