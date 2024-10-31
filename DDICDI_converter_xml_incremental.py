@@ -439,7 +439,7 @@ def pretty_print_xml(input_file, output_file):
 def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file='output.xml'):
     temp_file = 'temp_output.xml'
     schema_location = ('http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ '
-                       'https://ddi-cdi-resources.bitbucket.io/2024-03-12/encoding/xml-schema/ddi-cdi.xsd')
+                       'https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/xml-schema/ddi-cdi.xsd')
     with etree.xmlfile(temp_file, encoding='UTF-8') as xf:
         xf.write_declaration(standalone=True)
         # Define the root element with the schemaLocation attribute

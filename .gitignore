@@ -24,3 +24,4 @@ temp_output2.xml
 pyproject.toml
 .DS_Store
 app_mai.py
+validation/

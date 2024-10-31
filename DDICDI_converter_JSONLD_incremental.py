@@ -5,6 +5,42 @@ import numpy as np
 import pandas as pd
 import datetime
 
+# PhysicalDataSetStructure
+def generate_PhysicalDataSetStructure(df_meta):
+    json_ld_data = []
+    elements = {
+        "@id": "#physicalDataSetStructure",
+        "@type": "PhysicalDataSetStructure",
+        "correspondsTo_DataStructure": "#wideDataStructure",
+        "structures": "#physicalDataSet"
+    }
+    json_ld_data.append(elements)
+    return json_ld_data
+
+# PhysicalDataset
+def generate_PhysicalDataset(df_meta, spssfile):
+    json_ld_data = []
+    elements = {
+        "@id": f"#physicalDataset",
+        "@type": "PhysicalDataset",
+        "physicalFileName": spssfile,
+        "correspondsTo_DataSet": "#wideDataSet",
+        "formats": "#dataStore",
+        "has_PhysicalRecordSegment": ["#physicalRecordSegment"]
+    }
+    json_ld_data.append(elements)
+    return json_ld_data
+
+# DataStore
+def generate_DataStore(df_meta):
+    return [{
+        "@id": "#dataStore",
+        "@type": "DataStore",
+        "allowsDuplicates": "false",
+        "recordCount": df_meta.number_rows,
+        "has_LogicalRecord": ["#logicalRecord"]
+    }]
+
 # Create functions
 def generate_InstanceVariable(df_meta):
     json_ld_data = []
@@ -74,7 +110,7 @@ def generate_LogicalRecord(df_meta):
     has = []
     for x, variable in enumerate(df_meta.column_names):
         has.append(f"#{variable}")
-    elements['has'] = has
+    elements['has_InstanceVariable'] = has
     json_ld_data.append(elements)
     return json_ld_data
 
@@ -82,38 +118,13 @@ def generate_LogicalRecord(df_meta):
 # In[ ]:
 
 
-# PhysicalDataset
-def generate_PhysicalDataset(df_meta, spssfile):
-    json_ld_data = []
-    elements = {
-        "@id": f"#physicalDataset",
-        "@type": "PhysicalDataset",
-        "formats": "#dataStore",
-        "physicalFileName": spssfile
-    }
-    has = ["#physicalRecordSegment"]
-    elements['has'] = has
-    json_ld_data.append(elements)
-    return json_ld_data
+
 
 
 # In[ ]:
 
 
-# DataStore
-def generate_DataStore(df_meta):
-    json_ld_data = []
-    elements = {
-        "@id": f"#dataStore",
-        "@type": "DataStore",
-        "allowsDuplicates": "false",
-        "recordCount": df_meta.number_rows
-    }
-    has = ["#logicalRecord"]
-    elements['has'] = has
 
-    json_ld_data.append(elements)
-    return json_ld_data
 
 
 # In[ ]:
@@ -739,6 +750,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # ... [all your function definitions here]
 
     # Generate JSON-LD
+    PhysicalDataSetStructure = generate_PhysicalDataSetStructure(df_meta)
     InstanceVariable = generate_InstanceVariable(df_meta)
     SubstantiveConceptualDomain = generate_SubstantiveConceptualDomain(df_meta)
     SentinelConceptualDomain = generate_SentinelConceptualDomain(df_meta)
@@ -762,16 +774,17 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
     PrimaryKeyComponent = generate_PrimaryKeyComponent(df_meta)
     MeasureComponent = generate_MeasureComponent(df_meta)
     IdentifierComponent = generate_IdentifierComponent(df_meta)
+    PhysicalDataSetStructure = generate_PhysicalDataSetStructure(df_meta)
 
-    json_ld_graph = DataStore + LogicalRecord + WideDataSet + \
+    json_ld_graph = PhysicalDataSetStructure + DataStore + LogicalRecord + WideDataSet + \
                     WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
                     SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
                     SentinelConceptScheme + Concept + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
-                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue
+                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + PhysicalDataSetStructure
     # Create a dictionary with the specified "@context" and "@graph" keys
     json_ld_dict = {
         "@context": [
-            "https://ddi-alliance.bitbucket.io/DDI-CDI/DDI-CDI_v1.0-rc1/encoding/json-ld/ddi-cdi.jsonld",
+            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
             {
                 "skos": "http://www.w3.org/2004/02/skos/core#"
             }
@@ -825,16 +838,17 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
     PrimaryKeyComponent = generate_PrimaryKeyComponent2(df_meta, vars)
     MeasureComponent = generate_MeasureComponent2(df_meta, vars)
     IdentifierComponent = generate_IdentifierComponent2(df_meta, vars)
+    PhysicalDataSetStructure = generate_PhysicalDataSetStructure(df_meta)
 
-    json_ld_graph = DataStore + LogicalRecord + WideDataSet + \
+    json_ld_graph = PhysicalDataSetStructure + DataStore + LogicalRecord + WideDataSet + \
                     WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
                     SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
                     SentinelConceptScheme + Concept + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
-                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue
+                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + PhysicalDataSetStructure
     # Create a dictionary with the specified "@context" and "@graph" keys
     json_ld_dict = {
         "@context": [
-            "https://ddi-alliance.bitbucket.io/DDI-CDI/DDI-CDI_v1.0-rc1/encoding/json-ld/ddi-cdi.jsonld",
+            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
             {
                 "skos": "http://www.w3.org/2004/02/skos/core#"
             }
@@ -857,3 +871,4 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
     json_ld_string = json.dumps(json_ld_dict, indent=4, default=default_encode)
 
     return json_ld_string
+

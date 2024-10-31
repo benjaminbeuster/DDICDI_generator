@@ -21,7 +21,7 @@ from DDICDI_converter_xml_incremental import (
     generate_PrimaryKeyComponent2_incremental,
     update_xml
 )
-from DDICDI_converter_JSONLD_incremental import (
+from DDICDI_converter_jsonld_incremental import (
     generate_complete_json_ld,
     generate_complete_json_ld2
 )
@@ -466,7 +466,7 @@ def download_json(n_clicks, json_data, filename):
     if n_clicks is None or filename is None or json_data is None:
         raise dash.exceptions.PreventUpdate
 
-    download_filename = os.path.splitext(filename)[0] + '.json'
+    download_filename = os.path.splitext(filename)[0] + '.jsonld'
     return dict(content=json_data, filename=download_filename, type='application/json')
 
 if __name__ == '__main__':
