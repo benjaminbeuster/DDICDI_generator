@@ -716,6 +716,22 @@ def generate_PrimaryKeyComponent2(df_meta, varlist=None):
     json_ld_data.append(elements)
     return json_ld_data
 
+# PrimaryKey2
+def generate_PrimaryKey2(df_meta, varlist=None):
+    json_ld_data = []
+    elements = {
+        "@id": "#primaryKey",
+        "@type": "PrimaryKey",
+    }
+    
+    has = []
+    for variable in varlist:
+        has.append(f"#identifierComponent-{variable}")
+    
+    elements['isComposedOf'] = has
+    json_ld_data.append(elements)
+    return json_ld_data
+
 
 ################################################################################
 
@@ -805,7 +821,7 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
     DataStore = generate_DataStore(df_meta)
     WideDataSet = generate_WideDataSet(df_meta)
     WideDataStructure = generate_WideDataStructure2(df_meta, vars)
-    PrimaryKey = generate_PrimaryKey(df_meta)
+    PrimaryKey = generate_PrimaryKey2(df_meta, vars)
     PrimaryKeyComponent = generate_PrimaryKeyComponent2(df_meta, vars)
     MeasureComponent = generate_MeasureComponent2(df_meta, vars)
     IdentifierComponent = generate_IdentifierComponent2(df_meta, vars)

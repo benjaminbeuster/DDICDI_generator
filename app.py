@@ -14,6 +14,12 @@ import pandas as pd
 from lxml import etree
 from DDICDI_converter_xml_incremental import (
     generate_complete_xml_incremental,
+    generate_WideDataStructure2_incremental,
+    generate_IdentifierComponent2_incremental,
+    generate_MeasureComponent2_incremental,
+    generate_PrimaryKey2_incremental,
+    generate_PrimaryKeyComponent2_incremental,
+    update_xml
 )
 from DDICDI_converter_JSONLD_incremental import (
     generate_complete_json_ld,
@@ -21,6 +27,7 @@ from DDICDI_converter_JSONLD_incremental import (
 )
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
+from io import BytesIO
 
 
 # Define the namespaces, DDI
@@ -307,42 +314,92 @@ def combined_callback(contents, selected_rows, filename, table2_data):
             temp_xml_filename = temp_xml_file.name
             temp_json_filename = temp_json_file.name
 
-        # Generate initial XML and JSON-LD
-        generate_complete_xml_incremental(df.head(), df_meta, spssfile=filename, output_file=temp_xml_filename)
+        # Initialize vars as empty list
+        vars = []
         
-        # Generate and save JSON-LD
-        json_ld_data = generate_complete_json_ld(df.head(), df_meta, spssfile=filename)
-        with open(temp_json_filename, 'w', encoding='utf-8') as f:
-            f.write(json_ld_data)
-
         # If rows are selected, update both XML and JSON-LD
         if selected_rows and table2_data and df_meta:
             vars = [table2_data[row_index]["name"] for row_index in selected_rows]
 
-            # Handle XML updates (existing code)
-            with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_updated_xml_file:
-                temp_updated_xml_filename = temp_updated_xml_file.name
-                # ... existing XML update code ...
+            # Generate initial XML
+            generate_complete_xml_incremental(
+                df.head(), 
+                df_meta, 
+                spssfile=filename, 
+                output_file=temp_xml_filename
+            )
 
-            # Handle JSON-LD updates
-            json_ld_data = generate_complete_json_ld2(df.head(), df_meta, vars=vars, spssfile=filename)
-            with open(temp_json_filename, 'w', encoding='utf-8') as f:
-                f.write(json_ld_data)
+            if vars:
+                # Generate a new XML file with the primary key components
+                temp_updated_xml = tempfile.NamedTemporaryFile(suffix='.xml', delete=False).name
+                
+                with etree.xmlfile(temp_updated_xml, encoding='UTF-8') as xf:
+                    xf.write_declaration(standalone=True)
+                    with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap):
+                        generate_WideDataStructure2_incremental(xf, df_meta, vars, agency)
+                        generate_IdentifierComponent2_incremental(xf, df_meta, vars, agency)
+                        generate_MeasureComponent2_incremental(xf, df_meta, vars, agency)
+                        generate_PrimaryKey2_incremental(xf, df_meta, vars, agency)
+                        generate_PrimaryKeyComponent2_incremental(xf, df_meta, vars, agency)
 
-        # Read the content of both files
-        with open(temp_xml_filename, 'r', encoding='utf-8') as file:
-            xml_data = file.read()
-        with open(temp_json_filename, 'r', encoding='utf-8') as file:
-            json_ld_data = file.read()
+                # Read both XML files and parse them
+                parser = etree.XMLParser(remove_blank_text=True)
+                original_tree = etree.parse(temp_xml_filename, parser)
+                updated_tree = etree.parse(temp_updated_xml, parser)
 
-        # Clean up temporary files
-        os.remove(temp_xml_filename)
-        os.remove(temp_json_filename)
+                # Merge the XML content
+                merged_xml = update_xml(
+                    etree.tostring(original_tree, encoding='utf-8', pretty_print=True).decode('utf-8'),
+                    etree.tostring(updated_tree, encoding='utf-8', pretty_print=True).decode('utf-8')
+                )
 
-        # Parse and pretty-print XML
-        parser = etree.XMLParser(remove_blank_text=True)
-        xml_tree = etree.fromstring(xml_data.encode('utf-8'), parser)
-        xml_data_pretty = etree.tostring(xml_tree, pretty_print=True, encoding='utf-8').decode()
+                # Parse the merged XML and pretty print it
+                merged_tree = etree.fromstring(merged_xml.encode('utf-8'))
+                xml_data_pretty = etree.tostring(
+                    merged_tree, 
+                    encoding='utf-8', 
+                    pretty_print=True, 
+                    xml_declaration=True
+                ).decode('utf-8')
+                
+                # Clean up temporary file
+                os.remove(temp_updated_xml)
+            else:
+                # Read and pretty print the original XML
+                parser = etree.XMLParser(remove_blank_text=True)
+                tree = etree.parse(temp_xml_filename, parser)
+                xml_data_pretty = etree.tostring(
+                    tree, 
+                    encoding='utf-8', 
+                    pretty_print=True, 
+                    xml_declaration=True
+                ).decode('utf-8')
+
+        else:
+            # Generate XML without primary keys
+            generate_complete_xml_incremental(
+                df.head(), 
+                df_meta, 
+                spssfile=filename, 
+                output_file=temp_xml_filename
+            )
+            # Read and pretty print the XML
+            parser = etree.XMLParser(remove_blank_text=True)
+            tree = etree.parse(temp_xml_filename, parser)
+            xml_data_pretty = etree.tostring(
+                tree, 
+                encoding='utf-8', 
+                pretty_print=True, 
+                xml_declaration=True
+            ).decode('utf-8')
+
+        # Handle JSON-LD (keeping this part unchanged as it works)
+        json_ld_data = generate_complete_json_ld2(
+            df.head(), 
+            df_meta, 
+            vars=vars if 'vars' in locals() else [],
+            spssfile=filename
+        )
 
         # Update instruction text
         instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. Please note that the generated XML and JSON-LD output will only include these 5 rows, even though the full dataset contains {n_rows} rows."
