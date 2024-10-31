@@ -227,6 +227,7 @@ app.layout = dbc.Container([
                 ], width=6)
 
             ]),
+            html.Div(id='json-ld-output', style={'display': 'none'}),
         ])
     ]),
     about_section  # <-- add this line to include the about_section
@@ -266,7 +267,8 @@ def update_instruction_text_style(data):
      Output('xml-ld-output', 'children'),
      Output('btn-download', 'style'),
      Output('btn-download-json', 'style'),
-     Output('table1-instruction', 'children')],
+     Output('table1-instruction', 'children'),
+     Output('json-ld-output', 'children')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows')],
     [State('upload-data', 'filename'),
@@ -274,7 +276,7 @@ def update_instruction_text_style(data):
 )
 def combined_callback(contents, selected_rows, filename, table2_data):
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}, {'display': 'none'}, ""
+        return [], [], [], [], [], [], "", {'display': 'none'}, {'display': 'none'}, "", ""
 
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -348,11 +350,11 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         return (df.to_dict('records'), columns1, conditional_styles1, 
                 df2.to_dict('records'), columns2, conditional_styles2, 
                 xml_data_pretty, {'display': 'block'}, {'display': 'block'}, 
-                instruction_text)
+                instruction_text, json_ld_data)
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, {'display': 'none'}, ""
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, {'display': 'none'}, "", ""
 
     finally:
         os.remove(tmp_filename)
@@ -400,7 +402,7 @@ def download_xml(n_clicks, xml_data, filename):
 @app.callback(
     Output('download-json', 'data'),
     [Input('btn-download-json', 'n_clicks')],
-    [State('xml-ld-output', 'children'),
+    [State('json-ld-output', 'children'),
      State('upload-data', 'filename')]
 )
 def download_json(n_clicks, json_data, filename):
