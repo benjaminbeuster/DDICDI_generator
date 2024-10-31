@@ -719,7 +719,7 @@ def generate_PrimaryKeyComponent2(df_meta, varlist=None):
 
 ################################################################################
 
-def generate_complete_jsonld(df, df_meta, spssfile='name'):
+def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # ... [all your function definitions here]
 
     # Generate JSON-LD
@@ -782,7 +782,7 @@ def generate_complete_jsonld(df, df_meta, spssfile='name'):
 
 ###################################################################################################
 
-def generate_complete_jsonld2(df, df_meta, vars=None, spssfile='name'):
+def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
     # ... [all your function definitions here]
 
     # Generate JSON-LD

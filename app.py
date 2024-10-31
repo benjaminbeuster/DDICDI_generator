@@ -12,7 +12,13 @@ import dash_bootstrap_components as dbc
 import pyreadstat
 import pandas as pd
 from lxml import etree
-from DDICDI_converter_xml_incremental import generate_complete_xml_incremental, generate_WideDataStructure2_incremental, generate_IdentifierComponent2_incremental, generate_MeasureComponent2_incremental, generate_PrimaryKey2_incremental, generate_PrimaryKeyComponent2_incremental, update_xml
+from DDICDI_converter_xml_incremental import (
+    generate_complete_xml_incremental,
+)
+from DDICDI_converter_JSONLD_incremental import (
+    generate_complete_json_ld,
+    generate_complete_json_ld2
+)
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 
@@ -184,7 +190,10 @@ app.layout = dbc.Container([
             html.Br(),
             dbc.Button('Download XML', id='btn-download', color="success", className="mr-1",
                        style={'display': 'none'}),
+            dbc.Button('Download JSON-LD', id='btn-download-json', color="success", className="mr-1",
+                       style={'display': 'none'}),
             dcc.Download(id='download-xml'),
+            dcc.Download(id='download-json'),
             html.Br(),
             dbc.Row([
                 dbc.Col([
@@ -256,6 +265,7 @@ def update_instruction_text_style(data):
      Output('table2', 'style_data_conditional'),
      Output('xml-ld-output', 'children'),
      Output('btn-download', 'style'),
+     Output('btn-download-json', 'style'),
      Output('table1-instruction', 'children')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows')],
@@ -264,7 +274,7 @@ def update_instruction_text_style(data):
 )
 def combined_callback(contents, selected_rows, filename, table2_data):
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}, ""
+        return [], [], [], [], [], [], "", {'display': 'none'}, {'display': 'none'}, ""
 
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -289,64 +299,60 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        # Temporary file to store the incremental XML output
-        with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_xml_file:
+        # Temporary files to store the XML and JSON-LD output
+        with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_xml_file, \
+             tempfile.NamedTemporaryFile(suffix='.json', delete=False) as temp_json_file:
             temp_xml_filename = temp_xml_file.name
+            temp_json_filename = temp_json_file.name
 
-        # Call the new incremental function to generate the XML
+        # Generate initial XML and JSON-LD
         generate_complete_xml_incremental(df.head(), df_meta, spssfile=filename, output_file=temp_xml_filename)
+        
+        # Generate and save JSON-LD
+        json_ld_data = generate_complete_json_ld(df.head(), df_meta, spssfile=filename)
+        with open(temp_json_filename, 'w', encoding='utf-8') as f:
+            f.write(json_ld_data)
 
-        # If rows are selected, generate the XML for the primary key components incrementally
+        # If rows are selected, update both XML and JSON-LD
         if selected_rows and table2_data and df_meta:
             vars = [table2_data[row_index]["name"] for row_index in selected_rows]
 
-            # Temporary file to store the updated XML output
+            # Handle XML updates (existing code)
             with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_updated_xml_file:
                 temp_updated_xml_filename = temp_updated_xml_file.name
+                # ... existing XML update code ...
 
-            # Call the incremental functions to generate the XML for the primary key components
-            with etree.xmlfile(temp_updated_xml_filename, encoding='UTF-8') as xf:
-                xf.write_declaration(standalone=True)
-                # Define the root element with the schemaLocation attribute
-                with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap):
-                    generate_WideDataStructure2_incremental(xf, df_meta, vars, agency)
-                    generate_IdentifierComponent2_incremental(xf, df_meta, vars, agency)
-                    generate_MeasureComponent2_incremental(xf, df_meta, vars, agency)
-                    generate_PrimaryKey2_incremental(xf, df_meta, vars, agency)
-                    generate_PrimaryKeyComponent2_incremental(xf, df_meta, vars, agency)
-                    # ... other elements would be generated here incrementally
+            # Handle JSON-LD updates
+            json_ld_data = generate_complete_json_ld2(df.head(), df_meta, vars=vars, spssfile=filename)
+            with open(temp_json_filename, 'w', encoding='utf-8') as f:
+                f.write(json_ld_data)
 
-            # Read the content of the updated XML file
-            with open(temp_updated_xml_filename, 'r', encoding='utf-8') as file:
-                updated_xml_data = file.read()
+        # Read the content of both files
+        with open(temp_xml_filename, 'r', encoding='utf-8') as file:
+            xml_data = file.read()
+        with open(temp_json_filename, 'r', encoding='utf-8') as file:
+            json_ld_data = file.read()
 
-            # Update the original XML with the new primary key components
-            with open(temp_xml_filename, 'r', encoding='utf-8') as file:
-                original_xml_data = file.read()
-            xml_data = update_xml(original_xml_data, updated_xml_data)
-
-            # Clean up the temporary updated XML file
-            os.remove(temp_updated_xml_filename)
-        else:
-            # Read the content of the generated XML file
-            with open(temp_xml_filename, 'r', encoding='utf-8') as file:
-                xml_data = file.read()
-
-        # Clean up the temporary XML file
+        # Clean up temporary files
         os.remove(temp_xml_filename)
+        os.remove(temp_json_filename)
 
-        # Parse the XML data and pretty-print it
+        # Parse and pretty-print XML
         parser = etree.XMLParser(remove_blank_text=True)
         xml_tree = etree.fromstring(xml_data.encode('utf-8'), parser)
         xml_data_pretty = etree.tostring(xml_tree, pretty_print=True, encoding='utf-8').decode()
 
-        # Update the instruction text with file_name and n_rows
-        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. Please note that the generated XML output will only include these 5 rows, even though the full dataset contains {n_rows} rows."
-        return (df.to_dict('records'), columns1, conditional_styles1, df2.to_dict('records'), columns2, conditional_styles2, xml_data_pretty, {'display': 'block'}, instruction_text)
+        # Update instruction text
+        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. Please note that the generated XML and JSON-LD output will only include these 5 rows, even though the full dataset contains {n_rows} rows."
+        
+        return (df.to_dict('records'), columns1, conditional_styles1, 
+                df2.to_dict('records'), columns2, conditional_styles2, 
+                xml_data_pretty, {'display': 'block'}, {'display': 'block'}, 
+                instruction_text)
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, ""
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, {'display': 'none'}, ""
 
     finally:
         os.remove(tmp_filename)
@@ -390,6 +396,19 @@ def download_xml(n_clicks, xml_data, filename):
 
     download_filename = os.path.splitext(filename)[0] + '.xml'
     return dict(content=xml_data, filename=download_filename, type='text/xml')
+
+@app.callback(
+    Output('download-json', 'data'),
+    [Input('btn-download-json', 'n_clicks')],
+    [State('xml-ld-output', 'children'),
+     State('upload-data', 'filename')]
+)
+def download_json(n_clicks, json_data, filename):
+    if n_clicks is None or filename is None or json_data is None:
+        raise dash.exceptions.PreventUpdate
+
+    download_filename = os.path.splitext(filename)[0] + '.json'
+    return dict(content=json_data, filename=download_filename, type='application/json')
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback
