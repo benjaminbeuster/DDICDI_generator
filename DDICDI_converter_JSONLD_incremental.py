@@ -21,7 +21,7 @@ def generate_PhysicalDataSetStructure(df_meta):
 def generate_PhysicalDataset(df_meta, spssfile):
     json_ld_data = []
     elements = {
-        "@id": f"#physicalDataset",
+        "@id": f"#physicalDataSet",
         "@type": "PhysicalDataset",
         "allowsDuplicates": "false",
         "physicalFileName": spssfile,
@@ -48,7 +48,7 @@ def generate_PhysicalRecordSegment(df_meta, df):
     # Iterate through column names and their values to add DataPointPosition references
     for variable in df_meta.column_names:
         for i in range(len(df[variable])):
-            elements["has_DataPointPosition"].append(f"#{variable}-dataPointPosition-{i}")
+            elements["has_DataPointPosition"].append(f"#dataPointPosition-{i}-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
@@ -164,10 +164,10 @@ def generate_InstanceValue(df, df_meta):
     for variable in (df_meta.column_names):
         for idx, value in enumerate(df[variable]):
             elements = {
-                "@id": f"#{variable}-instanceValue-{idx}",
+                "@id": f"#instanceValue-{idx}-{variable}",
                 "@type": "InstanceValue",
                 "content": value,
-                "isStoredIn": f"#{variable}-dataPoint-{idx}"
+                "isStoredIn": f"#dataPoint-{idx}-{variable}"
             }
 
             json_ld_data.append(elements)
@@ -177,15 +177,76 @@ def generate_InstanceValue(df, df_meta):
 
 # DataStore
 def generate_DataStore(df_meta):
-    return [{
+    json_ld_data = []
+    elements = {
         "@id": "#dataStore",
         "@type": "DataStore",
         "allowsDuplicates": "false",
         "recordCount": df_meta.number_rows,
         "has_LogicalRecord": ["#logicalRecord"]
-    }]
+    }
+    json_ld_data.append(elements)
+    return json_ld_data
 
-# Create functions
+
+# logicalRecord
+def generate_LogicalRecord(df_meta):
+    json_ld_data = []
+    elements = {
+        "@id": "#logicalRecord",
+        "@type": "LogicalRecord",
+        "organizes": "#wideDataSet",
+        "has_InstanceVariable": []
+    }
+    
+    # Add InstanceVariable references with consistent ID naming
+    for variable in df_meta.column_names:
+        elements["has_InstanceVariable"].append(f"#instanceVariable-{variable}")
+    
+    json_ld_data.append(elements)
+    return json_ld_data
+
+
+# WideDataSet
+def generate_WideDataSet(df_meta):
+    json_ld_data = []
+    elements = {
+        "@id": "#wideDataSet",
+        "@type": "WideDataSet",
+        "isStructuredBy": "#wideDataStructure"
+    }
+
+    json_ld_data.append(elements)
+    return json_ld_data
+
+
+# WideDataStructure
+def generate_WideDataStructure(df_meta):
+    json_ld_data = []
+    elements = {
+        "@id": "#wideDataStructure",
+        "@type": "WideDataStructure",
+        "has": []
+    }
+    
+    # Add PrimaryKey reference
+    elements["has"].append("#primaryKey")
+    
+    # Add all components
+    for variable in df_meta.column_names:
+        if variable == df_meta.column_names[0]:
+            elements["has"].append(f"#identifierComponent-{variable}")
+        else:
+            elements["has"].append(f"#measureComponent-{variable}")
+
+    json_ld_data.append(elements)
+    return json_ld_data
+
+
+
+
+
+
 def generate_InstanceVariable(df_meta):
     json_ld_data = []
 
@@ -240,56 +301,6 @@ def generate_IdentifierComponent(df_meta):
     return json_ld_data
 
 
-# In[ ]:
-
-
-# logicalRecord
-def generate_LogicalRecord(df_meta):
-    json_ld_data = []
-    elements = {
-        "@id": f"#logicalRecord",
-        "@type": "LogicalRecord",
-        "organizes": f"#wideDataSet"
-    }
-    has = []
-    for x, variable in enumerate(df_meta.column_names):
-        has.append(f"#{variable}")
-    elements['has_InstanceVariable'] = has
-    json_ld_data.append(elements)
-    return json_ld_data
-
-
-# WideDataSet
-def generate_WideDataSet(df_meta):
-    json_ld_data = []
-    elements = {
-        "@id": f"#wideDataSet",
-        "@type": "WideDataSet",
-        "isStructuredBy": "#wideDataStructure"
-    }
-
-    json_ld_data.append(elements)
-    return json_ld_data
-
-
-# In[ ]:
-
-
-# WideDataStructure
-def generate_WideDataStructure(df_meta):
-    json_ld_data = []
-    elements = {
-        "@id": f"#wideDataStructure",
-        "@type": "WideDataStructure",
-    }
-    has = ["#primaryKey", f"#identifierComponent-{df_meta.column_names[0]}"]
-
-    for x, variable in enumerate(df_meta.column_names[1:]):
-        has.append(f"#measureComponent-{variable}")
-    elements['has'] = has
-
-    json_ld_data.append(elements)
-    return json_ld_data
 
 
 # In[ ]:
