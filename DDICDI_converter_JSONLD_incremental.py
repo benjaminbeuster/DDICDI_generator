@@ -61,16 +61,59 @@ def generate_PhysicalSegmentLayout(df_meta):
     elements = {
         "@id": f"#physicalSegmentLayout",
         "@type": "PhysicalSegmentLayout",
+        "allowsDuplicates": "false",
         "formats": "#logicalRecord",
         "isDelimited": "false",
         "delimiter": "",
+        "has_ValueMapping": [],
+        "has_ValueMappingPosition": []
     }
-    has = []
-    for x, variable in enumerate(df_meta.column_names):
-        has.append(f"#valueMapping-{variable}")
-        has.append(f"#valueMappingPosition-{variable}")
-    elements['has'] = has
+    
+    # Add both ValueMapping and ValueMappingPosition references for each variable
+    for variable in df_meta.column_names:
+        elements["has_ValueMapping"].append(f"#valueMapping-{variable}")
+        elements["has_ValueMappingPosition"].append(f"#valueMappingPosition-{variable}")
+        
     json_ld_data.append(elements)
+    return json_ld_data
+
+# ValueMapping
+def generate_ValueMapping(df, df_meta):
+    json_ld_data = []
+
+    # Iterate through column names and associated index
+    for idx, variable in enumerate(df_meta.column_names):
+        elements = {
+            "@id": f"#valueMapping-{variable}",
+            "@type": "ValueMapping",
+        }
+        datapoints = []
+        for i, x in enumerate(df[variable]):
+            datapoints.append(f"#{variable}-dataPoint-{i}")
+        elements['formats'] = datapoints
+
+        json_ld_data.append(elements)
+
+    return json_ld_data
+
+
+# In[ ]:
+
+
+# ValueMappingPosition
+def generate_ValueMappingPosition(df_meta):
+    json_ld_data = []
+
+    # Iterate through column names and associated index
+    for idx, variable in enumerate(df_meta.column_names):
+        elements = {
+            "@id": f"#valueMappingPosition-{variable}",
+            "@type": "ValueMappingPosition",
+            "value": idx,
+            "indexes": f"#valueMapping-{variable}"
+        }
+        json_ld_data.append(elements)
+
     return json_ld_data
 
 # DataStore
@@ -246,44 +289,7 @@ def generate_PrimaryKeyComponent(df_meta):
 # In[ ]:
 
 
-# ValueMapping
-def generate_ValueMapping(df, df_meta):
-    json_ld_data = []
 
-    # Iterate through column names and associated index
-    for idx, variable in enumerate(df_meta.column_names):
-        elements = {
-            "@id": f"#valueMapping-{variable}",
-            "@type": "ValueMapping",
-        }
-        datapoints = []
-        for i, x in enumerate(df[variable]):
-            datapoints.append(f"#{variable}-dataPoint-{i}")
-        elements['formats'] = datapoints
-
-        json_ld_data.append(elements)
-
-    return json_ld_data
-
-
-# In[ ]:
-
-
-# ValueMappingPosition
-def generate_ValueMappingPosition(df_meta):
-    json_ld_data = []
-
-    # Iterate through column names and associated index
-    for idx, variable in enumerate(df_meta.column_names):
-        elements = {
-            "@id": f"#valueMappingPosition-{variable}",
-            "@type": "ValueMappingPosition",
-            "value": idx,
-            "indexes": f"#valueMapping-{variable}"
-        }
-        json_ld_data.append(elements)
-
-    return json_ld_data
 
 
 # In[ ]:
@@ -784,11 +790,43 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
     IdentifierComponent = generate_IdentifierComponent(df_meta)
     PhysicalDataSetStructure = generate_PhysicalDataSetStructure(df_meta)
 
-    json_ld_graph = PhysicalDataSetStructure + DataStore + LogicalRecord + WideDataSet + \
-                    WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
-                    SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
-                    SentinelConceptScheme + Concept + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
-                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + PhysicalDataSetStructure
+    json_ld_graph = (
+        # Physical structure components
+        PhysicalDataSetStructure +
+        PhysicalDataset +
+        PhysicalRecordSegment +
+        PhysicalSegmentLayout +
+        
+        # Value mapping components
+        ValueMappingPosition +
+        ValueMapping +
+        
+        # Data components
+        DataPoint +
+        DataPointPosition +
+        InstanceValue +
+        
+        # Structural components
+        DataStore +
+        LogicalRecord +
+        WideDataSet +
+        WideDataStructure +
+        MeasureComponent +
+        
+        # Variable and concept components
+        InstanceVariable +
+        SubstantiveConceptualDomain +
+        SentinelConceptualDomain +
+        ValueAndConceptDescription +
+        
+        # Classification components
+        SubstantiveConceptScheme +
+        SentinelConceptScheme +
+        Concept +
+        Category +
+        Notation
+    )
+
     # Create a dictionary with the specified "@context" and "@graph" keys
     json_ld_dict = {
         "@context": [
@@ -848,11 +886,44 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
     IdentifierComponent = generate_IdentifierComponent2(df_meta, vars)
     PhysicalDataSetStructure = generate_PhysicalDataSetStructure(df_meta)
 
-    json_ld_graph = PhysicalDataSetStructure + DataStore + LogicalRecord + WideDataSet + \
-                    WideDataStructure + IdentifierComponent + MeasureComponent + PrimaryKey + PrimaryKeyComponent + InstanceVariable + \
-                    SubstantiveConceptualDomain + SubstantiveConceptScheme + SentinelConceptualDomain + ValueAndConceptDescription + \
-                    SentinelConceptScheme + Concept + PhysicalDataset + PhysicalRecordSegment + PhysicalSegmentLayout + ValueMapping + \
-                    ValueMappingPosition + DataPoint + DataPointPosition + InstanceValue + PhysicalDataSetStructure
+    # Combine all components into the final graph structure
+    json_ld_graph = (
+        # Structure components
+        PhysicalDataSetStructure +
+        DataStore +
+        LogicalRecord +
+        WideDataSet +
+        WideDataStructure +
+        
+        # Component definitions
+        IdentifierComponent +
+        MeasureComponent +
+        PrimaryKey +
+        PrimaryKeyComponent +
+        InstanceVariable +
+        
+        # Conceptual components
+        SubstantiveConceptualDomain +
+        SubstantiveConceptScheme +
+        SentinelConceptualDomain +
+        SentinelConceptScheme +
+        ValueAndConceptDescription +
+        Concept +
+        
+        # Physical components
+        PhysicalDataset +
+        PhysicalRecordSegment +
+        PhysicalSegmentLayout +
+        
+        # Value and data components
+        ValueMapping +
+        ValueMappingPosition +
+        DataPoint +
+        DataPointPosition +
+        InstanceValue +
+        PhysicalDataSetStructure
+    )
+
     # Create a dictionary with the specified "@context" and "@graph" keys
     json_ld_dict = {
         "@context": [
