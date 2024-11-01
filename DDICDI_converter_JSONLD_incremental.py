@@ -23,11 +23,53 @@ def generate_PhysicalDataset(df_meta, spssfile):
     elements = {
         "@id": f"#physicalDataset",
         "@type": "PhysicalDataset",
+        "allowsDuplicates": "false",
         "physicalFileName": spssfile,
         "correspondsTo_DataSet": "#wideDataSet",
         "formats": "#dataStore",
         "has_PhysicalRecordSegment": ["#physicalRecordSegment"]
     }
+    json_ld_data.append(elements)
+    return json_ld_data
+
+
+# PhysicalRecordSegment
+def generate_PhysicalRecordSegment(df_meta, df):
+    json_ld_data = []
+    elements = {
+        "@id": f"#physicalRecordSegment",
+        "@type": "PhysicalRecordSegment",
+        "allowsDuplicates": "false",
+        "mapsTo": "#logicalRecord",
+        "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+        "has_DataPointPosition": []
+    }
+
+    # Iterate through column names and their values to add DataPointPosition references
+    for variable in df_meta.column_names:
+        for i in range(len(df[variable])):
+            elements["has_DataPointPosition"].append(f"#{variable}-dataPointPosition-{i}")
+
+    json_ld_data.append(elements)
+    return json_ld_data
+
+
+
+# PhysicalSegmentLayout
+def generate_PhysicalSegmentLayout(df_meta):
+    json_ld_data = []
+    elements = {
+        "@id": f"#physicalSegmentLayout",
+        "@type": "PhysicalSegmentLayout",
+        "formats": "#logicalRecord",
+        "isDelimited": "false",
+        "delimiter": "",
+    }
+    has = []
+    for x, variable in enumerate(df_meta.column_names):
+        has.append(f"#valueMapping-{variable}")
+        has.append(f"#valueMappingPosition-{variable}")
+    elements['has'] = has
     json_ld_data.append(elements)
     return json_ld_data
 
@@ -198,41 +240,7 @@ def generate_PrimaryKeyComponent(df_meta):
 # In[ ]:
 
 
-# PhysicalRecordSegment
-def generate_PhysicalRecordSegment(df_meta):
-    json_ld_data = []
-    elements = {
-        "@id": f"#physicalRecordSegment",
-        "@type": "PhysicalRecordSegment",
-        "mapsTo": "#logicalRecord",
-    }
-    has = ["#physicalSegmentLayout"]
-    elements['has'] = has
 
-    json_ld_data.append(elements)
-    return json_ld_data
-
-
-# In[ ]:
-
-
-# PhysicalSegmentLayout
-def generate_PhysicalSegmentLayout(df_meta):
-    json_ld_data = []
-    elements = {
-        "@id": f"#physicalSegmentLayout",
-        "@type": "PhysicalSegmentLayout",
-        "formats": "#logicalRecord",
-        "isDelimited": "false",
-        "delimiter": "",
-    }
-    has = []
-    for x, variable in enumerate(df_meta.column_names):
-        has.append(f"#valueMapping-{variable}")
-        has.append(f"#valueMappingPosition-{variable}")
-    elements['has'] = has
-    json_ld_data.append(elements)
-    return json_ld_data
 
 
 # In[ ]:
@@ -760,7 +768,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
     Concept = generate_Concept(df_meta)
     LogicalRecord = generate_LogicalRecord(df_meta)
     PhysicalDataset = generate_PhysicalDataset(df_meta, spssfile)
-    PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta)
+    PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta, df)
     PhysicalSegmentLayout = generate_PhysicalSegmentLayout(df_meta)
     ValueMapping = generate_ValueMapping(df, df_meta)
     ValueMappingPosition = generate_ValueMappingPosition(df_meta)
@@ -824,7 +832,7 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
     Concept = generate_Concept(df_meta)
     LogicalRecord = generate_LogicalRecord(df_meta)
     PhysicalDataset = generate_PhysicalDataset(df_meta, spssfile)
-    PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta)
+    PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta, df)
     PhysicalSegmentLayout = generate_PhysicalSegmentLayout(df_meta)
     ValueMapping = generate_ValueMapping(df, df_meta)
     ValueMappingPosition = generate_ValueMappingPosition(df_meta)
