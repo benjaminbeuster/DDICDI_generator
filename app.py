@@ -323,7 +323,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 
             # Generate initial XML
             generate_complete_xml_incremental(
-                df.head(), 
+                df.head(1), 
                 df_meta, 
                 spssfile=filename, 
                 output_file=temp_xml_filename
@@ -378,7 +378,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         else:
             # Generate XML without primary keys
             generate_complete_xml_incremental(
-                df.head(), 
+                df.head(1), 
                 df_meta, 
                 spssfile=filename, 
                 output_file=temp_xml_filename

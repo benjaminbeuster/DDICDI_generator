@@ -81,23 +81,23 @@ def generate_PhysicalSegmentLayout(df_meta):
 def generate_ValueMapping(df, df_meta):
     json_ld_data = []
 
-    # Iterate through column names and associated index
-    for idx, variable in enumerate(df_meta.column_names):
+    # Iterate through column names
+    for variable in df_meta.column_names:
         elements = {
             "@id": f"#valueMapping-{variable}",
             "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": []  # Will store DataPoint references
         }
-        datapoints = []
-        for i, x in enumerate(df[variable]):
-            datapoints.append(f"#{variable}-dataPoint-{i}")
-        elements['formats'] = datapoints
+        
+        # Add DataPoint references for each value in the variable
+        for i in range(len(df[variable])):
+            elements["formats"].append(f"#dataPoint-{i}-{variable}")
 
         json_ld_data.append(elements)
 
     return json_ld_data
 
-
-# In[ ]:
 
 
 # ValueMappingPosition
@@ -115,6 +115,65 @@ def generate_ValueMappingPosition(df_meta):
         json_ld_data.append(elements)
 
     return json_ld_data
+
+
+# DataPoint
+def generate_DataPoint(df, df_meta):
+    json_ld_data = []
+
+    # Iterate through column names
+    for variable in df_meta.column_names:
+        # For each value in the variable
+        for idx in range(len(df[variable])):
+            elements = {
+                "@id": f"#dataPoint-{idx}-{variable}",
+                "@type": "DataPoint",
+                "isDescribedBy": f"#instanceVariable-{variable}"
+            }
+            json_ld_data.append(elements)
+
+    return json_ld_data
+
+
+# In[ ]:
+
+
+# DataPointPosition
+def generate_DataPointPosition(df, df_meta):
+    json_ld_data = []
+
+    # Iterate through column names
+    for variable in df_meta.column_names:
+        # For each value in the variable
+        for idx in range(len(df[variable])):
+            elements = {
+                "@id": f"#dataPointPosition-{idx}-{variable}",
+                "@type": "DataPointPosition",
+                "value": idx,
+                "indexes": f"#dataPoint-{idx}-{variable}"
+            }
+            json_ld_data.append(elements)
+
+    return json_ld_data
+
+# InstanceValue
+def generate_InstanceValue(df, df_meta):
+    json_ld_data = []
+
+    # Iterate through column names and associated index
+    for variable in (df_meta.column_names):
+        for idx, value in enumerate(df[variable]):
+            elements = {
+                "@id": f"#{variable}-instanceValue-{idx}",
+                "@type": "InstanceValue",
+                "content": value,
+                "isStoredIn": f"#{variable}-dataPoint-{idx}"
+            }
+
+            json_ld_data.append(elements)
+
+    return json_ld_data
+
 
 # DataStore
 def generate_DataStore(df_meta):
@@ -200,21 +259,6 @@ def generate_LogicalRecord(df_meta):
     return json_ld_data
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
 # WideDataSet
 def generate_WideDataSet(df_meta):
     json_ld_data = []
@@ -280,64 +324,6 @@ def generate_PrimaryKeyComponent(df_meta):
     return json_ld_data
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-# DataPoint
-def generate_DataPoint(df, df_meta):
-    json_ld_data = []
-
-    # Iterate through column names and associated index
-    for variable in (df_meta.column_names):
-        for idx, value in enumerate(df[variable]):
-            elements = {
-                "@id": f"#{variable}-dataPoint-{idx}",
-                "@type": "DataPoint",
-                "isDescribedBy": f"#{variable}-instanceValue-{idx}"
-            }
-
-            json_ld_data.append(elements)
-
-    return json_ld_data
-
-
-# In[ ]:
-
-
-# DataPointPosition
-def generate_DataPointPosition(df, df_meta):
-    json_ld_data = []
-
-    # Iterate through column names and associated index
-    for variable in (df_meta.column_names):
-        for idx, value in enumerate(df[variable]):
-            elements = {
-                "@id": f"#{variable}-dataPointPosition-{idx}",
-                "@type": "DataPointPosition",
-                "value": idx,
-                "indexes": f"#{variable}-dataPoint-{idx}"
-            }
-
-            json_ld_data.append(elements)
-
-    return json_ld_data
-
-
-# In[ ]:
-
-
 # SubstantiveValueDomain
 def generate_SubstantiveValueDomain(df_meta):
     json_ld_data = []
@@ -355,23 +341,7 @@ def generate_SubstantiveValueDomain(df_meta):
 # In[ ]:
 
 
-# InstanceValue
-def generate_InstanceValue(df, df_meta):
-    json_ld_data = []
 
-    # Iterate through column names and associated index
-    for variable in (df_meta.column_names):
-        for idx, value in enumerate(df[variable]):
-            elements = {
-                "@id": f"#{variable}-instanceValue-{idx}",
-                "@type": "InstanceValue",
-                "content": value,
-                "isStoredIn": f"#{variable}-dataPoint-{idx}"
-            }
-
-            json_ld_data.append(elements)
-
-    return json_ld_data
 
 
 # In[ ]:
