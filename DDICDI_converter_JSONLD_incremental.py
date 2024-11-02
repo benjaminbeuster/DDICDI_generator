@@ -23,7 +23,7 @@ def generate_PhysicalDataset(df_meta, spssfile):
     elements = {
         "@id": f"#physicalDataSet",
         "@type": "PhysicalDataset",
-        "allowsDuplicates": "false",
+        "allowsDuplicates": False,
         "physicalFileName": spssfile,
         "correspondsTo_DataSet": "#wideDataSet",
         "formats": "#dataStore",
@@ -39,7 +39,7 @@ def generate_PhysicalRecordSegment(df_meta, df):
     elements = {
         "@id": f"#physicalRecordSegment",
         "@type": "PhysicalRecordSegment",
-        "allowsDuplicates": "false",
+        "allowsDuplicates": False,
         "mapsTo": "#logicalRecord",
         "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
         "has_DataPointPosition": []
@@ -61,9 +61,9 @@ def generate_PhysicalSegmentLayout(df_meta):
     elements = {
         "@id": f"#physicalSegmentLayout",
         "@type": "PhysicalSegmentLayout",
-        "allowsDuplicates": "false",
+        "allowsDuplicates": False,
         "formats": "#logicalRecord",
-        "isDelimited": "false",
+        "isDelimited": False,
         "delimiter": "",
         "has_ValueMapping": [],
         "has_ValueMappingPosition": []
@@ -181,7 +181,7 @@ def generate_DataStore(df_meta):
     elements = {
         "@id": "#dataStore",
         "@type": "DataStore",
-        "allowsDuplicates": "false",
+        "allowsDuplicates": False,
         "recordCount": df_meta.number_rows,
         "has_LogicalRecord": ["#logicalRecord"]
     }
@@ -226,51 +226,35 @@ def generate_WideDataStructure(df_meta, vars=None):
     elements = {
         "@id": "#wideDataStructure",
         "@type": "WideDataStructure",
-        "has_PrimaryKey": ["#primaryKey"],
+        "has_PrimaryKey": "#primaryKey",
         "has_DataStructureComponent": []
     }
     
-    # If vars is None, treat all columns as measure components
-    if vars is None:
-        for variable in df_meta.column_names:
-            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
-    else:
-        # Add identifier components for variables in vars
-        for variable in vars:
+    for variable in df_meta.column_names:
+        if vars is not None and variable in vars:
             elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
-        
-        # Add measure components for variables not in vars
-        for variable in df_meta.column_names:
-            if variable not in vars:
-                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+        else:
+            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
 
 # MeasureComponent
-def generate_MeasureComponent(df_meta):
+def generate_MeasureComponent(df_meta, varlist=None):
     json_ld_data = []
-    # Process all columns, not just those after the first
     for variable in df_meta.column_names:
-        elements = {
-            "@id": f"#measureComponent-{variable}",
-            "@type": "MeasureComponent",
-            # Point to instanceVariable instead of just variable
-            "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
-        }
-        json_ld_data.append(elements)
-
+        if varlist is None or variable not in varlist:
+            elements = {
+                "@id": f"#measureComponent-{variable}",
+                "@type": "MeasureComponent",
+                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+            }
+            json_ld_data.append(elements)
     return json_ld_data
-
-
-# In[ ]:
-
 
 # IdentifierComponent
 def generate_IdentifierComponent(df_meta, vars=None):
     json_ld_data = []
-    
-    # Only generate IdentifierComponents if vars is provided
     if vars is not None:
         for var in vars:
             elements = {
@@ -279,14 +263,7 @@ def generate_IdentifierComponent(df_meta, vars=None):
                 "isDefinedBy_RepresentedVariable": f"#instanceVariable-{var}"
             }
             json_ld_data.append(elements)
-
     return json_ld_data
-
-
-
-
-# In[ ]:
-
 
 # PrimaryKey
 def generate_PrimaryKey(df_meta, vars=None):
@@ -297,7 +274,6 @@ def generate_PrimaryKey(df_meta, vars=None):
         "isComposedOf": []
     }
     
-    # Add primary key components if vars is provided
     if vars is not None:
         for var in vars:
             elements["isComposedOf"].append(f"#primaryKeyComponent-{var}")
@@ -305,21 +281,16 @@ def generate_PrimaryKey(df_meta, vars=None):
     json_ld_data.append(elements)
     return json_ld_data
 
-
-# In[ ]:
-
-
 # PrimaryKeyComponent
 def generate_PrimaryKeyComponent(df_meta, vars=None):
     json_ld_data = []
     
-    # Only generate PrimaryKeyComponents if vars is provided
     if vars is not None:
         for var in vars:
             elements = {
                 "@id": f"#primaryKeyComponent-{var}",
                 "@type": "PrimaryKeyComponent",
-                "correspondsTo": f"#identifierComponent-{var}"
+                "correspondsTo_DataStructureComponent": f"#identifierComponent-{var}"
             }
             json_ld_data.append(elements)
 
@@ -678,276 +649,180 @@ def generate_Concept(df_meta):
 
 # create functions for updated key
 
-# MeasureComponent2
-def generate_MeasureComponent2(df_meta, varlist=None):
+# Concept
+def generate_Concept(df_meta):
+    def is_value_in_excluded_ranges(value, excluded_ranges):
+        # Ensure value is of the correct type
+        if all(isinstance(i, float) for i in excluded_ranges):
+            try:
+                value = float(value)
+            except ValueError:
+                return False
+        return value in excluded_ranges
+
     json_ld_data = []
-    for x, variable in enumerate(df_meta.column_names):
-        if variable not in varlist:
+
+    # Convert user-defined missing values to the desired format
+    missing = df_meta.missing_ranges
+    if len(missing) == 0:
+        missing = {}
+        for key, vals in df_meta.missing_user_values.items():
+            missing[key] = [{"lo": val, "hi": val} for val in vals]
+
+    for variable_name, values_dict in df_meta.variable_value_labels.items():
+        # Check if variable_name is in missing and, if so, generate the excluded_ranges
+        excluded_ranges = set()
+        if variable_name in missing:
+            for dict_range in missing[variable_name]:
+                excluded_ranges.add(dict_range['lo'])
+                if dict_range['lo'] != dict_range['hi']:
+                    excluded_ranges.add(dict_range['hi'])
+
+        # Iterate through values_dict and create elements, taking into account excluded_keys
+        for key, value in values_dict.items():
             elements = {
-                "@id": f"#measureComponent-{variable}",
-                "@type": "MeasureComponent",
-                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                "@id": f"#{variable_name}-concept-{key}",
+                "@type": "skos:Concept",
+                "notation": key,
+                "prefLabel": f"{value}",
             }
+
+            # Add the inScheme key to elements based on whether the key is in excluded_ranges
+            if is_value_in_excluded_ranges(key, excluded_ranges):
+                elements['inScheme'] = f"#sentinelConceptScheme-{variable_name}"
+            else:
+                elements['inScheme'] = f"#substantiveConceptScheme-{variable_name}"
+
+            # Append elements to json_ld_data inside the loop
             json_ld_data.append(elements)
 
-    return json_ld_data
-
-# IdentifierComponent2
-def generate_IdentifierComponent2(df_meta, varlist=None):
-    json_ld_data = []
-    for x, variable in enumerate(df_meta.column_names):
-        if variable in varlist:
-            elements = {
-                "@id": f"#identifierComponent-{variable}",
-                "@type": "IdentifierComponent",
-                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
-            }
-            json_ld_data.append(elements)
-
-    return json_ld_data
-
-
-# WideDataStructure2
-def generate_WideDataStructure2(df_meta, varlist=None):
-    json_ld_data = []
-    elements = {
-        "@id": f"#wideDataStructure",
-        "@type": "WideDataStructure",
-        "has_PrimaryKey": ["#primaryKey"],
-        "has_DataStructureComponent": []
-    }
-
-    for variable in df_meta.column_names:
-        if variable in varlist:
-            elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
-        else:
-            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
-
-    json_ld_data.append(elements)
-    return json_ld_data
-
-
-# PrimaryKeyComponent2
-def generate_PrimaryKeyComponent2(df_meta, varlist=None):
-    json_ld_data = []
-    elements = {
-        "@id": "#primaryKeyComponent",
-        "@type": "PrimaryKeyComponent",
-    }
-    has = []
-    for variable in varlist:
-        has.append(f"#identifierComponent-{variable}")
-
-    elements['correspondsTo'] = has
-    json_ld_data.append(elements)
-    return json_ld_data
-
-# PrimaryKey2
-def generate_PrimaryKey2(df_meta, varlist=None):
-    json_ld_data = []
-    elements = {
-        "@id": "#primaryKey",
-        "@type": "PrimaryKey",
-    }
-    
-    has = []
-    for variable in varlist:
-        has.append(f"#identifierComponent-{variable}")
-    
-    elements['isComposedOf'] = has
-    json_ld_data.append(elements)
     return json_ld_data
 
 
 ################################################################################
 
-def generate_complete_json_ld(df, df_meta, spssfile='name'):
-    # ... [all your function definitions here]
-
-    # Generate JSON-LD
-    PhysicalDataSetStructure = generate_PhysicalDataSetStructure(df_meta)
-    InstanceVariable = generate_InstanceVariable(df_meta)
-    SubstantiveConceptualDomain = generate_SubstantiveConceptualDomain(df_meta)
-    SentinelConceptualDomain = generate_SentinelConceptualDomain(df_meta)
-    ValueAndConceptDescription = generate_ValueAndConceptDescription(df_meta)
-    SubstantiveConceptScheme = generate_SubstantiveConceptScheme(df_meta)
-    SentinelConceptScheme = generate_SentinelConceptScheme(df_meta)
-    Concept = generate_Concept(df_meta)
-    LogicalRecord = generate_LogicalRecord(df_meta)
-    PhysicalDataset = generate_PhysicalDataset(df_meta, spssfile)
-    PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta, df)
-    PhysicalSegmentLayout = generate_PhysicalSegmentLayout(df_meta)
-    ValueMapping = generate_ValueMapping(df, df_meta)
-    ValueMappingPosition = generate_ValueMappingPosition(df_meta)
-    InstanceValue = generate_InstanceValue(df, df_meta)
-    DataPoint = generate_DataPoint(df, df_meta)
-    DataPointPosition = generate_DataPointPosition(df, df_meta)
-    DataStore = generate_DataStore(df_meta)
-    WideDataSet = generate_WideDataSet(df_meta)
-    WideDataStructure = generate_WideDataStructure(df_meta)
-    PrimaryKey = generate_PrimaryKey(df_meta)
-    PrimaryKeyComponent = generate_PrimaryKeyComponent(df_meta)
-    MeasureComponent = generate_MeasureComponent(df_meta)
-    IdentifierComponent = generate_IdentifierComponent(df_meta)
-
-    json_ld_graph = (
-        # Physical structure components
-        PhysicalDataSetStructure +
-        PhysicalDataset +
-        PhysicalRecordSegment +
-        PhysicalSegmentLayout +
-        
-        # Value mapping components
-        ValueMappingPosition +
-        ValueMapping +
-        
-        # Data components
-        DataPoint +
-        DataPointPosition +
-        InstanceValue +
-        
-        # Structural components
-        DataStore +
-        LogicalRecord +
-        WideDataSet +
-        WideDataStructure +
-        MeasureComponent +
-        IdentifierComponent +
-        PrimaryKey +
-        PrimaryKeyComponent +
-        
-        # Variable and concept components
-        InstanceVariable +
-        SubstantiveConceptualDomain +
-        SentinelConceptualDomain +
-        ValueAndConceptDescription +
-        
-        # Classification components
-        SubstantiveConceptScheme +
-        SentinelConceptScheme +
-        Concept
-    )
-
-    # Create a dictionary with the specified "@context" and "@graph" keys
-    json_ld_dict = {
+def wrap_in_graph(*components):
+    """Helper function to wrap components in a valid PhysicalDataSetStructure"""
+    # Flatten all components into a single list
+    all_components = [item for sublist in components for item in sublist]
+    
+    # Create the root structure
+    root_structure = {
         "@context": [
             "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
             {
                 "skos": "http://www.w3.org/2004/02/skos/core#"
             }
         ],
-        "@graph": json_ld_graph
+        "@id": "#physicalDataSetStructure",
+        "@type": "PhysicalDataSetStructure",
+        "correspondsTo_DataStructure": "#wideDataStructure",
+        "structures": "#physicalDataSet"
     }
+    
+    # Add all other components as separate objects at the root level
+    return [root_structure] + all_components
+
+def generate_complete_json_ld(df, df_meta, spssfile='name'):
+    # Generate all components
+    components = [
+        generate_PhysicalDataSetStructure(df_meta),
+        generate_PhysicalDataset(df_meta, spssfile),
+        generate_PhysicalRecordSegment(df_meta, df),
+        generate_PhysicalSegmentLayout(df_meta),
+        generate_ValueMapping(df, df_meta),
+        generate_ValueMappingPosition(df_meta),
+        generate_DataPoint(df, df_meta),
+        generate_DataPointPosition(df, df_meta),
+        generate_InstanceValue(df, df_meta),
+        generate_DataStore(df_meta),
+        generate_LogicalRecord(df_meta),
+        generate_WideDataSet(df_meta),
+        generate_WideDataStructure(df_meta),
+        generate_MeasureComponent(df_meta),
+        generate_IdentifierComponent(df_meta),
+        generate_PrimaryKey(df_meta),
+        generate_PrimaryKeyComponent(df_meta),
+        generate_InstanceVariable(df_meta),
+        generate_SubstantiveConceptualDomain(df_meta),
+        generate_SentinelConceptualDomain(df_meta),
+        generate_ValueAndConceptDescription(df_meta),
+        generate_SubstantiveConceptScheme(df_meta),
+        generate_SentinelConceptScheme(df_meta),
+        generate_Concept(df_meta)
+    ]
+    
+    # Get the flattened list of all components
+    all_objects = wrap_in_graph(*components)
+    
+    # Create the final JSON-LD document
+    json_ld_doc = {
+        "@context": [
+            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
+            {
+                "skos": "http://www.w3.org/2004/02/skos/core#"
+            }
+        ],
+        "@graph": all_objects
+    }
+
     def default_encode(obj):
         if isinstance(obj, np.int64):
             return int(obj)
-        elif pd.isna(obj):  # Checks for pd.NA
+        elif pd.isna(obj):
             return None
-        elif isinstance(obj, pd.Timestamp):  # Checks for Timestamp
+        elif isinstance(obj, pd.Timestamp):
             return obj.isoformat()
-        # Add handling for datetime objects
         elif isinstance(obj, (datetime.date, datetime.datetime)):
             return obj.isoformat()
         raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
-    # Convert the Python dictionary to a JSON string with pretty formatting
-    json_ld_string = json.dumps(json_ld_dict, indent=4, default=default_encode)
-
-    return json_ld_string
+    # Convert to JSON string
+    return json.dumps(json_ld_doc, indent=4, default=default_encode)
 
 
 ###################################################################################################
 
 def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
-    # ... [all your function definitions here]
-
-    # Generate JSON-LD
-    InstanceVariable = generate_InstanceVariable(df_meta)
-    SubstantiveConceptualDomain = generate_SubstantiveConceptualDomain(df_meta)
-    SentinelConceptualDomain = generate_SentinelConceptualDomain(df_meta)
-    ValueAndConceptDescription = generate_ValueAndConceptDescription(df_meta)
-    SubstantiveConceptScheme = generate_SubstantiveConceptScheme(df_meta)
-    SentinelConceptScheme = generate_SentinelConceptScheme(df_meta)
-    Concept = generate_Concept(df_meta)
-    LogicalRecord = generate_LogicalRecord(df_meta)
-    PhysicalDataset = generate_PhysicalDataset(df_meta, spssfile)
-    PhysicalRecordSegment = generate_PhysicalRecordSegment(df_meta, df)
-    PhysicalSegmentLayout = generate_PhysicalSegmentLayout(df_meta)
-    ValueMapping = generate_ValueMapping(df, df_meta)
-    ValueMappingPosition = generate_ValueMappingPosition(df_meta)
-    InstanceValue = generate_InstanceValue(df, df_meta)
-    DataPoint = generate_DataPoint(df, df_meta)
-    DataPointPosition = generate_DataPointPosition(df, df_meta)
-    DataStore = generate_DataStore(df_meta)
-    WideDataSet = generate_WideDataSet(df_meta)
-    WideDataStructure = generate_WideDataStructure2(df_meta, vars)
-    PrimaryKey = generate_PrimaryKey2(df_meta, vars)
-    PrimaryKeyComponent = generate_PrimaryKeyComponent2(df_meta, vars)
-    MeasureComponent = generate_MeasureComponent2(df_meta, vars)
-    IdentifierComponent = generate_IdentifierComponent2(df_meta, vars)
-    PhysicalDataSetStructure = generate_PhysicalDataSetStructure(df_meta)
-
-    # Combine all components into the final graph structure
-    json_ld_graph = (
-        # Structure components
-        PhysicalDataSetStructure +
-        DataStore +
-        LogicalRecord +
-        WideDataSet +
-        WideDataStructure +
-        
-        # Component definitions
-        IdentifierComponent +
-        MeasureComponent +
-        PrimaryKey +
-        PrimaryKeyComponent +
-        InstanceVariable +
-        
-        # Conceptual components
-        SubstantiveConceptualDomain +
-        SubstantiveConceptScheme +
-        SentinelConceptualDomain +
-        SentinelConceptScheme +
-        ValueAndConceptDescription +
-        Concept +
-        
-        # Physical components
-        PhysicalDataset +
-        PhysicalRecordSegment +
-        PhysicalSegmentLayout +
-        
-        # Value and data components
-        ValueMapping +
-        ValueMappingPosition +
-        DataPoint +
-        DataPointPosition +
-        InstanceValue
-    )
-
-    # Create a dictionary with the specified "@context" and "@graph" keys
-    json_ld_dict = {
-        "@context": [
-            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
-            {
-                "skos": "http://www.w3.org/2004/02/skos/core#"
-            }
-        ],
-        "@graph": json_ld_graph
-    }
+    components = [
+        generate_PhysicalDataSetStructure(df_meta),
+        generate_DataStore(df_meta),
+        generate_LogicalRecord(df_meta),
+        generate_WideDataSet(df_meta),
+        generate_WideDataStructure(df_meta, vars),
+        generate_IdentifierComponent(df_meta, vars),
+        generate_MeasureComponent(df_meta, vars),
+        generate_PrimaryKey(df_meta, vars),
+        generate_PrimaryKeyComponent(df_meta, vars),
+        generate_InstanceVariable(df_meta),
+        generate_SubstantiveConceptualDomain(df_meta),
+        generate_SubstantiveConceptScheme(df_meta),
+        generate_SentinelConceptualDomain(df_meta),
+        generate_SentinelConceptScheme(df_meta),
+        generate_ValueAndConceptDescription(df_meta),
+        generate_Concept(df_meta),
+        generate_PhysicalDataset(df_meta, spssfile),
+        generate_PhysicalRecordSegment(df_meta, df),
+        generate_PhysicalSegmentLayout(df_meta),
+        generate_ValueMapping(df, df_meta),
+        generate_ValueMappingPosition(df_meta),
+        generate_DataPoint(df, df_meta),
+        generate_DataPointPosition(df, df_meta),
+        generate_InstanceValue(df, df_meta)
+    ]
+    
+    json_ld_graph = wrap_in_graph(*components)
+    
     def default_encode(obj):
         if isinstance(obj, np.int64):
             return int(obj)
-        elif pd.isna(obj):  # Checks for pd.NA
+        elif pd.isna(obj):
             return None
-        elif isinstance(obj, pd.Timestamp):  # Checks for Timestamp
+        elif isinstance(obj, pd.Timestamp):
             return obj.isoformat()
-        # Add handling for datetime objects
         elif isinstance(obj, (datetime.date, datetime.datetime)):
             return obj.isoformat()
         raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
-    # Convert the Python dictionary to a JSON string with pretty formatting
-    json_ld_string = json.dumps(json_ld_dict, indent=4, default=default_encode)
-
-    return json_ld_string
+    return json.dumps(json_ld_graph, indent=4, default=default_encode)
 

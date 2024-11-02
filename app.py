@@ -21,7 +21,7 @@ from DDICDI_converter_xml_incremental import (
     generate_PrimaryKeyComponent2_incremental,
     update_xml
 )
-from DDICDI_converter_jsonld_incremental import (
+from DDICDI_converter_JSONLD_incremental import (
     generate_complete_json_ld,
     generate_complete_json_ld2
 )
