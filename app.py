@@ -131,13 +131,39 @@ app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.Br(),
+            # REMOVE THIS SECTION
+            # dcc.Upload(
+            #     id='upload-data',
+            #     children=dbc.Button('Import Data', color="primary", className="mr-1"),
+            #     multiple=False,
+            #     accept=".sav,.dta"  # Accept both .sav and .dta files
+            # ),
+
+            # ADD THIS NEW DRAG-AND-DROP SECTION INSTEAD
             dcc.Upload(
                 id='upload-data',
-                children=dbc.Button('Import Data', color="primary", className="mr-1"),
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select a File', style={'color': '#0d6efd', 'cursor': 'pointer'})
+                ], style={
+                    'width': '100%',
+                    'height': '60px',
+                    'lineHeight': '60px',
+                    'borderWidth': '1px',
+                    'borderStyle': 'dashed',
+                    'borderRadius': '5px',
+                    'textAlign': 'center',
+                    'margin': '10px 0',
+                    'backgroundColor': 'rgba(255, 255, 255, 0.1)',
+                    'transition': 'border .24s ease-in-out',
+                }),
+                style={
+                    'width': '100%',
+                    'height': '100%',
+                },
                 multiple=False,
-                accept=".sav,.dta"  # Accept both .sav and .dta files
+                accept=".sav,.dta"
             ),
-
             html.Br(),
 
             # Add a button to switch between tables
