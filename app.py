@@ -221,27 +221,43 @@ app.layout = dbc.Container([
             ]),
 
             html.Br(),
-            dbc.Button('Download XML', id='btn-download', color="success", className="mr-1",
+            dbc.Button('XML', id='btn-download', color="success", className="mr-1",
                        style={'display': 'none'}),
-            dbc.Button('Download JSON-LD', id='btn-download-json', color="success", className="mr-1",
+            dbc.Button('JSON-LD', id='btn-download-json', color="success", className="mr-1",
                        style={'display': 'none'}),
-            dcc.Download(id='download-xml'),
-            dcc.Download(id='download-json'),
             html.Br(),
             dbc.Row([
                 dbc.Col([
+                    # Wrap both outputs in a single Pre element
                     html.Pre(
-                        id='xml-ld-output',
-                        style={
-                            'whiteSpace': 'pre',
-                            'wordBreak': 'break-all',
-                            'color': colors['text'],
-                            'backgroundColor': colors['background'],
-                            'marginTop': '10px',
-                            'maxHeight': '300px',
-                            'overflowY': 'scroll',
-                            'fontSize': '14px',
-                        }
+                        children=[
+                            html.Div(id='xml-ld-output',
+                                style={
+                                    'whiteSpace': 'pre',
+                                    'wordBreak': 'break-all',
+                                    'color': colors['text'],
+                                    'backgroundColor': colors['background'],
+                                    'marginTop': '10px',
+                                    'maxHeight': '300px',
+                                    'overflowY': 'scroll',
+                                    'fontSize': '14px',
+                                    'display': 'block'
+                                }
+                            ),
+                            html.Div(id='json-ld-output',
+                                style={
+                                    'whiteSpace': 'pre',
+                                    'wordBreak': 'break-all',
+                                    'color': colors['text'],
+                                    'backgroundColor': colors['background'],
+                                    'marginTop': '10px',
+                                    'maxHeight': '300px',
+                                    'overflowY': 'scroll',
+                                    'fontSize': '14px',
+                                    'display': 'none'
+                                }
+                            ),
+                        ]
                     ),
                 ], width=6),
                 dbc.Col([
@@ -260,7 +276,6 @@ app.layout = dbc.Container([
                 ], width=6)
 
             ]),
-            html.Div(id='json-ld-output', style={'display': 'none'}),
         ])
     ]),
     about_section  # <-- add this line to include the about_section
@@ -494,6 +509,42 @@ def download_json(n_clicks, json_data, filename):
 
     download_filename = os.path.splitext(filename)[0] + '.jsonld'
     return dict(content=json_data, filename=download_filename, type='application/json')
+
+@app.callback(
+    [Output('xml-ld-output', 'style'),
+     Output('json-ld-output', 'style')],
+    [Input('btn-download', 'n_clicks'),
+     Input('btn-download-json', 'n_clicks')],
+    [State('xml-ld-output', 'style'),
+     State('json-ld-output', 'style')]
+)
+def toggle_output_display(xml_clicks, json_clicks, xml_style, json_style):
+    ctx = dash.callback_context
+    
+    base_style = {
+        'whiteSpace': 'pre',
+        'wordBreak': 'break-all',
+        'color': colors['text'],
+        'backgroundColor': colors['background'],
+        'marginTop': '10px',
+        'maxHeight': '300px',
+        'overflowY': 'scroll',
+        'fontSize': '14px',
+    }
+    
+    if not ctx.triggered:
+        # Default state: show XML, hide JSON
+        return {**base_style, 'display': 'block'}, {**base_style, 'display': 'none'}
+    
+    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    if button_id == 'btn-download':
+        return {**base_style, 'display': 'block'}, {**base_style, 'display': 'none'}
+    elif button_id == 'btn-download-json':
+        return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
+    
+    # Fallback to default state
+    return {**base_style, 'display': 'block'}, {**base_style, 'display': 'none'}
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback
