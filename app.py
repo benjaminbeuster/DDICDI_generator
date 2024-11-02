@@ -221,12 +221,16 @@ app.layout = dbc.Container([
             ]),
 
             html.Br(),
-            dbc.Button('XML', id='btn-download', color="success", className="mr-1",
-                       style={'display': 'none'}),
-            dbc.Button('JSON-LD', id='btn-download-json', color="success", className="mr-1",
-                       style={'display': 'none'}),
-            dbc.Button('Download', id='btn-download-active', color="primary", className="mr-1",
-                       style={'display': 'none'}),
+            # Group the buttons together in a ButtonGroup
+            dbc.ButtonGroup(
+                [
+                    dbc.Button('XML', id='btn-download', color="success", className="mr-1"),
+                    dbc.Button('JSON-LD', id='btn-download-json', color="success", className="mr-1"),
+                    dbc.Button('Download', id='btn-download-active', color="primary"),
+                ],
+                style={'display': 'none'},  # This will control visibility of the entire group
+                id='button-group'
+            ),
             dcc.Download(id='download-active'),
             html.Br(),
             dbc.Row([
@@ -316,11 +320,9 @@ def update_instruction_text_style(data):
      Output('table2', 'columns'),
      Output('table2', 'style_data_conditional'),
      Output('xml-ld-output', 'children'),
-     Output('btn-download', 'style'),
-     Output('btn-download-json', 'style'),
+     Output('button-group', 'style'),
      Output('table1-instruction', 'children'),
-     Output('json-ld-output', 'children'),
-     Output('btn-download-active', 'style')],
+     Output('json-ld-output', 'children')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows')],
     [State('upload-data', 'filename'),
@@ -328,7 +330,7 @@ def update_instruction_text_style(data):
 )
 def combined_callback(contents, selected_rows, filename, table2_data):
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}, {'display': 'none'}, "", "", {'display': 'none'}
+        return [], [], [], [], [], [], "", {'display': 'none'}, "", ""
 
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -451,12 +453,12 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         
         return (df.to_dict('records'), columns1, conditional_styles1, 
                 df2.to_dict('records'), columns2, conditional_styles2, 
-                xml_data_pretty, {'display': 'block'}, {'display': 'block'}, 
-                instruction_text, json_ld_data, {'display': 'block'})
+                xml_data_pretty, {'display': 'block'}, 
+                instruction_text, json_ld_data)
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, {'display': 'none'}, "", "", {'display': 'none'}
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", ""
 
     finally:
         os.remove(tmp_filename)
