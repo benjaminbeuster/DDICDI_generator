@@ -36,22 +36,47 @@ This prototype was developed by Sikt as part of the [Worldfair Project](https://
 app_title = 'DDI-CDI Converter (Prototype): Wide Table Generation for STATA & SPSS'
 app_description = ''
 
-colors = {'background': '#111111', 'text': '#7FDBFF'}
+# Modern bright color scheme
+colors = {
+    'background': '#ffffff',    # Pure white
+    'surface': '#f8f9fa',      # Light gray for cards/sections
+    'text': '#2c3e50',         # Dark blue-gray for text
+    'primary': '#3498db',      # Bright blue
+    'secondary': '#6c757d',    # Medium gray
+    'border': '#e9ecef',       # Light gray for borders
+    'hover': '#f1f3f5'         # Slightly darker than surface for hover states
+}
 
 style_dict = {
     'backgroundColor': colors['background'],
-    'textAlign': 'center',
-    'color': 'white',
-    'fontSize': 14
+    'textAlign': 'left',
+    'color': colors['text'],
+    'fontSize': '13px',
+    'padding': '8px 12px',
+    'fontFamily': "'Inter', sans-serif",
+    'borderBottom': f'1px solid {colors["border"]}',
+    'height': '32px'
 }
 
 header_dict = {
-    'backgroundColor': colors['background'],
-    'textAlign': 'center',
+    'backgroundColor': colors['surface'],
+    'textAlign': 'left',
     'color': colors['text'],
-    'fontSize': 14
+    'fontSize': '13px',
+    'padding': '10px 12px',
+    'fontFamily': "'Inter', sans-serif",
+    'fontWeight': '600',
+    'height': '36px'
 }
 
-
-table_style = {'overflowX': 'auto', 'overflowY': 'auto', 'maxHeight': '350px',
-               'maxWidth': 'auto', 'marginTop': '10px'}
+table_style = {
+    'overflowX': 'auto', 
+    'overflowY': 'auto', 
+    'maxHeight': '350px',
+    'maxWidth': 'auto', 
+    'marginTop': '20px',
+    'borderRadius': '8px',
+    'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.05)',
+    'border': f'1px solid {colors["border"]}',
+    'fontSize': '13px'
+}

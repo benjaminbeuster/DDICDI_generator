@@ -1,0 +1,187 @@
+/* Modern scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Table hover effects */
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td:hover {
+    background-color: #f8f9fa !important;
+}
+
+/* Button styling */
+.btn {
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Card styling */
+.card {
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styling */
+.dash-table-container {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Navigation link styling */
+.nav-link-custom {
+    color: #2c3e50 !important;
+    font-weight: 500;
+}
+
+.nav-link-custom:hover {
+    color: #3498db !important;
+}
+
+/* Import only the weights we need */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+/* Base styles */
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #2c3e50;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Consistent heading styles */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+}
+
+/* Table styles */
+.dash-table-container {
+    font-size: 13px;
+}
+
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+/* Button styles */
+.btn {
+    font-size: 15px;
+    font-weight: 500;
+    padding: 8px 16px;
+    letter-spacing: -0.01em;
+}
+
+/* Upload component */
+.upload-component {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Card text */
+.card-text {
+    font-family: 'Inter', sans-serif !important;
+    font-size: '15px' !important;
+    line-height: 1.6 !important;
+    color: colors['text'] !important;
+    letter-spacing: -0.01em;
+}
+
+/* Style markdown links */
+.card-text a {
+    color: #3498db !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+}
+
+.card-text a:hover {
+    text-decoration: underline !important;
+}
+
+/* Navigation */
+.nav-link-custom {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* Markdown content */
+.markdown-content {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Instructions and helper text */
+.helper-text {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Import modern monospace font */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Code output styling */
+.code-output {
+    font-family: 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* Improve scrollbar for code sections */
+pre::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+} 

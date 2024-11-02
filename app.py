@@ -41,7 +41,7 @@ agency = 'int.esseric'
 server = Flask(__name__)
 
 # Define the Dash app and associate it with the Flask server
-app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.SUPERHERO])
+app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.LITERA])
 
 # add title
 app.title = app_title
@@ -55,7 +55,7 @@ logo_section = html.Div(
         html.Img(
             src=app.get_asset_url('sikt.jpg'),
             style={
-                'height': '60px',  # Change the height to 60px to match the other logo
+                'height': '40px',
                 'maxWidth': '100%',
                 'objectFit': 'contain',
                 'marginRight': '10px'
@@ -64,59 +64,35 @@ logo_section = html.Div(
         html.Img(
             src=app.get_asset_url('petals_logos.2.0-01.webp'),
             style={
-                'height': '60px',
+                'height': '50px',  # Increased from 40px to 50px
                 'width': 'auto',
                 'marginRight': '10px',
-                'opacity': '0.8'  # Adjust the opacity value to make the image more or less transparent
+                'opacity': '0.8'
             }
         )
     ],
     style={
         'display': 'flex',
-        'alignItems': 'center',  # This will vertically align the images
-        'justifyContent': 'center'  # This will horizontally align the images
+        'alignItems': 'center',
+        'justifyContent': 'center'
     }
 )
 
 navbar = dbc.NavbarSimple(
     children=[
-        dbc.NavItem(dbc.NavLink(app_description, href="#")),
-        html.Div(
-            children=[
-                dbc.Col([
-                    html.Img(
-                        src=app.get_asset_url('petals_logos.2.0-01.webp'),
-                        style={
-                            'height': '60px',
-                            'width': 'auto',
-                            'marginRight': '10px',
-                            'opacity': '0.8'  # Adjust the opacity value to make the image more or less transparent
-                        }
-                    )
-                ]),
-                dbc.Col([
-                    html.Img(
-                        src=app.get_asset_url('sikt.jpg'),
-                        style={
-                            'height': '60px',  # Change the height to 60px to match the other logo
-                            'maxWidth': '100%',
-                            'objectFit': 'contain',
-                            'marginRight': '10px'
-                        }
-                    )
-                ])
-            ],
-            style={
-                'display': 'flex',
-                'alignItems': 'center',  # This will vertically align the images
-                'justifyContent': 'center'  # This will horizontally align the images
-            }
-        )
+        dbc.NavItem(dbc.NavLink(app_description, href="#", className="nav-link-custom")),
+        logo_section
     ],
     brand=brand_section,
     brand_href="#",
-    color="dark",
-    dark=True,
+    color=colors['background'],
+    light=True,
+    className="custom-navbar shadow-sm",
+    style={
+        'borderBottom': f'1px solid {colors["border"]}',
+        'marginBottom': '30px',
+        'padding': '15px 0'
+    }
 )
 
 about_section = dbc.Card(
@@ -124,6 +100,11 @@ about_section = dbc.Card(
         dcc.Markdown(about_text, className="card-text")
     ),
     className="mt-4",  # Adding some margin at the top for spacing
+    style={
+        'fontFamily': "'Inter', sans-serif",
+        'fontSize': '15px',
+        'letterSpacing': '-0.01em'
+    }
 )
 
 app.layout = dbc.Container([
@@ -144,18 +125,31 @@ app.layout = dbc.Container([
                 id='upload-data',
                 children=html.Div([
                     'Drag and Drop or ',
-                    html.A('Select a File', style={'color': '#0d6efd', 'cursor': 'pointer'})
+                    html.A('Select a File', 
+                        style={
+                            'color': colors['primary'], 
+                            'cursor': 'pointer',
+                            'fontWeight': '500',
+                            'letterSpacing': '-0.01em'
+                        })
                 ], style={
                     'width': '100%',
-                    'height': '60px',
-                    'lineHeight': '60px',
-                    'borderWidth': '1px',
+                    'height': '80px',
+                    'lineHeight': '80px',
+                    'borderWidth': '2px',
                     'borderStyle': 'dashed',
-                    'borderRadius': '5px',
+                    'borderRadius': '12px',
                     'textAlign': 'center',
-                    'margin': '10px 0',
-                    'backgroundColor': 'rgba(255, 255, 255, 0.1)',
-                    'transition': 'border .24s ease-in-out',
+                    'margin': '20px 0',
+                    'backgroundColor': colors['surface'],
+                    'transition': 'all 0.3s ease-in-out',
+                    'cursor': 'pointer',
+                    'borderColor': colors['border'],
+                    'color': colors['secondary'],
+                    'fontFamily': "'Inter', sans-serif",
+                    'fontWeight': '500',
+                    'letterSpacing': '-0.01em',
+                    'fontSize': '16px'  # Increased from default
                 }),
                 style={
                     'width': '100%',
@@ -188,8 +182,14 @@ app.layout = dbc.Container([
                             html.Div(
                                 "This table displays the first 5 rows of the data file. Note: The XML output is also limited to these 5 rows.",
                                 id="table1-instruction",
-                                style={'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px',
-                                       'display': 'none'}),
+                                style={
+                                    'color': colors['secondary'],
+                                    'fontSize': '13px',
+                                    'marginBottom': '10px',
+                                    'fontFamily': "'Inter', sans-serif",
+                                    'display': 'none'
+                                }
+                            ),
 
                             dash_table.DataTable(
                                 id='table1',
@@ -210,7 +210,13 @@ app.layout = dbc.Container([
                         children=[
                             # Insert the instruction text here
                             html.Div("Please select the Identifier Variables from the first column to be used as the Primary Key.",
-                                     style={'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px'}),
+                                     style={
+                                         'color': colors['secondary'],
+                                         'fontSize': '15px',  # Increased from 14px
+                                         'marginBottom': '10px',
+                                         'fontFamily': "'Inter', sans-serif"
+                                     }
+                                    ),
 
                             dash_table.DataTable(
                                 id='table2',
@@ -230,12 +236,13 @@ app.layout = dbc.Container([
             # Group the buttons together in a ButtonGroup
             dbc.ButtonGroup(
                 [
-                    dbc.Button('XML', id='btn-download', color="success", className="mr-1"),
-                    dbc.Button('JSON-LD', id='btn-download-json', color="success", className="mr-1"),
-                    dbc.Button('Download', id='btn-download-active', color="primary"),
+                    dbc.Button('XML', id='btn-download', color="primary", className="mr-1"),
+                    dbc.Button('JSON-LD', id='btn-download-json', color="primary", className="mr-1"),
+                    dbc.Button('Download', id='btn-download-active', color="success"),
                 ],
-                style={'display': 'none'},  # This will control visibility of the entire group
-                id='button-group'
+                style={'display': 'none', 'gap': '10px'},  # Added gap between buttons
+                id='button-group',
+                className="shadow-sm"
             ),
             dcc.Download(id='download-active'),
             html.Br(),
@@ -249,12 +256,18 @@ app.layout = dbc.Container([
                                     'whiteSpace': 'pre',
                                     'wordBreak': 'break-all',
                                     'color': colors['text'],
-                                    'backgroundColor': colors['background'],
-                                    'marginTop': '10px',
-                                    'maxHeight': '300px',
+                                    'backgroundColor': colors['surface'],
+                                    'marginTop': '20px',
+                                    'maxHeight': '400px',
                                     'overflowY': 'scroll',
                                     'fontSize': '14px',
-                                    'display': 'block'
+                                    'padding': '20px',
+                                    'borderRadius': '8px',
+                                    'border': f'1px solid {colors["border"]}',
+                                    'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.05)',
+                                    'display': 'block',
+                                    'fontFamily': "'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', monospace",
+                                    'lineHeight': '1.5'
                                 }
                             ),
                             html.Div(id='json-ld-output',
@@ -262,12 +275,18 @@ app.layout = dbc.Container([
                                     'whiteSpace': 'pre',
                                     'wordBreak': 'break-all',
                                     'color': colors['text'],
-                                    'backgroundColor': colors['background'],
+                                    'backgroundColor': colors['surface'],
                                     'marginTop': '10px',
                                     'maxHeight': '300px',
                                     'overflowY': 'scroll',
                                     'fontSize': '14px',
-                                    'display': 'none'
+                                    'padding': '20px',
+                                    'borderRadius': '8px',
+                                    'border': f'1px solid {colors["border"]}',
+                                    'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.05)',
+                                    'display': 'none',
+                                    'fontFamily': "'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', monospace",
+                                    'lineHeight': '1.5'
                                 }
                             ),
                         ]
@@ -276,13 +295,17 @@ app.layout = dbc.Container([
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody(
-                            dcc.Markdown(markdown_text, dangerously_allow_html=True),
+                            dcc.Markdown(markdown_text, 
+                                dangerously_allow_html=True,
+                                className="card-text"
+                            ),
                             style={
-                                'overflowY': 'scroll',  # Add scroll if content is too long
-                                'height': '400px',  # Adjust based on your requirement
-                                'border': '1px solid #ccc',  # Optional: Add a border for better visibility
-                                'padding': '10px',  # Add some padding
-                                'fontSize': '14px',  # Adjust font size if needed
+                                'overflowY': 'scroll',
+                                'height': '400px',
+                                'padding': '20px',
+                                'fontSize': '15px',
+                                'fontFamily': "'Inter', sans-serif",
+                                'letterSpacing': '-0.01em'
                             }
                         )
                     ])
