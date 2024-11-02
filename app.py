@@ -225,6 +225,9 @@ app.layout = dbc.Container([
                        style={'display': 'none'}),
             dbc.Button('JSON-LD', id='btn-download-json', color="success", className="mr-1",
                        style={'display': 'none'}),
+            dbc.Button('Download', id='btn-download-active', color="primary", className="mr-1",
+                       style={'display': 'none'}),
+            dcc.Download(id='download-active'),
             html.Br(),
             dbc.Row([
                 dbc.Col([
@@ -316,7 +319,8 @@ def update_instruction_text_style(data):
      Output('btn-download', 'style'),
      Output('btn-download-json', 'style'),
      Output('table1-instruction', 'children'),
-     Output('json-ld-output', 'children')],
+     Output('json-ld-output', 'children'),
+     Output('btn-download-active', 'style')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows')],
     [State('upload-data', 'filename'),
@@ -324,7 +328,7 @@ def update_instruction_text_style(data):
 )
 def combined_callback(contents, selected_rows, filename, table2_data):
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}, {'display': 'none'}, "", ""
+        return [], [], [], [], [], [], "", {'display': 'none'}, {'display': 'none'}, "", "", {'display': 'none'}
 
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -448,11 +452,11 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         return (df.to_dict('records'), columns1, conditional_styles1, 
                 df2.to_dict('records'), columns2, conditional_styles2, 
                 xml_data_pretty, {'display': 'block'}, {'display': 'block'}, 
-                instruction_text, json_ld_data)
+                instruction_text, json_ld_data, {'display': 'block'})
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, {'display': 'none'}, "", ""
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, {'display': 'none'}, "", "", {'display': 'none'}
 
     finally:
         os.remove(tmp_filename)
@@ -545,6 +549,30 @@ def toggle_output_display(xml_clicks, json_clicks, xml_style, json_style):
     
     # Fallback to default state
     return {**base_style, 'display': 'block'}, {**base_style, 'display': 'none'}
+
+# Add new callback for the download button
+@app.callback(
+    Output('download-active', 'data'),
+    [Input('btn-download-active', 'n_clicks')],
+    [State('xml-ld-output', 'style'),
+     State('xml-ld-output', 'children'),
+     State('json-ld-output', 'children'),
+     State('upload-data', 'filename')]
+)
+def download_active_content(n_clicks, xml_style, xml_content, json_content, filename):
+    if n_clicks is None or filename is None:
+        raise dash.exceptions.PreventUpdate
+    
+    # Check which content is currently visible by checking XML's display style
+    # (since we know one is always visible and they're mutually exclusive)
+    is_xml_visible = xml_style.get('display') == 'block'
+    
+    if is_xml_visible:
+        download_filename = os.path.splitext(filename)[0] + '.xml'
+        return dict(content=xml_content, filename=download_filename, type='text/xml')
+    else:
+        download_filename = os.path.splitext(filename)[0] + '.jsonld'
+        return dict(content=json_content, filename=download_filename, type='application/json')
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback
