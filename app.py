@@ -166,8 +166,14 @@ app.layout = dbc.Container([
             ),
             html.Br(),
 
-            # Add a button to switch between tables
-            dbc.Button("Switch View", id="table-switch-button", color="primary", className="mr-1"),
+            # Add style and id to the Switch View button
+            dbc.Button(
+                "Switch View", 
+                id="table-switch-button", 
+                color="primary", 
+                className="mr-1",
+                style={'display': 'none'}  # Hidden by default
+            ),
 
             html.Br(),
 
@@ -322,7 +328,8 @@ def update_instruction_text_style(data):
      Output('xml-ld-output', 'children'),
      Output('button-group', 'style'),
      Output('table1-instruction', 'children'),
-     Output('json-ld-output', 'children')],
+     Output('json-ld-output', 'children'),
+     Output('table-switch-button', 'style')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows')],
     [State('upload-data', 'filename'),
@@ -330,7 +337,7 @@ def update_instruction_text_style(data):
 )
 def combined_callback(contents, selected_rows, filename, table2_data):
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}, "", ""
+        return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}
 
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -454,11 +461,12 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         return (df.to_dict('records'), columns1, conditional_styles1, 
                 df2.to_dict('records'), columns2, conditional_styles2, 
                 xml_data_pretty, {'display': 'block'}, 
-                instruction_text, json_ld_data)
+                instruction_text, json_ld_data,
+                {'display': 'block'})
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", ""
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", "", {'display': 'none'}
 
     finally:
         os.remove(tmp_filename)
