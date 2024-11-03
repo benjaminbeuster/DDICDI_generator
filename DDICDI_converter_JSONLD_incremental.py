@@ -777,30 +777,27 @@ def generate_PrimaryKey2(df_meta, varlist=None):
 ################################################################################
 
 def wrap_in_graph(*components):
-    """Helper function to wrap components in a valid JSON-LD structure"""
-    # Flatten all components into a single list
-    all_components = []
+    """Helper function to wrap components in a valid JSON-LD array structure"""
+    # Define the context that will be used for each component
+    context = [
+        "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
+        {
+            "skos": "http://www.w3.org/2004/02/skos/core#"
+        }
+    ]
+    
+    # Flatten all components into a single list and add context to each
+    array_structure = []
     for component_list in components:
         if isinstance(component_list, list):
-            all_components.extend(component_list)
+            for component in component_list:
+                component["@context"] = context
+                array_structure.append(component)
         else:
-            all_components.append(component_list)
+            component_list["@context"] = context
+            array_structure.append(component_list)
     
-    # Add context to the first element in the array
-    if all_components:
-        all_components[0]["@context"] = [
-            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
-            {
-                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                "skos": "http://www.w3.org/2004/02/skos/core#",
-                "s": "http://schema.org/",
-                "rdfs:seeAlso": {
-                    "@type": "@id"
-                }
-            }
-        ]
-    
-    return all_components
+    return array_structure
 
 def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # Generate all components
@@ -831,8 +828,8 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         generate_Concept(df_meta)
     ]
     
-    # Get the wrapped JSON-LD document
-    json_ld_doc = wrap_in_graph(*components)
+    # Get the wrapped JSON-LD array
+    json_ld_array = wrap_in_graph(*components)
 
     def default_encode(obj):
         if isinstance(obj, np.int64):
@@ -846,7 +843,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
     # Convert to JSON string
-    return json.dumps(json_ld_doc, indent=4, default=default_encode)
+    return json.dumps(json_ld_array, indent=4, default=default_encode)
 
 
 ###################################################################################################
@@ -880,8 +877,8 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
         generate_InstanceValue(df, df_meta)
     ]
     
-    # Wrap in graph structure
-    json_ld_doc = wrap_in_graph(*components)
+    # Get the wrapped JSON-LD array
+    json_ld_array = wrap_in_graph(*components)
 
     def default_encode(obj):
         if isinstance(obj, np.int64):
@@ -895,5 +892,5 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
         raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
     # Convert to JSON string
-    return json.dumps(json_ld_doc, indent=4, default=default_encode)
+    return json.dumps(json_ld_array, indent=4, default=default_encode)
 
