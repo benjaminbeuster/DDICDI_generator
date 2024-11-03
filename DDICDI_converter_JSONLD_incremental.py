@@ -21,7 +21,7 @@ def generate_PhysicalDataset(df_meta, spssfile):
     json_ld_data = []
     elements = {
         "@id": f"#physicalDataSet",
-        "@type": "PhysicalDataset",
+        "@type": "PhysicalDataSet",
         "allowsDuplicates": False,
         "physicalFileName": spssfile,
         "correspondsTo_DataSet": "#wideDataSet",
@@ -352,12 +352,12 @@ def generate_InstanceValue(df, df_meta):
                     if value is not None and isinstance(range_dict['lo'], float):
                         value = float(value)
                     if value is not None and range_dict['lo'] <= value <= range_dict['hi']:
-                        elements["hasValueFrom"] = f"#sentinelValueDomain-{variable}"
+                        elements["hasValueFrom_ValueDomain"] = f"#sentinelValueDomain-{variable}"
                         break
                 else:
-                    elements["hasValueFrom"] = f"#substantiveValueDomain-{variable}"
+                    elements["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
             else:
-                elements["hasValueFrom"] = f"#substantiveValueDomain-{variable}"
+                elements["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
             
             json_ld_data.append(elements)
     return json_ld_data
@@ -371,7 +371,7 @@ def generate_SubstantiveConceptualDomain(df_meta):
             "isDescribedBy": f"#substantiveValueAndConceptDescription-{variable}"
         }
         if variable in df_meta.variable_value_labels:
-            elements["takesValuesFrom"] = f"#substantiveConceptScheme-{variable}"
+            elements["takesConceptsFrom"] = f"#substantiveConceptScheme-{variable}"
         json_ld_data.append(elements)
     return json_ld_data
 
@@ -386,7 +386,7 @@ def generate_SentinelConceptualDomain(df_meta):
             "isDescribedBy": f"#sentinelValueAndConceptDescription-{variable}"
         }
         if variable in df_meta.variable_value_labels:
-            elements["takesValuesFrom"] = f"#sentinelConceptScheme-{variable}"
+            elements["takesConceptsFrom"] = f"#sentinelConceptScheme-{variable}"
         json_ld_data.append(elements)
     return json_ld_data
 
