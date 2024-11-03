@@ -9,15 +9,8 @@ import dash
 from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
-from lxml import etree
 from DDICDI_converter_xml_incremental import (
-    generate_complete_xml_incremental,
-    generate_WideDataStructure2_incremental,
-    generate_IdentifierComponent2_incremental,
-    generate_MeasureComponent2_incremental,
-    generate_PrimaryKey2_incremental,
-    generate_PrimaryKeyComponent2_incremental,
-    update_xml
+    generate_complete_xml_with_keys
 )
 from DDICDI_converter_JSONLD_incremental import (
     generate_complete_json_ld
@@ -358,119 +351,46 @@ def combined_callback(contents, selected_rows, filename, table2_data):
     if not contents:
         return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}
 
-    content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-    file_extension = os.path.splitext(filename)[1]
-
     try:
+        # Decode and save uploaded file
+        content_type, content_string = contents.split(',')
+        decoded = base64.b64decode(content_string)
+        file_extension = os.path.splitext(filename)[1]
+
         with tempfile.NamedTemporaryFile(suffix=file_extension, delete=False) as tmp_file:
             tmp_file.write(decoded)
             tmp_filename = tmp_file.name
 
-        if '.dta' in tmp_filename:
+        # Read data based on file type
+        if '.dta' in tmp_filename or '.sav' in tmp_filename:
             df, df_meta, file_name, n_rows = read_sav(tmp_filename)
-            df2 = create_variable_view2(df_meta)
-        elif '.sav' in tmp_filename:
-            df, df_meta, file_name, n_rows = read_sav(tmp_filename)
-            df2 = create_variable_view(df_meta)
+            df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
         else:
             raise ValueError("Unsupported file type")
 
+        # Prepare table data
         columns1 = [{"name": i, "id": i} for i in df.columns]
         columns2 = [{"name": i, "id": i} for i in df2.columns]
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        # Temporary files to store the XML and JSON-LD output
-        with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_xml_file, \
-             tempfile.NamedTemporaryFile(suffix='.json', delete=False) as temp_json_file:
-            temp_xml_filename = temp_xml_file.name
-            temp_json_filename = temp_json_file.name
-
-        # Initialize vars as empty list
+        # Get selected variables
         vars = []
-        
-        # If rows are selected, update both XML and JSON-LD
-        if selected_rows and table2_data and df_meta:
+        if selected_rows and table2_data:
             vars = [table2_data[row_index]["name"] for row_index in selected_rows]
 
-            # Generate initial XML
-            generate_complete_xml_incremental(
-                df.head(1), 
-                df_meta, 
-                spssfile=filename, 
-                output_file=temp_xml_filename
-            )
+        # Generate XML and JSON-LD
+        xml_data = generate_complete_xml_with_keys(
+            df.head(1), 
+            df_meta, 
+            vars=vars,
+            spssfile=filename
+        )
 
-            if vars:
-                # Generate a new XML file with the primary key components
-                temp_updated_xml = tempfile.NamedTemporaryFile(suffix='.xml', delete=False).name
-                
-                with etree.xmlfile(temp_updated_xml, encoding='UTF-8') as xf:
-                    xf.write_declaration(standalone=True)
-                    with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap):
-                        generate_WideDataStructure2_incremental(xf, df_meta, vars, agency)
-                        generate_IdentifierComponent2_incremental(xf, df_meta, vars, agency)
-                        generate_MeasureComponent2_incremental(xf, df_meta, vars, agency)
-                        generate_PrimaryKey2_incremental(xf, df_meta, vars, agency)
-                        generate_PrimaryKeyComponent2_incremental(xf, df_meta, vars, agency)
-
-                # Read both XML files and parse them
-                parser = etree.XMLParser(remove_blank_text=True)
-                original_tree = etree.parse(temp_xml_filename, parser)
-                updated_tree = etree.parse(temp_updated_xml, parser)
-
-                # Merge the XML content
-                merged_xml = update_xml(
-                    etree.tostring(original_tree, encoding='utf-8', pretty_print=True).decode('utf-8'),
-                    etree.tostring(updated_tree, encoding='utf-8', pretty_print=True).decode('utf-8')
-                )
-
-                # Parse the merged XML and pretty print it
-                merged_tree = etree.fromstring(merged_xml.encode('utf-8'))
-                xml_data_pretty = etree.tostring(
-                    merged_tree, 
-                    encoding='utf-8', 
-                    pretty_print=True, 
-                    xml_declaration=True
-                ).decode('utf-8')
-                
-                # Clean up temporary file
-                os.remove(temp_updated_xml)
-            else:
-                # Read and pretty print the original XML
-                parser = etree.XMLParser(remove_blank_text=True)
-                tree = etree.parse(temp_xml_filename, parser)
-                xml_data_pretty = etree.tostring(
-                    tree, 
-                    encoding='utf-8', 
-                    pretty_print=True, 
-                    xml_declaration=True
-                ).decode('utf-8')
-
-        else:
-            # Generate XML without primary keys
-            generate_complete_xml_incremental(
-                df.head(1), 
-                df_meta, 
-                spssfile=filename, 
-                output_file=temp_xml_filename
-            )
-            # Read and pretty print the XML
-            parser = etree.XMLParser(remove_blank_text=True)
-            tree = etree.parse(temp_xml_filename, parser)
-            xml_data_pretty = etree.tostring(
-                tree, 
-                encoding='utf-8', 
-                pretty_print=True, 
-                xml_declaration=True
-            ).decode('utf-8')
-
-        # Handle JSON-LD (keeping this part unchanged as it works)
         json_ld_data = generate_complete_json_ld(
             df.head(), 
             df_meta, 
-            vars=vars if 'vars' in locals() else [],
+            vars=vars,
             spssfile=filename
         )
 
@@ -479,7 +399,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         
         return (df.to_dict('records'), columns1, conditional_styles1, 
                 df2.to_dict('records'), columns2, conditional_styles2, 
-                xml_data_pretty, {'display': 'block'}, 
+                xml_data, {'display': 'block'}, 
                 instruction_text, json_ld_data,
                 {'display': 'block'})
 
@@ -488,7 +408,8 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", "", {'display': 'none'}
 
     finally:
-        os.remove(tmp_filename)
+        if 'tmp_filename' in locals():
+            os.remove(tmp_filename)
 
 # reset selected rows in datatable
 @app.callback(
