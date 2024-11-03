@@ -5,20 +5,18 @@ prefix = "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/field-level-documentation/
 markdown_text = r"""
 ## DDI-CDI Subset
 
-This profile utilizes 25 classes from the DDI-CDI model (12.03.2024).
+This profile utilizes 24 classes from the DDI-CDI model (29.10.2024).
 
 |         |         |
 |------------------|------------------|
-| [PhysicalDataSetStructure]({0}/FormatDescription/PhysicalDataSetStructure.html) | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) |
-| [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) |
-| [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) |
-| [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) |
-| [ValueMappingPosition]({0}/FormatDescription/ValueMappingPosition.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) |
-| [ValueMapping]({0}/FormatDescription/ValueMapping.html) | [InstanceVariable]({0}/Conceptual/InstanceVariable.html) |
-| [DataPoint]({0}/DataDescription/DataPoint.html) | [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) |
-| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) |
-| [InstanceValue]({0}/DataDescription/InstanceValue.html) | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) |
-|  | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) |
+| [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) |
+| [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) |
+| [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) |
+| [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) |
+| [InstanceVariable]({0}/Conceptual/InstanceVariable.html) | [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) |
+| [DataPoint]({0}/DataDescription/DataPoint.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) |
+| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) |
+| [InstanceValue]({0}/DataDescription/InstanceValue.html) | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) |
 | [DataStore]({0}/FormatDescription/DataStore.html) | [Code]({0}/Representations/Code.html) |
 | [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) | [Category]({0}/Conceptual/Category.html) |
 | [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | [Notation]({0}/DataDescription/Notation.html) |

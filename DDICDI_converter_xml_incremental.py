@@ -381,7 +381,7 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
         xf.write_declaration(standalone=True)
         with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap, 
                         attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):  
-            generate_PhysicalDataSetStructure_incremental(xf, agency)
+            # generate_PhysicalDataSetStructure_incremental(xf, agency)  # Commented out but kept for reference
             generate_PhysicalDataset_incremental(xf, df_meta, spssfile, agency)
             generate_PhysicalRecordSegment_incremental(xf, df, df_meta, agency)
             generate_PhysicalSegmentLayout_incremental(xf, df_meta, agency)

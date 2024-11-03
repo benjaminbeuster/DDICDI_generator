@@ -381,7 +381,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
 
         # Generate XML and JSON-LD
         xml_data = generate_complete_xml_with_keys(
-            df.head(1), 
+            df.head(), 
             df_meta, 
             vars=vars,
             spssfile=filename

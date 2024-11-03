@@ -450,7 +450,7 @@ def wrap_in_graph(*args):
 def generate_complete_json_ld(df, df_meta, vars=None, spssfile='name'):
     # Generate base components that are always included
     components = [
-        generate_PhysicalDataSetStructure(df_meta),
+        # generate_PhysicalDataSetStructure(df_meta),  # Commented out but kept for reference
         generate_PhysicalDataset(df_meta, spssfile),
         generate_PhysicalRecordSegment(df_meta, df),
         generate_PhysicalSegmentLayout(df_meta),
