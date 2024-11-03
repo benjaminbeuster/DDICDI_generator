@@ -9,8 +9,6 @@ import dash
 from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
-import pyreadstat
-import pandas as pd
 from lxml import etree
 from DDICDI_converter_xml_incremental import (
     generate_complete_xml_incremental,
@@ -22,12 +20,10 @@ from DDICDI_converter_xml_incremental import (
     update_xml
 )
 from DDICDI_converter_JSONLD_incremental import (
-    generate_complete_json_ld,
-    generate_complete_json_ld2
+    generate_complete_json_ld
 )
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
-from io import BytesIO
 
 
 # Define the namespaces, DDI
@@ -471,7 +467,7 @@ def combined_callback(contents, selected_rows, filename, table2_data):
             ).decode('utf-8')
 
         # Handle JSON-LD (keeping this part unchanged as it works)
-        json_ld_data = generate_complete_json_ld2(
+        json_ld_data = generate_complete_json_ld(
             df.head(), 
             df_meta, 
             vars=vars if 'vars' in locals() else [],
