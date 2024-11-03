@@ -713,26 +713,39 @@ def generate_Concept(df_meta):
 # MeasureComponent2
 def generate_MeasureComponent2(df_meta, varlist=None):
     json_ld_data = []
-    for x, variable in enumerate(df_meta.column_names):
-        if variable not in varlist:
+    
+    if varlist is None:
+        # If no varlist, all variables are measure components
+        for variable in df_meta.column_names:
             elements = {
                 "@id": f"#measureComponent-{variable}",
                 "@type": "MeasureComponent",
                 "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
             }
             json_ld_data.append(elements)
+    else:
+        # Only create measure components for variables not in varlist
+        for variable in df_meta.column_names:
+            if variable not in varlist:
+                elements = {
+                    "@id": f"#measureComponent-{variable}",
+                    "@type": "MeasureComponent",
+                    "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                }
+                json_ld_data.append(elements)
 
     return json_ld_data
 
 # IdentifierComponent2
 def generate_IdentifierComponent2(df_meta, varlist=None):
     json_ld_data = []
-    for x, variable in enumerate(df_meta.column_names):
-        if variable in varlist:
+    
+    if varlist is not None:
+        for var in varlist:
             elements = {
-                "@id": f"#identifierComponent-{variable}",
+                "@id": f"#identifierComponent-{var}",
                 "@type": "IdentifierComponent",
-                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{var}"
             }
             json_ld_data.append(elements)
 
@@ -743,17 +756,25 @@ def generate_IdentifierComponent2(df_meta, varlist=None):
 def generate_WideDataStructure2(df_meta, varlist=None):
     json_ld_data = []
     elements = {
-        "@id": f"#wideDataStructure",
+        "@id": "#wideDataStructure",
         "@type": "WideDataStructure",
         "has_PrimaryKey": "#primaryKey",
         "has_DataStructureComponent": []
     }
 
-    for variable in df_meta.column_names:
-        if variable in varlist:
-            elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
-        else:
+    # If varlist is None, treat all columns as measure components
+    if varlist is None:
+        for variable in df_meta.column_names:
             elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+    else:
+        # Add identifier components for variables in varlist first
+        for var in varlist:
+            elements["has_DataStructureComponent"].append(f"#identifierComponent-{var}")
+        
+        # Add measure components for remaining variables
+        for variable in df_meta.column_names:
+            if variable not in varlist:
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
@@ -762,7 +783,8 @@ def generate_WideDataStructure2(df_meta, varlist=None):
 # PrimaryKeyComponent2
 def generate_PrimaryKeyComponent2(df_meta, varlist=None):
     json_ld_data = []
-    if varlist:
+    
+    if varlist is not None:
         for var in varlist:
             elements = {
                 "@id": f"#primaryKeyComponent-{var}",
@@ -770,6 +792,7 @@ def generate_PrimaryKeyComponent2(df_meta, varlist=None):
                 "correspondsTo_DataStructureComponent": f"#identifierComponent-{var}"
             }
             json_ld_data.append(elements)
+
     return json_ld_data
 
 # PrimaryKey2
@@ -778,13 +801,13 @@ def generate_PrimaryKey2(df_meta, varlist=None):
     elements = {
         "@id": "#primaryKey",
         "@type": "PrimaryKey",
+        "isComposedOf": []
     }
     
-    has = []
-    for variable in varlist:
-        has.append(f"#identifierComponent-{variable}")
+    if varlist is not None:
+        for var in varlist:
+            elements["isComposedOf"].append(f"#primaryKeyComponent-{var}")
     
-    elements['isComposedOf'] = has
     json_ld_data.append(elements)
     return json_ld_data
 
@@ -884,7 +907,7 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
         generate_IdentifierComponent2(df_meta, vars),
         generate_MeasureComponent2(df_meta, vars),
         generate_PrimaryKey2(df_meta, vars),
-        generate_PrimaryKeyComponent(df_meta, vars),
+        generate_PrimaryKeyComponent2(df_meta, vars),
         generate_InstanceVariable(df_meta),
         generate_SubstantiveConceptualDomain(df_meta),
         generate_SubstantiveConceptScheme(df_meta),
