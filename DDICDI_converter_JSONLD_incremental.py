@@ -254,10 +254,20 @@ def generate_WideDataStructure(df_meta, vars=None):
         "has_DataStructureComponent": []
     }
     
-    # Add all variables as measure components if no vars specified
-    for variable in df_meta.column_names:
-        elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
-    
+    # If vars is None, treat all columns as measure components
+    if vars is None:
+        for variable in df_meta.column_names:
+            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+    else:
+        # Add identifier components for variables in vars
+        for variable in vars:
+            elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
+        
+        # Add measure components for variables not in vars
+        for variable in df_meta.column_names:
+            if variable not in vars:
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+
     json_ld_data.append(elements)
     return json_ld_data
 
@@ -308,8 +318,13 @@ def generate_PrimaryKey(df_meta, vars=None):
     elements = {
         "@id": "#primaryKey",
         "@type": "PrimaryKey",
-        "isComposedOf": []  # Empty array instead of undefined
+        "isComposedOf": []
     }
+    
+    # Add primary key components if vars is provided
+    if vars is not None:
+        for var in vars:
+            elements["isComposedOf"].append(f"#primaryKeyComponent-{var}")
     
     json_ld_data.append(elements)
     return json_ld_data
@@ -777,27 +792,26 @@ def generate_PrimaryKey2(df_meta, varlist=None):
 ################################################################################
 
 def wrap_in_graph(*components):
-    """Helper function to wrap components in a valid JSON-LD array structure"""
-    # Define the context that will be used for each component
-    context = [
-        "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
-        {
-            "skos": "http://www.w3.org/2004/02/skos/core#"
-        }
-    ]
+    """Helper function to wrap components in a valid PhysicalDataSetStructure"""
+    # Flatten all components into a single list
+    all_components = [item for sublist in components for item in sublist]
     
-    # Flatten all components into a single list and add context to each
-    array_structure = []
-    for component_list in components:
-        if isinstance(component_list, list):
-            for component in component_list:
-                component["@context"] = context
-                array_structure.append(component)
-        else:
-            component_list["@context"] = context
-            array_structure.append(component_list)
+    # Create the root structure
+    root_structure = {
+        "@context": [
+            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
+            {
+                "skos": "http://www.w3.org/2004/02/skos/core#"
+            }
+        ],
+        "@id": "#physicalDataSetStructure",
+        "@type": "PhysicalDataSetStructure",
+        "correspondsTo_DataStructure": "#wideDataStructure",
+        "structures": "#physicalDataSet"
+    }
     
-    return array_structure
+    # Add all other components as separate objects at the root level
+    return [root_structure] + all_components
 
 def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # Generate all components
@@ -828,8 +842,19 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         generate_Concept(df_meta)
     ]
     
-    # Get the wrapped JSON-LD array
-    json_ld_array = wrap_in_graph(*components)
+    # Get the flattened list of all components
+    all_objects = wrap_in_graph(*components)
+    
+    # Create the final JSON-LD document
+    json_ld_doc = {
+        "@context": [
+            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
+            {
+                "skos": "http://www.w3.org/2004/02/skos/core#"
+            }
+        ],
+        "@graph": all_objects
+    }
 
     def default_encode(obj):
         if isinstance(obj, np.int64):
@@ -843,7 +868,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
     # Convert to JSON string
-    return json.dumps(json_ld_array, indent=4, default=default_encode)
+    return json.dumps(json_ld_doc, indent=4, default=default_encode)
 
 
 ###################################################################################################
@@ -877,20 +902,20 @@ def generate_complete_json_ld2(df, df_meta, vars=None, spssfile='name'):
         generate_InstanceValue(df, df_meta)
     ]
     
-    # Get the wrapped JSON-LD array
-    json_ld_array = wrap_in_graph(*components)
+    # Wrap in graph structure
+    json_ld_graph = wrap_in_graph(*components)
 
     def default_encode(obj):
         if isinstance(obj, np.int64):
             return int(obj)
-        elif pd.isna(obj):
+        elif pd.isna(obj):  # Checks for pd.NA
             return None
-        elif isinstance(obj, pd.Timestamp):
+        elif isinstance(obj, pd.Timestamp):  # Checks for Timestamp
             return obj.isoformat()
         elif isinstance(obj, (datetime.date, datetime.datetime)):
             return obj.isoformat()
         raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
     # Convert to JSON string
-    return json.dumps(json_ld_array, indent=4, default=default_encode)
+    return json.dumps(json_ld_graph, indent=4, default=default_encode)
 
