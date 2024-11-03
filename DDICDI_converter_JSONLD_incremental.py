@@ -64,6 +64,7 @@ def generate_PhysicalSegmentLayout(df_meta):
         "allowsDuplicates": False,
         "formats": "#logicalRecord",
         "isDelimited": False,
+        "isFixedWidth": False,
         "delimiter": "",
         "has_ValueMapping": [],
         "has_ValueMappingPosition": []
@@ -160,8 +161,11 @@ def generate_DataPointPosition(df, df_meta):
 def generate_InstanceValue(df, df_meta):
     json_ld_data = []
 
+    # Determine the relevant variables based on the presence of missing values
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+
     # Iterate through column names and associated index
-    for variable in (df_meta.column_names):
+    for variable in df_meta.column_names:
         for idx, value in enumerate(df[variable]):
             elements = {
                 "@id": f"#instanceValue-{idx}-{variable}",
@@ -169,6 +173,26 @@ def generate_InstanceValue(df, df_meta):
                 "content": value,
                 "isStoredIn": f"#dataPoint-{idx}-{variable}"
             }
+
+            # Check if variable has missing ranges and value is within those ranges
+            if variable in df_meta.missing_ranges:
+                is_sentinel = False
+                for range_dict in df_meta.missing_ranges[variable]:
+                    if value is not None and isinstance(range_dict['lo'], float):
+                        # Convert value to float for comparison
+                        try:
+                            value_float = float(value)
+                            if range_dict['lo'] <= value_float <= range_dict['hi']:
+                                elements["hasValueFrom_ValueDomain"] = f"#sentinelValueDomain-{variable}"
+                                is_sentinel = True
+                                break
+                        except (ValueError, TypeError):
+                            pass
+                
+                if not is_sentinel:
+                    elements["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
+            else:
+                elements["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
 
             json_ld_data.append(elements)
 
