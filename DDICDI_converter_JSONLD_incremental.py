@@ -462,7 +462,7 @@ def generate_complete_json_ld(df, df_meta, vars=None, spssfile='name'):
         generate_DataStore(df_meta),
         generate_LogicalRecord(df_meta),
         generate_WideDataSet(df_meta),
-        generate_WideDataStructure(df_meta, vars),  # Pass vars here
+        generate_WideDataStructure(df_meta, vars),
         generate_MeasureComponent(df_meta),
         generate_InstanceVariable(df_meta),
         generate_SubstantiveConceptualDomain(df_meta),
@@ -485,7 +485,7 @@ def generate_complete_json_ld(df, df_meta, vars=None, spssfile='name'):
     # Get the flattened list of all components
     all_objects = wrap_in_graph(*components)
     
-    # Create the final JSON-LD document
+    # Create the final JSON-LD document with the required structure
     json_ld_doc = {
         "@context": [
             "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
@@ -493,7 +493,10 @@ def generate_complete_json_ld(df, df_meta, vars=None, spssfile='name'):
                 "skos": "http://www.w3.org/2004/02/skos/core#"
             }
         ],
-        "@graph": all_objects
+        "@type": "DDICDIModels",
+        "DDICDIModels": {
+            "@graph": all_objects
+        }
     }
 
     def default_encode(obj):
