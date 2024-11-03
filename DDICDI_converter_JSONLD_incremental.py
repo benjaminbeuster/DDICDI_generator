@@ -525,6 +525,14 @@ def generate_ValueAndConceptDescription(df_meta):
     elif df_meta.missing_user_values:
         relevant_variables = df_meta.missing_user_values
 
+    # Recode classification level
+    class_level = {
+        'nominal': 'Nominal',
+        'scale': 'Continuous', 
+        'ordinal': 'Ordinal',
+        'unknown': 'Nominal'
+    }
+
     json_ld_data = []
 
     for variable in df_meta.column_names:
@@ -532,7 +540,7 @@ def generate_ValueAndConceptDescription(df_meta):
         json_ld_data.append({
             "@id": f"#substantiveValueAndConceptDescription-{variable}",
             "@type": "ValueAndConceptDescription",
-            "classificationLevel": f"{df_meta.variable_measure[variable]}"
+            "classificationLevel": class_level.get(df_meta.variable_measure[variable].lower(), 'Nominal')
         })
 
         # Add sentinelValueAndConceptDescription only if the condition is met
@@ -555,6 +563,7 @@ def generate_ValueAndConceptDescription(df_meta):
             })
 
     return json_ld_data
+
 # In[ ]:
 
 # SentinelConceptualDomain
