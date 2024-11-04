@@ -420,32 +420,33 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
 ###########################################################################
 # Functions to add the primary key and its components incrementally. This updates the XML incrementally.
 
-def generate_WideDataStructure2_incremental(xf, df_meta, vars, agency):
+def generate_WideDataStructure2_incremental(xf, df_meta, vars, attribute_vars, agency):
     with xf.element(etree.QName(nsmap['cdi'], 'WideDataStructure')):
         add_identifier_incremental(xf, "#wideDataStructure", agency)
 
-        # If vars is None, iterate through all column names in df_meta
-        if vars is None:
-            for variable in df_meta.column_names:
-                with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
-                    add_ddiref_incremental(xf, f"#measureComponent-{variable}", agency, "MeasureComponent")
-
-        # If vars is not None
-        else:
-            # Iterate through all variables in vars
+        # Add identifier components
+        if vars is not None:
             for var in vars:
                 with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
                     add_ddiref_incremental(xf, f"#identifierComponent-{var}", agency, "IdentifierComponent")
 
-            # Iterate through all column names in df_meta
-            for variable in df_meta.column_names:
-                # If the variable is not in vars
-                if variable not in vars:
-                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
-                        add_ddiref_incremental(xf, f"#measureComponent-{variable}", agency, "MeasureComponent")
+        # Add attribute components
+        if attribute_vars is not None:
+            for var in attribute_vars:
+                with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+                    add_ddiref_incremental(xf, f"#attributeComponent-{var}", agency, "AttributeComponent")
 
-        with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_PrimaryKey')):
-            add_ddiref_incremental(xf, f"#primaryKey", agency, "PrimaryKey")
+        # Add measure components for remaining variables
+        for variable in df_meta.column_names:
+            if (vars is None or variable not in vars) and \
+               (attribute_vars is None or variable not in attribute_vars):
+                with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+                    add_ddiref_incremental(xf, f"#measureComponent-{variable}", agency, "MeasureComponent")
+
+        # Add primary key reference only if we have identifier components
+        if vars is not None and len(vars) > 0:
+            with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_PrimaryKey')):
+                add_ddiref_incremental(xf, f"#primaryKey", agency, "PrimaryKey")
 
 def generate_IdentifierComponent2_incremental(xf, df_meta, vars, agency):
     if vars is not None:
@@ -486,6 +487,14 @@ def generate_PrimaryKeyComponent2_incremental(xf, df_meta, vars, agency):
                 with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')):
                     add_ddiref_incremental(xf, f"#identifierComponent-{var}", agency, "IdentifierComponent")
 
+def generate_AttributeComponent2_incremental(xf, df_meta, attribute_vars, agency):
+    if attribute_vars is not None:
+        for var in attribute_vars:
+            with xf.element(etree.QName(nsmap['cdi'], 'AttributeComponent')):
+                add_identifier_incremental(xf, f"#attributeComponent-{var}", agency)
+                with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
+                    add_ddiref_incremental(xf, f"#instanceVariable-{var}", agency, "InstanceVariable")
+
 #################################################################################################################################
 
 def update_xml(original_xml, new_xml):
@@ -517,7 +526,7 @@ def pretty_print_xml(input_file, output_file):
     tree = etree.parse(input_file, parser)
     tree.write(output_file, pretty_print=True, xml_declaration=True, encoding='utf-8')
 
-def generate_complete_xml_with_keys(df, df_meta, vars=[], spssfile=None, agency='int.esseric'):
+def generate_complete_xml_with_keys(df, df_meta, vars=[], attribute_vars=[], spssfile=None, agency='int.esseric'):
     nsmap = {
         'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/',
         'r': 'ddi:reusable:3_3'
@@ -526,16 +535,17 @@ def generate_complete_xml_with_keys(df, df_meta, vars=[], spssfile=None, agency=
     with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_xml:
         generate_complete_xml_incremental(df, df_meta, spssfile, temp_xml.name)
         
-        if vars:
+        if vars or attribute_vars:
             with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_components:
                 with etree.xmlfile(temp_components.name, encoding='UTF-8') as xf:
                     xf.write_declaration(standalone=True)
                     with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap):
-                        generate_WideDataStructure2_incremental(xf, df_meta, vars, agency)
+                        generate_WideDataStructure2_incremental(xf, df_meta, vars, attribute_vars, agency)
                         generate_IdentifierComponent2_incremental(xf, df_meta, vars, agency)
                         generate_MeasureComponent2_incremental(xf, df_meta, vars, agency)
                         generate_PrimaryKey2_incremental(xf, df_meta, vars, agency)
                         generate_PrimaryKeyComponent2_incremental(xf, df_meta, vars, agency)
+                        generate_AttributeComponent2_incremental(xf, df_meta, attribute_vars, agency)
 
                 parser = etree.XMLParser(remove_blank_text=True)
                 original_tree = etree.parse(temp_xml.name, parser)

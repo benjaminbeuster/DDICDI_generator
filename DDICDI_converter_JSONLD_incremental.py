@@ -111,7 +111,7 @@ def generate_WideDataSet(df_meta):
     json_ld_data.append(elements)
     return json_ld_data
 
-def generate_WideDataStructure(df_meta, vars=None):
+def generate_WideDataStructure(df_meta, vars=None, attribute_vars=None):
     json_ld_data = []
     elements = {
         "@id": "#wideDataStructure",
@@ -119,23 +119,25 @@ def generate_WideDataStructure(df_meta, vars=None):
         "has_DataStructureComponent": []
     }
     
-    # Only add primary key if vars is provided AND not empty
+    # Add primary key if we have identifier variables
     if vars is not None and len(vars) > 0:
         elements["has_PrimaryKey"] = "#primaryKey"
     
-    # If vars is None or empty, treat all columns as measure components
-    if vars is None or len(vars) == 0:
-        for variable in df_meta.column_names:
-            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
-    else:
-        # Add identifier components for variables in vars
+    # Add identifier components
+    if vars is not None:
         for variable in vars:
             elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
-        
-        # Add measure components for variables not in vars
-        for variable in df_meta.column_names:
-            if variable not in vars:
-                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+    
+    # Add attribute components
+    if attribute_vars is not None:
+        for variable in attribute_vars:
+            elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
+    
+    # Add measure components for remaining variables
+    for variable in df_meta.column_names:
+        if (vars is None or variable not in vars) and \
+           (attribute_vars is None or variable not in attribute_vars):
+            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
@@ -441,6 +443,20 @@ def generate_Concept(df_meta):
                 "skos:prefLabel": label
             }
             json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_AttributeComponent(df_meta, attribute_vars=None):
+    json_ld_data = []
+    
+    if attribute_vars is not None:
+        for var in attribute_vars:
+            elements = {
+                "@id": f"#attributeComponent-{var}",
+                "@type": "AttributeComponent",
+                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{var}"
+            }
+            json_ld_data.append(elements)
+
     return json_ld_data
 
 def wrap_in_graph(*args):

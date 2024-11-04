@@ -210,10 +210,21 @@ app.layout = dbc.Container([
                             dash_table.DataTable(
                                 id='table2',
                                 editable=True,
+                                persistence=True,
+                                persistence_type='session',
                                 row_selectable=False,  # Remove multi-selection
                                 style_table=table_style,
                                 style_header=header_dict,
                                 style_cell=style_dict,
+                                columns=[
+                                    {
+                                        "name": "Type",
+                                        "id": "var_type",
+                                        "presentation": "dropdown",
+                                        "editable": True
+                                    },
+                                    # ... other columns ...
+                                ],
                                 dropdown={
                                     'var_type': {
                                         'options': [
@@ -381,14 +392,30 @@ def update_instruction_text_style(data):
      Output('include-metadata', 'style')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
-     Input('include-metadata', 'value')],
-    [State('upload-data', 'filename'),
-     State('table2', 'data')]
+     Input('include-metadata', 'value'),
+     Input('table2', 'data')],
+    [State('upload-data', 'filename')]
 )
-def combined_callback(contents, selected_rows, include_metadata, filename, table2_data):
+def combined_callback(contents, selected_rows, include_metadata, table2_data, filename):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
     
+    # If the trigger is from table2 data changes, preserve the changes
+    if trigger == 'table2':
+        # Save the current state to lists.txt
+        if table2_data:
+            measures = [row['name'] for row in table2_data if row.get('var_type') == 'measure']
+            identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier']
+            attributes = [row['name'] for row in table2_data if row.get('var_type') == 'attribute']
+            
+            with open('lists.txt', 'w') as f:
+                f.write(f"Measures: {measures}\n")
+                f.write(f"Identifiers: {identifiers}\n")
+                f.write(f"Attributes: {attributes}\n")
+        
+        # Return no_update for all outputs except table2 data
+        return [dash.no_update] * 3 + [table2_data] + [dash.no_update] * 8
+
     if not contents:
         return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}
 
@@ -459,6 +486,18 @@ def combined_callback(contents, selected_rows, include_metadata, filename, table
             vars=vars,
             spssfile=filename
         )
+
+        # Add debug logging for variable types
+        if table2_data:
+            measures = [row['name'] for row in table2_data if row.get('var_type') == 'measure']
+            identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier']
+            attributes = [row['name'] for row in table2_data if row.get('var_type') == 'attribute']
+            
+            # Save to lists.txt
+            with open('lists.txt', 'w') as f:
+                f.write(f"Measures: {measures}\n")
+                f.write(f"Identifiers: {identifiers}\n")
+                f.write(f"Attributes: {attributes}\n")
 
         return (df.to_dict('records'), columns1, conditional_styles1, 
                 table2_data, columns2, conditional_styles2, 
