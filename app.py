@@ -209,12 +209,37 @@ app.layout = dbc.Container([
 
                             dash_table.DataTable(
                                 id='table2',
-                                editable=False,  # Allow content to be editable
-                                row_selectable="multi",  # Allow multiple rows to be selected
-                                selected_rows=[],
+                                editable=True,
+                                row_selectable=False,  # Remove multi-selection
                                 style_table=table_style,
                                 style_header=header_dict,
-                                style_cell=style_dict
+                                style_cell=style_dict,
+                                dropdown={
+                                    'var_type': {
+                                        'options': [
+                                            {'label': 'Measure', 'value': 'measure'},
+                                            {'label': 'Attribute', 'value': 'attribute'},
+                                            {'label': 'Identifier', 'value': 'identifier'}
+                                        ],
+                                        'clearable': False
+                                    }
+                                },
+                                # Add these properties to ensure dropdown is clickable and visible
+                                css=[{
+                                    'selector': '.Select-menu-outer',
+                                    'rule': 'display: block !important'
+                                }],
+                                style_cell_conditional=[{
+                                    'if': {'column_id': 'var_type'},
+                                    'textAlign': 'left',
+                                    'minWidth': '150px',
+                                    'width': '150px',
+                                    'maxWidth': '150px',
+                                }],
+                                style_data_conditional=[{
+                                    'if': {'column_id': 'var_type'},
+                                    'cursor': 'pointer'
+                                }]
                             ),
                         ]
                     ),
@@ -386,9 +411,21 @@ def combined_callback(contents, selected_rows, include_metadata, filename, table
 
         # Prepare table data
         columns1 = [{"name": i, "id": i} for i in df.columns]
-        columns2 = [{"name": i, "id": i} for i in df2.columns]
+        columns2 = [
+            {
+                "name": "Type",
+                "id": "var_type",
+                "presentation": "dropdown"
+            }
+        ] + [{"name": i, "id": i} for i in df2.columns]
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
+
+        # Add the var_type column to df2 with default value
+        df2['var_type'] = 'measure'
+        
+        # Convert df2 to records for the table
+        table2_data = df2.to_dict('records')
 
         # Get selected variables
         vars = []
@@ -424,7 +461,7 @@ def combined_callback(contents, selected_rows, include_metadata, filename, table
         )
 
         return (df.to_dict('records'), columns1, conditional_styles1, 
-                df2.to_dict('records'), columns2, conditional_styles2, 
+                table2_data, columns2, conditional_styles2, 
                 xml_data, {'display': 'block'}, 
                 instruction_text, json_ld_data,
                 {'display': 'block'},
