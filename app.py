@@ -198,7 +198,7 @@ app.layout = dbc.Container([
                         type="default",
                         children=[
                             # Insert the instruction text here
-                            html.Div("Please select the Identifier Variables from the first column to be used as the Primary Key.",
+                            html.Div("Please select variable role. Identifiers are used for the PrimaryKey to uniquely identify the records.",
                                      style={
                                          'color': colors['secondary'],
                                          'fontSize': '15px',  # Increased from 14px
