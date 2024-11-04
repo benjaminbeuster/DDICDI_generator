@@ -1,3 +1,0 @@
-Measures: ['essround', 'edition', 'cntry', 'dweight', 'pspwght', 'pweight', 'anweight', 'tvtot', 'tvpol', 'rdtot', 'rdpol', 'nwsptot', 'nwsppol', 'netuse', 'ppltrst', 'pplfair', 'pplhlp']
-Identifiers: ['name', 'idno']
-Attributes: ['proddate']
