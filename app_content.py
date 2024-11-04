@@ -9,17 +9,23 @@ This profile utilizes 24 classes from the DDI-CDI model (29.10.2024).
 
 |         |         |
 |------------------|------------------|
-| [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) |
-| [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) |
-| [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) |
-| [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) |
-| [InstanceVariable]({0}/Conceptual/InstanceVariable.html) | [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) |
-| [DataPoint]({0}/DataDescription/DataPoint.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) |
-| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) |
-| [InstanceValue]({0}/DataDescription/InstanceValue.html) | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) |
-| [DataStore]({0}/FormatDescription/DataStore.html) | [Code]({0}/Representations/Code.html) |
-| [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) | [Category]({0}/Conceptual/Category.html) |
-| [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | [Notation]({0}/DataDescription/Notation.html) |
+| [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [DataStore]({0}/FormatDescription/DataStore.html) |
+| [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) |
+| [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) |
+| [ValueMapping]({0}/DataDescription/ValueMapping.html) | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) |
+| [ValueMappingPosition]({0}/DataDescription/ValueMappingPosition.html) | [InstanceVariable]({0}/Conceptual/InstanceVariable.html) |
+| [DataPoint]({0}/DataDescription/DataPoint.html) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) |
+| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) |
+| [InstanceValue]({0}/DataDescription/InstanceValue.html) | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) |
+| | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) |
+| | [AttributeComponent]({0}/DataDescription/Components/AttributeComponent.html) |
+| | [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) |
+| | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) |
+| | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) |
+| | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) |
+| | [Code]({0}/Representations/Code.html) |
+| | [Category]({0}/Representations/Category.html) |
+| | [Notation]({0}/Representations/Notation.html) |
 """.format(prefix)
 
 from datetime import datetime
