@@ -55,28 +55,77 @@ def generate_WideDataSet_incremental(xf, df_meta, agency):
 def generate_WideDataStructure_incremental(xf, df_meta, agency):
     with xf.element(etree.QName(nsmap['cdi'], 'WideDataStructure')):
         add_identifier_incremental(xf, f"#wideDataStructure", agency)
-        for variable in df_meta.column_names[:]:
-            with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
-                add_ddiref_incremental(xf, f"#measureComponent-{variable}", agency, "MeasureComponent")
+        
+        # Add identifier components first
+        if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
+            # Add primary key reference
+            with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_PrimaryKey')):
+                add_ddiref_incremental(xf, f"#primaryKey", agency, "PrimaryKey")
+            
+            # Add identifier components
+            for variable in df_meta.identifier_vars:
+                if variable in df_meta.column_names:
+                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+                        add_ddiref_incremental(xf, f"#identifierComponent-{variable}", agency, "IdentifierComponent")
+        
+        # Add attribute components second
+        if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars:
+            for variable in df_meta.attribute_vars:
+                if variable in df_meta.column_names:
+                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+                        add_ddiref_incremental(xf, f"#attributeComponent-{variable}", agency, "AttributeComponent")
+        
+        # Add measure components last
+        if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
+            for variable in df_meta.measure_vars:
+                if variable in df_meta.column_names:
+                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructure_has_DataStructureComponent')):
+                        add_ddiref_incremental(xf, f"#measureComponent-{variable}", agency, "MeasureComponent")
 
 def generate_MeasureComponent_incremental(xf, df_meta, agency):
-    for variable in df_meta.column_names[:]:
-        with xf.element(etree.QName(nsmap['cdi'], 'MeasureComponent')):
-            add_identifier_incremental(xf, f"#measureComponent-{variable}", agency)
-            with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
-                add_ddiref_incremental(xf, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+    if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
+        for variable in df_meta.measure_vars:
+            if variable in df_meta.column_names:
+                with xf.element(etree.QName(nsmap['cdi'], 'MeasureComponent')):
+                    add_identifier_incremental(xf, f"#measureComponent-{variable}", agency)
+                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
+                        add_ddiref_incremental(xf, f"#instanceVariable-{variable}", agency, "InstanceVariable")
 
-def generate_PrimaryKey_incremental(xf, agency):
-    with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKey')):
-        add_identifier_incremental(xf, f"#primaryKey", agency)
-        with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKey_isComposedOf_PrimaryKeyComponent')):
-            add_ddiref_incremental(xf, f"#primaryKeyComponent", agency, "PrimaryKeyComponent")
+def generate_IdentifierComponent_incremental(xf, df_meta, agency):
+    if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
+        for variable in df_meta.identifier_vars:
+            if variable in df_meta.column_names:
+                with xf.element(etree.QName(nsmap['cdi'], 'IdentifierComponent')):
+                    add_identifier_incremental(xf, f"#identifierComponent-{variable}", agency)
+                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
+                        add_ddiref_incremental(xf, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+
+def generate_AttributeComponent_incremental(xf, df_meta, agency):
+    if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars:
+        for variable in df_meta.attribute_vars:
+            if variable in df_meta.column_names:
+                with xf.element(etree.QName(nsmap['cdi'], 'AttributeComponent')):
+                    add_identifier_incremental(xf, f"#attributeComponent-{variable}", agency)
+                    with xf.element(etree.QName(nsmap['cdi'], 'DataStructureComponent_isDefinedBy_RepresentedVariable')):
+                        add_ddiref_incremental(xf, f"#instanceVariable-{variable}", agency, "InstanceVariable")
+
+def generate_PrimaryKey_incremental(xf, df_meta, agency):
+    if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
+        with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKey')):
+            add_identifier_incremental(xf, f"#primaryKey", agency)
+            for variable in df_meta.identifier_vars:
+                if variable in df_meta.column_names:
+                    with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKey_isComposedOf_PrimaryKeyComponent')):
+                        add_ddiref_incremental(xf, f"#primaryKeyComponent-{variable}", agency, "PrimaryKeyComponent")
 
 def generate_PrimaryKeyComponent_incremental(xf, df_meta, agency):
-    with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent')):
-        add_identifier_incremental(xf, f"#primaryKeyComponent", agency)
-        with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')):
-            add_ddiref_incremental(xf, f"#identifierComponent-{df_meta.column_names[0]}", agency, "IdentifierComponent")
+    if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
+        for variable in df_meta.identifier_vars:
+            if variable in df_meta.column_names:
+                with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent')):
+                    add_identifier_incremental(xf, f"#primaryKeyComponent-{variable}", agency)
+                    with xf.element(etree.QName(nsmap['cdi'], 'PrimaryKeyComponent_correspondsTo_DataStructureComponent')):
+                        add_ddiref_incremental(xf, f"#identifierComponent-{variable}", agency, "IdentifierComponent")
 
 def generate_InstanceVariable_incremental(xf, df_meta, agency):
     for idx, variable in enumerate(df_meta.column_names):
@@ -380,32 +429,22 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
     with etree.xmlfile(temp_file, encoding='UTF-8') as xf:
         xf.write_declaration(standalone=True)
         with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap, 
-                        attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):  
-            # generate_PhysicalDataSetStructure_incremental(xf, agency)  # Commented out but kept for reference
-            generate_PhysicalDataset_incremental(xf, df_meta, spssfile, agency)
-            generate_PhysicalRecordSegment_incremental(xf, df, df_meta, agency)
-            generate_PhysicalSegmentLayout_incremental(xf, df_meta, agency)
-            generate_ValueMappingPosition_incremental(xf, df_meta, agency)
-            generate_ValueMapping_incremental(xf, df, df_meta, agency)
-            generate_DataPoint_incremental(xf, df, df_meta, agency)
-            generate_DataPointPosition_incremental(xf, df, df_meta, agency)
-            generate_InstanceValue_incremental(xf, df, df_meta, agency)
-            generate_DataStore_incremental(xf, df_meta, agency)
-            generate_LogicalRecord_incremental(xf, df_meta, agency)
-            generate_WideDataSet_incremental(xf, df_meta, agency)
+                        attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):
             generate_WideDataStructure_incremental(xf, df_meta, agency)
-            generate_MeasureComponent_incremental(xf, df_meta, agency)
-            generate_InstanceVariable_incremental(xf, df_meta, agency)
-            generate_SubstantiveValueDomain_incremental(xf, df_meta, agency)
-            generate_SentinelValueDomain_incremental(xf, df_meta, agency)
-            generate_ValueAndConceptDescription_incremental(xf, df_meta, agency)
-            generate_CodeList_incremental(xf, df_meta, agency)
-            generate_SentinelCodelist_incremental(xf, df_meta, agency)
-            generate_Code_incremental(xf, df_meta, agency)
-            generate_Category_incremental(xf, df_meta, agency)
-            generate_Notation_incremental(xf, df_meta, agency)
-
-            # ... other elements would be generated here incrementally
+            
+            # Generate components based on variable types
+            if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
+                generate_IdentifierComponent_incremental(xf, df_meta, agency)
+                generate_PrimaryKey_incremental(xf, df_meta, agency)
+                generate_PrimaryKeyComponent_incremental(xf, df_meta, agency)
+            
+            if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars:
+                generate_AttributeComponent_incremental(xf, df_meta, agency)
+            
+            if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
+                generate_MeasureComponent_incremental(xf, df_meta, agency)
+            
+            # ... rest of the function remains the same ...
 
     # After the file has been written incrementally, pretty-print it to the final output file
     pretty_print_xml(temp_file, output_file)

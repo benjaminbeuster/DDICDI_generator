@@ -389,7 +389,8 @@ def update_instruction_text_style(data):
      Output('table1-instruction', 'children'),
      Output('json-ld-output', 'children'),
      Output('table-switch-button', 'style'),
-     Output('include-metadata', 'style')],
+     Output('include-metadata', 'style'),
+     Output('upload-data', 'contents')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
      Input('include-metadata', 'value'),
@@ -397,28 +398,150 @@ def update_instruction_text_style(data):
     [State('upload-data', 'filename')]
 )
 def combined_callback(contents, selected_rows, include_metadata, table2_data, filename):
+    global df, df_meta
+    
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
-    print(f"Trigger: {trigger}")
-    
-    # If the trigger is from table2 data changes, preserve the changes
-    if trigger == 'table2':
-        # Save the current state to lists.txt
-        if table2_data:
-            measures = [row['name'] for row in table2_data if row.get('var_type') == 'measure']
-            identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier']
-            attributes = [row['name'] for row in table2_data if row.get('var_type') == 'attribute']
+
+    # Handle file upload (both initial and subsequent)
+    if trigger == 'upload-data' and contents is not None:
+        try:
+            # Clear previous data
+            if 'df_meta' in globals():
+                df_meta.measure_vars = []
+                df_meta.identifier_vars = []
+                df_meta.attribute_vars = []
             
+            # Reset lists.txt
             with open('lists.txt', 'w') as f:
-                f.write(f"Measures: {measures}\n")
-                f.write(f"Identifiers: {identifiers}\n")
-                f.write(f"Attributes: {attributes}\n")
+                f.write("Measures: []\n")
+                f.write("Identifiers: []\n")
+                f.write("Attributes: []\n")
+
+            # Process the uploaded file
+            content_type, content_string = contents.split(',')
+            decoded = base64.b64decode(content_string)
+            
+            with tempfile.NamedTemporaryFile(suffix=os.path.splitext(filename)[1], delete=False) as tmp_file:
+                tmp_file.write(decoded)
+                tmp_filename = tmp_file.name
+
+            if '.dta' in tmp_filename or '.sav' in tmp_filename:
+                df, df_meta, file_name, n_rows = read_sav(tmp_filename)
+                df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
+                
+                # Initialize with empty classifications
+                df_meta.measure_vars = []
+                df_meta.identifier_vars = []
+                df_meta.attribute_vars = []
+
+                # Prepare table data
+                columns1 = [{"name": i, "id": i} for i in df.columns]
+                columns2 = [
+                    {
+                        "name": "Type",
+                        "id": "var_type",
+                        "presentation": "dropdown"
+                    }
+                ] + [{"name": i, "id": i} for i in df2.columns]
+                
+                conditional_styles1 = style_data_conditional(df)
+                conditional_styles2 = style_data_conditional(df2)
+
+                # Add the var_type column to df2 with default value
+                df2['var_type'] = 'measure'
+                table2_data = df2.to_dict('records')
+
+                # Generate initial XML and JSON-LD
+                data_subset = df.head(5) if include_metadata else df.head(0)
+                xml_data = generate_complete_xml_with_keys(
+                    data_subset, 
+                    df_meta, 
+                    vars=[],
+                    spssfile=filename
+                )
+                json_ld_data = generate_complete_json_ld(
+                    data_subset, 
+                    df_meta,
+                    spssfile=filename
+                )
+
+                instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'."
+
+                # Clean up temp file
+                os.unlink(tmp_filename)
+
+                return (
+                    df.to_dict('records'),
+                    columns1,
+                    conditional_styles1,
+                    table2_data,
+                    columns2,
+                    conditional_styles2,
+                    xml_data,
+                    {'display': 'block'},
+                    instruction_text,
+                    json_ld_data,
+                    {'display': 'block'},
+                    {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    None  # Clear the upload contents
+                )
+
+        except Exception as e:
+            print(f"Error processing file: {str(e)}")
+            return [], [], [], [], [], [], f"Error: {str(e)}", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None
+
+    # When table2 data changes (dropdown selections change)
+    if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
+        # Update classifications based on dropdown selections
+        measures = [row['name'] for row in table2_data if row.get('var_type') == 'measure']
+        identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier']
+        attributes = [row['name'] for row in table2_data if row.get('var_type') == 'attribute']
         
-        # Return no_update for all outputs except table2 data
-        return [dash.no_update] * 3 + [table2_data] + [dash.no_update] * 8
+        if 'df_meta' in globals():
+            df_meta.measure_vars = measures
+            df_meta.identifier_vars = identifiers
+            df_meta.attribute_vars = attributes
+            
+        # Update lists.txt with new classifications
+        with open('lists.txt', 'w') as f:
+            f.write(f"Measures: {measures}\n")
+            f.write(f"Identifiers: {identifiers}\n")
+            f.write(f"Attributes: {attributes}\n")
+            
+        # Generate new XML and JSON-LD with updated classifications
+        data_subset = df.head(5) if include_metadata else df.head(0)
+        xml_data = generate_complete_xml_with_keys(
+            data_subset, 
+            df_meta, 
+            vars=identifiers,
+            spssfile=filename
+        )
+        json_ld_data = generate_complete_json_ld(
+            data_subset, 
+            df_meta,
+            spssfile=filename
+        )
+        
+        # Return all outputs with updated XML and JSON
+        return (
+            dash.no_update,  # table1 data
+            dash.no_update,  # table1 columns
+            dash.no_update,  # table1 style
+            table2_data,     # table2 data
+            dash.no_update,  # table2 columns
+            dash.no_update,  # table2 style
+            xml_data,        # xml output
+            dash.no_update,  # button group style
+            dash.no_update,  # table1 instruction
+            json_ld_data,    # json output
+            dash.no_update,  # table switch button style
+            dash.no_update,  # include metadata style
+            dash.no_update   # upload contents
+        )
 
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}
+        return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update
 
     try:
         print("Step 1: Starting file processing")
@@ -529,11 +652,13 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
                 xml_data, {'display': 'block'}, 
                 instruction_text, json_ld_data,
                 {'display': 'block'},
-                {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']})
+                {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                None  # Clear the upload contents
+            )
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None
 
     finally:
         if 'tmp_filename' in locals():
