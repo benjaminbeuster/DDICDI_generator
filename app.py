@@ -229,9 +229,19 @@ app.layout = dbc.Container([
                     dbc.Button('JSON-LD', id='btn-download-json', color="primary", className="mr-1"),
                     dbc.Button('Download', id='btn-download-active', color="success"),
                 ],
-                style={'display': 'none', 'gap': '10px'},  # Added gap between buttons
+                style={'display': 'none', 'gap': '10px'},
                 id='button-group',
                 className="shadow-sm"
+            ),
+            # Add switch using dbc.Switch
+            dbc.Switch(
+                id="include-metadata",
+                label="Include cell metadata",
+                style={
+                    'display': 'inline-block',
+                    'marginLeft': '15px',
+                    'color': colors['secondary']
+                }
             ),
             dcc.Download(id='download-active'),
             html.Br(),
@@ -341,15 +351,20 @@ def update_instruction_text_style(data):
      Output('button-group', 'style'),
      Output('table1-instruction', 'children'),
      Output('json-ld-output', 'children'),
-     Output('table-switch-button', 'style')],
+     Output('table-switch-button', 'style'),
+     Output('include-metadata', 'style')],
     [Input('upload-data', 'contents'),
-     Input('table2', 'selected_rows')],
+     Input('table2', 'selected_rows'),
+     Input('include-metadata', 'checked')],
     [State('upload-data', 'filename'),
      State('table2', 'data')]
 )
-def combined_callback(contents, selected_rows, filename, table2_data):
+def combined_callback(contents, selected_rows, include_metadata, filename, table2_data):
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
+    
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}
+        return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}
 
     try:
         # Decode and save uploaded file
@@ -379,33 +394,39 @@ def combined_callback(contents, selected_rows, filename, table2_data):
         if selected_rows and table2_data:
             vars = [table2_data[row_index]["name"] for row_index in selected_rows]
 
-        # Generate XML and JSON-LD
+        # Modify this section to properly handle include_metadata
+        if include_metadata:
+            data_subset = df.head(5)  # Include first 5 rows when metadata is enabled
+            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include these 5 rows."
+        else:
+            data_subset = df.head(0)  # Empty DataFrame when metadata is disabled
+            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+
+        # Generate outputs with the conditional data selection
         xml_data = generate_complete_xml_with_keys(
-            df.head(), 
+            data_subset, 
             df_meta, 
             vars=vars,
             spssfile=filename
         )
 
         json_ld_data = generate_complete_json_ld(
-            df.head(), 
+            data_subset, 
             df_meta, 
             vars=vars,
             spssfile=filename
         )
 
-        # Update instruction text
-        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. Please note that the generated XML and JSON-LD output will only include these 5 rows, even though the full dataset contains {n_rows} rows."
-        
         return (df.to_dict('records'), columns1, conditional_styles1, 
                 df2.to_dict('records'), columns2, conditional_styles2, 
                 xml_data, {'display': 'block'}, 
                 instruction_text, json_ld_data,
-                {'display': 'block'})
+                {'display': 'block'},
+                {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']})
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", "", {'display': 'none'}
+        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}
 
     finally:
         if 'tmp_filename' in locals():
