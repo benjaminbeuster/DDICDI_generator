@@ -403,6 +403,39 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
 
+    # Handle metadata toggle separately
+    if trigger == 'include-metadata' and 'df' in globals():
+        data_subset = df.head(5) if include_metadata else df.head(0)
+        xml_data = generate_complete_xml_with_keys(
+            data_subset, 
+            df_meta, 
+            vars=df_meta.identifier_vars,
+            spssfile=filename
+        )
+        json_ld_data = generate_complete_json_ld(
+            data_subset, 
+            df_meta,
+            spssfile=filename
+        )
+        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include' if include_metadata else 'not include'} any data rows."
+        
+        # Return only updated outputs, use dash.no_update for others
+        return (
+            dash.no_update,  # table1 data
+            dash.no_update,  # table1 columns
+            dash.no_update,  # table1 style
+            dash.no_update,  # table2 data
+            dash.no_update,  # table2 columns
+            dash.no_update,  # table2 style
+            xml_data,        # xml output
+            dash.no_update,  # button group style
+            instruction_text,# table1 instruction
+            json_ld_data,    # json output
+            dash.no_update,  # table switch button style
+            dash.no_update,  # include metadata style
+            dash.no_update   # upload contents
+        )
+
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:
         try:
