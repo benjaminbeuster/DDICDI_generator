@@ -237,6 +237,7 @@ app.layout = dbc.Container([
             dbc.Switch(
                 id="include-metadata",
                 label="Include cell metadata",
+                value=True,
                 style={
                     'display': 'inline-block',
                     'marginLeft': '15px',
@@ -355,7 +356,7 @@ def update_instruction_text_style(data):
      Output('include-metadata', 'style')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
-     Input('include-metadata', 'checked')],
+     Input('include-metadata', 'value')],
     [State('upload-data', 'filename'),
      State('table2', 'data')]
 )
@@ -395,12 +396,17 @@ def combined_callback(contents, selected_rows, include_metadata, filename, table
             vars = [table2_data[row_index]["name"] for row_index in selected_rows]
 
         # Modify this section to properly handle include_metadata
-        if include_metadata:
-            data_subset = df.head(5)  # Include first 5 rows when metadata is enabled
-            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include these 5 rows."
+        if trigger == 'include-metadata' or trigger == 'upload-data':
+            if include_metadata:
+                data_subset = df.head(5)
+                instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include these 5 rows."
+            else:
+                data_subset = df.head(0)
+                instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
         else:
-            data_subset = df.head(0)  # Empty DataFrame when metadata is disabled
-            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+            # For other triggers, maintain the current state
+            data_subset = df.head(5) if include_metadata else df.head(0)
+            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include' if include_metadata else 'not include'} any data rows."
 
         # Generate outputs with the conditional data selection
         xml_data = generate_complete_xml_with_keys(
