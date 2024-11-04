@@ -399,6 +399,7 @@ def update_instruction_text_style(data):
 def combined_callback(contents, selected_rows, include_metadata, table2_data, filename):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
+    print(f"Trigger: {trigger}")
     
     # If the trigger is from table2 data changes, preserve the changes
     if trigger == 'table2':
@@ -420,19 +421,44 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
         return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}
 
     try:
+        print("Step 1: Starting file processing")
         # Decode and save uploaded file
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
         file_extension = os.path.splitext(filename)[1]
 
+        print("Step 2: Creating temp file")
         with tempfile.NamedTemporaryFile(suffix=file_extension, delete=False) as tmp_file:
             tmp_file.write(decoded)
             tmp_filename = tmp_file.name
 
+        print("Step 3: About to read file")
         # Read data based on file type
         if '.dta' in tmp_filename or '.sav' in tmp_filename:
+            print("Step 4: Reading SAV/DTA file")
             df, df_meta, file_name, n_rows = read_sav(tmp_filename)
+            print("Step 5: File read complete")
+            print(f"df_meta exists: {df_meta is not None}")
             df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
+            
+            # Initialize the classification attributes
+            df_meta.measure_vars = df_meta.column_names  # Default all to measures
+            df_meta.identifier_vars = []
+            df_meta.attribute_vars = []
+            
+            # Try to load existing classifications from lists.txt if it exists
+            try:
+                with open('lists.txt', 'r') as f:
+                    content = f.read()
+                    for line in content.split('\n'):
+                        if line.startswith('Measures:'):
+                            df_meta.measure_vars = eval(line.split(':', 1)[1].strip())
+                        elif line.startswith('Identifiers:'):
+                            df_meta.identifier_vars = eval(line.split(':', 1)[1].strip())
+                        elif line.startswith('Attributes:'):
+                            df_meta.attribute_vars = eval(line.split(':', 1)[1].strip())
+            except FileNotFoundError:
+                pass  # Use the defaults if file doesn't exist
         else:
             raise ValueError("Unsupported file type")
 
@@ -482,8 +508,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
 
         json_ld_data = generate_complete_json_ld(
             data_subset, 
-            df_meta, 
-            vars=vars,
+            df_meta,
             spssfile=filename
         )
 

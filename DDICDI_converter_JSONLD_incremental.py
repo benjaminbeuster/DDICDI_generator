@@ -111,7 +111,7 @@ def generate_WideDataSet(df_meta):
     json_ld_data.append(elements)
     return json_ld_data
 
-def generate_WideDataStructure(df_meta, vars=None, attribute_vars=None):
+def generate_WideDataStructure(df_meta):
     json_ld_data = []
     elements = {
         "@id": "#wideDataStructure",
@@ -120,88 +120,107 @@ def generate_WideDataStructure(df_meta, vars=None, attribute_vars=None):
     }
     
     # Add primary key if we have identifier variables
-    if vars is not None and len(vars) > 0:
+    if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
         elements["has_PrimaryKey"] = "#primaryKey"
+        # Add identifier components first
+        for variable in df_meta.identifier_vars:
+            if variable in df_meta.column_names:  # Verify variable exists in dataset
+                elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
     
-    # Add identifier components
-    if vars is not None:
-        for variable in vars:
-            elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
+    # Add attribute components second
+    if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars:
+        for variable in df_meta.attribute_vars:
+            if variable in df_meta.column_names:  # Verify variable exists in dataset
+                elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
     
-    # Add attribute components
-    if attribute_vars is not None:
-        for variable in attribute_vars:
-            elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
-    
-    # Add measure components for remaining variables
-    for variable in df_meta.column_names:
-        if (vars is None or variable not in vars) and \
-           (attribute_vars is None or variable not in attribute_vars):
-            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+    # Add measure components last
+    if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
+        for variable in df_meta.measure_vars:
+            if variable in df_meta.column_names:  # Verify variable exists in dataset
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+    else:
+        # Fallback: if no measure_vars defined, use all remaining variables as measures
+        used_vars = set((getattr(df_meta, 'identifier_vars', []) + 
+                        getattr(df_meta, 'attribute_vars', [])))
+        for variable in df_meta.column_names:
+            if variable not in used_vars:
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
 
-def generate_MeasureComponent(df_meta, varlist=None):
+def generate_MeasureComponent(df_meta):
     json_ld_data = []
-    # Process all columns, not just those after the first
-    for variable in df_meta.column_names:
+    # First check if measure_vars exists and has content
+    if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
+        for variable in df_meta.measure_vars:
+            elements = {
+                "@id": f"#measureComponent-{variable}",
+                "@type": "MeasureComponent",
+                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+            }
+            json_ld_data.append(elements)
+    else:
+        # If no measure_vars defined, use all variables that aren't identifiers or attributes
+        used_vars = set()
+        if hasattr(df_meta, 'identifier_vars'):
+            used_vars.update(df_meta.identifier_vars)
+        if hasattr(df_meta, 'attribute_vars'):
+            used_vars.update(df_meta.attribute_vars)
+        
+        for variable in df_meta.column_names:
+            if variable not in used_vars:
+                elements = {
+                    "@id": f"#measureComponent-{variable}",
+                    "@type": "MeasureComponent",
+                    "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                }
+                json_ld_data.append(elements)
+    
+    return json_ld_data
+
+def generate_IdentifierComponent(df_meta):
+    json_ld_data = []
+    for variable in df_meta.identifier_vars:
         elements = {
-            "@id": f"#measureComponent-{variable}",
-            "@type": "MeasureComponent",
-            # Point to instanceVariable instead of just variable
+            "@id": f"#identifierComponent-{variable}",
+            "@type": "IdentifierComponent",
             "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
         }
         json_ld_data.append(elements)
-
     return json_ld_data
 
-def generate_IdentifierComponent(df_meta, varlist=None):
+def generate_AttributeComponent(df_meta):
     json_ld_data = []
-    
-    # Only generate IdentifierComponents if vars is provided
-    if varlist is not None:
-        for var in varlist:
-            elements = {
-                "@id": f"#identifierComponent-{var}",
-                "@type": "IdentifierComponent",
-                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{var}"
-            }
-            json_ld_data.append(elements)
-
+    for variable in df_meta.attribute_vars:
+        elements = {
+            "@id": f"#attributeComponent-{variable}",
+            "@type": "AttributeComponent",
+            "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+        }
+        json_ld_data.append(elements)
     return json_ld_data
 
-def generate_PrimaryKey(df_meta, vars=None):
+def generate_PrimaryKey(df_meta):
     json_ld_data = []
-    
-    # Only generate primary key if vars is provided
-    if vars is not None:
+    if df_meta.identifier_vars:
         elements = {
             "@id": "#primaryKey",
             "@type": "PrimaryKey",
-            "isComposedOf": []
+            "isComposedOf": [f"#primaryKeyComponent-{var}" for var in df_meta.identifier_vars]
         }
-        
-        # Add primary key components
-        for var in vars:
-            elements["isComposedOf"].append(f"#primaryKeyComponent-{var}")
-        
         json_ld_data.append(elements)
-    
     return json_ld_data
 
-def generate_PrimaryKeyComponent(df_meta, vars=None):
+def generate_PrimaryKeyComponent(df_meta):
     json_ld_data = []
-    
-    if vars is not None:
-        for var in vars:
-            elements = {
-                "@id": f"#primaryKeyComponent-{var}",
-                "@type": "PrimaryKeyComponent",
-                "correspondsTo_DataStructureComponent": f"#identifierComponent-{var}"
-            }
-            json_ld_data.append(elements)
-
+    for variable in df_meta.identifier_vars:
+        elements = {
+            "@id": f"#primaryKeyComponent-{variable}",
+            "@type": "PrimaryKeyComponent",
+            "correspondsTo_DataStructureComponent": f"#identifierComponent-{variable}"
+        }
+        json_ld_data.append(elements)
     return json_ld_data
 
 def generate_InstanceVariable(df_meta):
@@ -445,28 +464,13 @@ def generate_Concept(df_meta):
             json_ld_data.append(elements)
     return json_ld_data
 
-def generate_AttributeComponent(df_meta, attribute_vars=None):
-    json_ld_data = []
-    
-    if attribute_vars is not None:
-        for var in attribute_vars:
-            elements = {
-                "@id": f"#attributeComponent-{var}",
-                "@type": "AttributeComponent",
-                "isDefinedBy_RepresentedVariable": f"#instanceVariable-{var}"
-            }
-            json_ld_data.append(elements)
-
-    return json_ld_data
-
 def wrap_in_graph(*args):
     """Helper function to flatten list of components into a single list"""
     return [item for sublist in args for item in sublist]
 
-def generate_complete_json_ld(df, df_meta, vars=None, spssfile='name'):
+def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # Generate base components that are always included
     components = [
-        # generate_PhysicalDataSetStructure(df_meta),  # Commented out but kept for reference
         generate_PhysicalDataset(df_meta, spssfile),
         generate_PhysicalRecordSegment(df_meta, df),
         generate_PhysicalSegmentLayout(df_meta),
@@ -478,7 +482,7 @@ def generate_complete_json_ld(df, df_meta, vars=None, spssfile='name'):
         generate_DataStore(df_meta),
         generate_LogicalRecord(df_meta),
         generate_WideDataSet(df_meta),
-        generate_WideDataStructure(df_meta, vars),
+        generate_WideDataStructure(df_meta),
         generate_MeasureComponent(df_meta),
         generate_InstanceVariable(df_meta),
         generate_SubstantiveConceptualDomain(df_meta),
@@ -489,19 +493,23 @@ def generate_complete_json_ld(df, df_meta, vars=None, spssfile='name'):
         generate_Concept(df_meta)
     ]
 
-    # Only add primary key related components if vars is provided AND not empty
-    if vars is not None and len(vars) > 0:
+    # Only add primary key related components if identifier_vars is provided AND not empty
+    if df_meta.identifier_vars:
         pk_components = [
-            generate_IdentifierComponent(df_meta, vars),
-            generate_PrimaryKey(df_meta, vars),
-            generate_PrimaryKeyComponent(df_meta, vars)
+            generate_IdentifierComponent(df_meta),
+            generate_PrimaryKey(df_meta),
+            generate_PrimaryKeyComponent(df_meta)
         ]
         components.extend(pk_components)
+    
+    # Add attribute components if attribute_vars is not empty
+    if df_meta.attribute_vars:
+        components.append(generate_AttributeComponent(df_meta))
     
     # Get the flattened list of all components
     all_objects = wrap_in_graph(*components)
     
-    # Create the final JSON-LD document with the required structure
+    # Create the final JSON-LD document
     json_ld_doc = {
         "@context": [
             "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",

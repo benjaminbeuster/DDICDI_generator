@@ -21,63 +21,25 @@ REPLACEMENT_DATE = "1678-01-01"
 
 # import of spss and stata files
 def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
-    kwargs = dict(
-        user_missing=missings,
-        dates_as_pandas_datetime=False,  # Do not interpret dates initially
-    )
-    filename = Path(filename)  # Ensure filename is a Path object
-    extension = filename.suffix.lower()
-
-    if extension not in ['.sav', '.dta']:
-        raise ValueError("Unsupported file type!")
-
-    # Try reading the file with different encodings
-    for encoding in ENCODINGS:
-        try:
-            if extension == '.sav':
-                df, meta = pyr.read_sav(filename, encoding=encoding, **kwargs)
-            elif extension == '.dta':
-                df, meta = pyr.read_dta(filename, encoding=encoding, **kwargs)
-            # keep just 5 rows
-            df = df.head(5)
-            # Fill NA values based on the data type of each column
-            for col in df.columns:
-                if df[col].dtype.kind in 'biufc':
-                    df[col].fillna(pd.NA, inplace=True)
-                    # Only convert to Int64 if all values are integers
-                    if all(df[col].dropna().astype(float).map(float.is_integer)):
-                        df[col] = df[col].astype('Int64')
-                else:
-                    df[col].fillna(np.nan, inplace=True)
-            break
-        except Exception as e:
-            print(f"Failed to read file with encoding {encoding}: {e}")
-            continue
-    else:
-        raise ValueError("Could not read file with any encoding!")
-
-    # Manually handle the problematic date columns
-    for col in df.columns:
-        if "datetime" in str(df[col].dtype) or "date" in str(df[col].dtype):
-            df[col] = df[col].apply(lambda x: REPLACEMENT_DATE if str(x) == MISSING_DATE else x)
-            df[col] = pd.to_datetime(df[col], errors='coerce')
-
-    # Recode string variables
-    for var in df.columns:
-        if df[var].dtype == 'string' or df[var].dtype == 'object':
-            df[[var]].replace({'': pd.NA}, inplace=True)
-
-    # Recode dtype for non-object columns and convert object columns to string type
-    for col in df.columns:
-        if df[col].dtype != 'string' and df[col].dtype != 'object':
-            df[col] = df[col].convert_dtypes()
-
-    df.replace({np.nan: None, pd.NA: None}, inplace=True)
-
-    df.attrs["datafile"] = "file"
-
-    nrows = meta.number_rows
-    return df, meta, filename, nrows
+    print("Starting read_sav")
+    try:
+        # Read the SPSS file
+        print("About to read file with pyreadstat")
+        df, meta = pyr.read_sav(
+            filename,
+            apply_value_formats=True
+        )
+        print("File read successful")
+        
+        # Store the filename
+        meta.datafile = filename
+        
+        print("Returning values")
+        return df, meta, filename, meta.number_rows
+        
+    except Exception as e:
+        print(f"Error in read_sav: {str(e)}")
+        raise
 
 
 ###################################################################

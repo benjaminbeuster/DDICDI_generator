@@ -1,3 +1,3 @@
-Measures: ['essround', 'idno', 'cntry', 'dweight', 'pspwght', 'pweight', 'anweight', 'tvtot', 'tvpol', 'rdtot', 'rdpol', 'nwsptot', 'nwsppol', 'netuse', 'ppltrst', 'pplfair', 'pplhlp']
-Identifiers: ['edition', 'proddate']
-Attributes: ['name']
+Measures: ['proddate', 'cntry', 'dweight', 'pspwght', 'pweight', 'anweight', 'tvtot', 'tvpol', 'rdtot', 'rdpol', 'nwsptot', 'nwsppol', 'netuse', 'ppltrst', 'pplfair', 'pplhlp']
+Identifiers: ['edition', 'idno']
+Attributes: ['name', 'essround']
