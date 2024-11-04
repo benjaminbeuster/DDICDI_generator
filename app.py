@@ -405,36 +405,81 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
 
     # Handle metadata toggle separately
     if trigger == 'include-metadata' and 'df' in globals():
-        data_subset = df.head(5) if include_metadata else df.head(0)
-        xml_data = generate_complete_xml_with_keys(
-            data_subset, 
-            df_meta, 
-            vars=df_meta.identifier_vars,
-            spssfile=filename
-        )
-        json_ld_data = generate_complete_json_ld(
-            data_subset, 
-            df_meta,
-            spssfile=filename
-        )
-        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include' if include_metadata else 'not include'} any data rows."
-        
-        # Return only updated outputs, use dash.no_update for others
-        return (
-            dash.no_update,  # table1 data
-            dash.no_update,  # table1 columns
-            dash.no_update,  # table1 style
-            dash.no_update,  # table2 data
-            dash.no_update,  # table2 columns
-            dash.no_update,  # table2 style
-            xml_data,        # xml output
-            dash.no_update,  # button group style
-            instruction_text,# table1 instruction
-            json_ld_data,    # json output
-            dash.no_update,  # table switch button style
-            dash.no_update,  # include metadata style
-            dash.no_update   # upload contents
-        )
+        try:
+            # Debug logging
+            print("=== Debug Information ===")
+            print(f"Include metadata: {include_metadata}")
+            
+            # Get and log identifiers
+            identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier'] if table2_data else []
+            print(f"Identifiers: {identifiers}")
+            
+            # Get and log data subset
+            data_subset = df.head(5) if include_metadata else df.head(0)
+            print(f"Data subset shape: {data_subset.shape}")
+            print(f"Data subset columns: {data_subset.columns.tolist()}")
+            
+            # Log df_meta attributes
+            if hasattr(df_meta, 'identifier_vars'):
+                print(f"df_meta.identifier_vars before: {df_meta.identifier_vars}")
+                df_meta.identifier_vars = identifiers
+                print(f"df_meta.identifier_vars after: {df_meta.identifier_vars}")
+            
+            # Generate XML with detailed error handling
+            try:
+                xml_data = generate_complete_xml_with_keys(
+                    data_subset, 
+                    df_meta, 
+                    vars=identifiers,
+                    spssfile=filename
+                )
+                print("XML generation successful")
+            except Exception as e:
+                print(f"XML generation error: {str(e)}")
+                import traceback
+                print(traceback.format_exc())
+                xml_data = "Error generating XML"
+
+            # Generate JSON-LD with detailed error handling
+            try:
+                json_ld_data = generate_complete_json_ld(
+                    data_subset, 
+                    df_meta,
+                    spssfile=filename
+                )
+                print("JSON-LD generation successful")
+            except Exception as e:
+                print(f"JSON-LD generation error: {str(e)}")
+                import traceback
+                print(traceback.format_exc())
+                json_ld_data = "Error generating JSON-LD"
+
+            print("=== End Debug Information ===")
+
+            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include' if include_metadata else 'not include'} any data rows."
+            
+            return (
+                dash.no_update,  # table1 data
+                dash.no_update,  # table1 columns
+                dash.no_update,  # table1 style
+                dash.no_update,  # table2 data
+                dash.no_update,  # table2 columns
+                dash.no_update,  # table2 style
+                xml_data,        # xml output
+                dash.no_update,  # button group style
+                instruction_text,# table1 instruction
+                json_ld_data,    # json output
+                dash.no_update,  # table switch button style
+                dash.no_update,  # include metadata style
+                dash.no_update   # upload contents
+            )
+            
+        except Exception as e:
+            print(f"Callback error: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
+            # Return error state
+            return [dash.no_update] * 13
 
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:

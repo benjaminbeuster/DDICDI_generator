@@ -430,21 +430,58 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
         xf.write_declaration(standalone=True)
         with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap, 
                         attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):
+            
+            # Physical structure components first
+            generate_PhysicalDataset_incremental(xf, df_meta, spssfile, agency)
+            generate_PhysicalRecordSegment_incremental(xf, df, df_meta, agency)
+            generate_PhysicalSegmentLayout_incremental(xf, df_meta, agency)
+            
+            # Value mapping and data point components
+            generate_ValueMapping_incremental(xf, df, df_meta, agency)
+            generate_ValueMappingPosition_incremental(xf, df_meta, agency)
+            generate_DataPoint_incremental(xf, df, df_meta, agency)
+            generate_DataPointPosition_incremental(xf, df, df_meta, agency)
+            
+            # Instance values if data is included
+            if len(df) > 0:
+                generate_InstanceValue_incremental(xf, df, df_meta, agency)
+            
+            # Core structural components
+            generate_DataStore_incremental(xf, df_meta, agency)
+            generate_LogicalRecord_incremental(xf, df_meta, agency)
+            generate_WideDataSet_incremental(xf, df_meta, agency)
             generate_WideDataStructure_incremental(xf, df_meta, agency)
             
-            # Generate components based on variable types
+            # Instance variables
+            generate_InstanceVariable_incremental(xf, df_meta, agency)
+            
+            # Primary key and components
             if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
-                generate_IdentifierComponent_incremental(xf, df_meta, agency)
                 generate_PrimaryKey_incremental(xf, df_meta, agency)
                 generate_PrimaryKeyComponent_incremental(xf, df_meta, agency)
+                generate_IdentifierComponent_incremental(xf, df_meta, agency)
+            
+            # Measure and attribute components
+            if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
+                generate_MeasureComponent_incremental(xf, df_meta, agency)
             
             if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars:
                 generate_AttributeComponent_incremental(xf, df_meta, agency)
             
-            if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
-                generate_MeasureComponent_incremental(xf, df_meta, agency)
+            # Value domains and descriptions
+            generate_SubstantiveValueDomain_incremental(xf, df_meta, agency)
+            if df_meta.missing_ranges or df_meta.missing_user_values:
+                generate_SentinelValueDomain_incremental(xf, df_meta, agency)
+            generate_ValueAndConceptDescription_incremental(xf, df_meta, agency)
             
-            # ... rest of the function remains the same ...
+            # Code lists and related components
+            if df_meta.variable_value_labels:
+                generate_CodeList_incremental(xf, df_meta, agency)
+                generate_Code_incremental(xf, df_meta, agency)
+                generate_Category_incremental(xf, df_meta, agency)
+                generate_Notation_incremental(xf, df_meta, agency)
+                if df_meta.missing_ranges or df_meta.missing_user_values:
+                    generate_SentinelCodelist_incremental(xf, df_meta, agency)
 
     # After the file has been written incrementally, pretty-print it to the final output file
     pretty_print_xml(temp_file, output_file)
