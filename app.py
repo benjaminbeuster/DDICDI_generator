@@ -237,7 +237,7 @@ app.layout = dbc.Container([
             dbc.Switch(
                 id="include-metadata",
                 label="Include cell metadata",
-                value=True,
+                value=False,
                 style={
                     'display': 'inline-block',
                     'marginLeft': '15px',
