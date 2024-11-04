@@ -27,7 +27,8 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
         print("About to read file with pyreadstat")
         df, meta = pyr.read_sav(
             filename,
-            apply_value_formats=True
+            apply_value_formats=True,
+            row_limit=5
         )
         print("File read successful")
         
@@ -39,6 +40,29 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
         
     except Exception as e:
         print(f"Error in read_sav: {str(e)}")
+        raise
+
+
+def read_dta(filename: Path, missings=True, disable_datetime_conversion=True):
+    print("Starting read_dta")
+    try:
+        # Read the Stata file
+        print("About to read file with pyreadstat")
+        df, meta = pyr.read_dta(
+            filename,
+            apply_value_formats=True,
+            row_limit=5
+        )
+        print("File read successful")
+        
+        # Store the filename
+        meta.datafile = filename
+        
+        print("Returning values")
+        return df, meta, filename, meta.number_rows
+        
+    except Exception as e:
+        print(f"Error in read_dta: {str(e)}")
         raise
 
 
