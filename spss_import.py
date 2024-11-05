@@ -28,6 +28,8 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
         df, meta = pyr.read_sav(
             filename,
             apply_value_formats=False,
+            dates_as_pandas_datetime=True,
+            user_missing=True,
             row_limit=5
         )
         print("File read successful")
@@ -51,7 +53,9 @@ def read_dta(filename: Path, missings=True, disable_datetime_conversion=True):
         df, meta = pyr.read_dta(
             filename,
             apply_value_formats=False,
-            row_limit=5
+            row_limit=5,
+            dates_as_pandas_datetime=True,
+            user_missing=True,
         )
         print("File read successful")
         
