@@ -635,33 +635,37 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
 
         print("Step 3: About to read file")
         # Read data based on file type
-        if '.dta' in tmp_filename or '.sav' in tmp_filename:
-            print("Step 4: Reading SAV/DTA file")
+        if '.dta' in tmp_filename:
+            print("Detected Stata file, using read_dta")
+            df, df_meta, file_name, n_rows = read_dta(tmp_filename)
+        elif '.sav' in tmp_filename:
+            print("Detected SPSS file, using read_sav") 
             df, df_meta, file_name, n_rows = read_sav(tmp_filename)
-            print("Step 5: File read complete")
-            print(f"df_meta exists: {df_meta is not None}")
-            df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
-            
-            # Initialize the classification attributes
-            df_meta.measure_vars = df_meta.column_names  # Default all to measures
-            df_meta.identifier_vars = []
-            df_meta.attribute_vars = []
-            
-            # Try to load existing classifications from lists.txt if it exists
-            try:
-                with open('lists.txt', 'r') as f:
-                    content = f.read()
-                    for line in content.split('\n'):
-                        if line.startswith('Measures:'):
-                            df_meta.measure_vars = eval(line.split(':', 1)[1].strip())
-                        elif line.startswith('Identifiers:'):
-                            df_meta.identifier_vars = eval(line.split(':', 1)[1].strip())
-                        elif line.startswith('Attributes:'):
-                            df_meta.attribute_vars = eval(line.split(':', 1)[1].strip())
-            except FileNotFoundError:
-                pass  # Use the defaults if file doesn't exist
         else:
-            raise ValueError("Unsupported file type")
+            raise ValueError(f"Unsupported file type. File must be .sav or .dta, got: {tmp_filename}")
+
+        print("Step 5: File read complete")
+        print(f"df_meta exists: {df_meta is not None}")
+        df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
+        
+        # Initialize the classification attributes
+        df_meta.measure_vars = df_meta.column_names  # Default all to measures
+        df_meta.identifier_vars = []
+        df_meta.attribute_vars = []
+        
+        # Try to load existing classifications from lists.txt if it exists
+        try:
+            with open('lists.txt', 'r') as f:
+                content = f.read()
+                for line in content.split('\n'):
+                    if line.startswith('Measures:'):
+                        df_meta.measure_vars = eval(line.split(':', 1)[1].strip())
+                    elif line.startswith('Identifiers:'):
+                        df_meta.identifier_vars = eval(line.split(':', 1)[1].strip())
+                    elif line.startswith('Attributes:'):
+                        df_meta.attribute_vars = eval(line.split(':', 1)[1].strip())
+        except FileNotFoundError:
+            pass  # Use the defaults if file doesn't exist
 
         # Prepare table data
         columns1 = [{"name": i, "id": i} for i in df.columns]
