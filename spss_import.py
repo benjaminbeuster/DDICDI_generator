@@ -79,8 +79,69 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
 
 
 def read_dta(filename: Path, missings=True, disable_datetime_conversion=True):
-    # Use the same logic as read_sav but for Stata files
-    df, meta = read_sav(filename, missings, disable_datetime_conversion)
+    kwargs = dict(
+        user_missing=missings,
+        dates_as_pandas_datetime=False,
+    )
+    filename = Path(filename)
+    extension = filename.suffix.lower()
+
+    if extension != '.dta':
+        raise ValueError("File must be a Stata (.dta) file!")
+
+    # Try reading the file with different encodings
+    for encoding in ENCODINGS:
+        try:
+            df, meta = pyr.read_dta(
+                filename, 
+                encoding=encoding, 
+                row_limit=ROW_LIMIT,
+                user_missing=True,
+                **kwargs
+            )
+            
+            # Fill NA values based on the data type of each column
+            for col in df.columns:
+                if df[col].dtype.kind in 'biufc':
+                    df[col].fillna(pd.NA, inplace=True)
+                    # Only convert to Int64 if all values are integers
+                    if all(df[col].dropna().astype(float).map(float.is_integer)):
+                        df[col] = df[col].astype('Int64')
+                else:
+                    df[col].fillna(np.nan, inplace=True)
+            break
+        except Exception as e:
+            print(f"Failed to read Stata file with encoding {encoding}: {e}")
+            continue
+    else:
+        raise ValueError("Could not read Stata file with any encoding!")
+
+    # Debug print for Stata missing values
+    print("Stata missing values:", meta.missing_user_values if hasattr(meta, 'missing_user_values') else None)
+    print("Stata value labels:", meta.value_labels if hasattr(meta, 'value_labels') else None)
+
+    # Manually handle the problematic date columns
+    for col in df.columns:
+        if "datetime" in str(df[col].dtype) or "date" in str(df[col].dtype):
+            df[col] = df[col].apply(lambda x: REPLACEMENT_DATE if str(x) == MISSING_DATE else x)
+            df[col] = pd.to_datetime(df[col], errors='coerce')
+
+    # Recode string variables
+    for var in df.columns:
+        if df[var].dtype == 'string' or df[var].dtype == 'object':
+            df[[var]].replace({'': pd.NA}, inplace=True)
+    
+    # Recode dtype for non-object columns and convert object columns to string type
+    for col in df.columns:
+        if df[col].dtype != 'string' and df[col].dtype != 'object':
+            df[col] = df[col].convert_dtypes()
+    
+    df.replace({np.nan: None, pd.NA: None}, inplace=True)
+
+    # Store filename in meta
+    meta.datafile = filename
+    
+    # Return all expected values
     return df, meta, str(filename), meta.number_rows
 
 
@@ -144,14 +205,20 @@ def create_variable_view2(df_meta):
 
     variable_view = create_variable_view_common(df_meta)
 
-    # Convert user-defined missing values to the desired format
+    # Handle missing values for Stata files
     missing = {}
-    for key, vals in df_meta.missing_user_values.items():
-        missing[key] = [{"lo": val, "hi": val} for val in vals]
+    if hasattr(df_meta, 'missing_user_values') and df_meta.missing_user_values:
+        for key, vals in df_meta.missing_user_values.items():
+            missing[key] = [{"lo": val, "hi": val} for val in vals]
 
     # For values and missing, handle them differently due to dictionaries/lists inside
     df_values = create_dataframe_from_dict(df_meta.variable_value_labels, ['name', 'values'])
     df_missing = create_dataframe_from_dict(missing, ['name', 'missing'])
+
+    # Debug print
+    print("Stata missing values found:", df_meta.missing_user_values if hasattr(df_meta, 'missing_user_values') else None)
+    print("Converted missing values:", missing)
+    print("Missing values DataFrame:", df_missing)
 
     # Merge dataframes on the 'name' column
     if not df_values.empty:
