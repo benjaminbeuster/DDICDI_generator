@@ -517,7 +517,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
                 columns1 = [{"name": i, "id": i} for i in df.columns]
                 columns2 = [
                     {
-                        "name": "Role",
+                        "name": "role",
                         "id": "var_type",
                         "presentation": "dropdown"
                     }
@@ -667,7 +667,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
         columns1 = [{"name": i, "id": i} for i in df.columns]
         columns2 = [
             {
-                "name": "Role",
+                "name": "role",
                 "id": "var_type",
                 "presentation": "dropdown"
             }
