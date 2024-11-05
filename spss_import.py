@@ -27,7 +27,7 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
         print("About to read file with pyreadstat")
         df, meta = pyr.read_sav(
             filename,
-            apply_value_formats=True,
+            apply_value_formats=False,
             row_limit=5
         )
         print("File read successful")
@@ -50,7 +50,7 @@ def read_dta(filename: Path, missings=True, disable_datetime_conversion=True):
         print("About to read file with pyreadstat")
         df, meta = pyr.read_dta(
             filename,
-            apply_value_formats=True,
+            apply_value_formats=False,
             row_limit=5
         )
         print("File read successful")

@@ -440,6 +440,7 @@ def generate_Concept(df_meta):
             elements = {
                 "@id": f"#{variable_name}-concept-{value}",
                 "@type": "skos:Concept",
+                "skos:notation": value,
                 "skos:prefLabel": label
             }
             json_ld_data.append(elements)
