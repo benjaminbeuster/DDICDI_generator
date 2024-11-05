@@ -24,7 +24,7 @@ nsmap = {
     'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/',
     'r': 'ddi:reusable:3_3'  # Replace with the actual URI for the 'r' namespace
 }
-agency = 'int.esseric'
+agency = 'int.example'
 
 # Define the Flask server
 server = Flask(__name__)
