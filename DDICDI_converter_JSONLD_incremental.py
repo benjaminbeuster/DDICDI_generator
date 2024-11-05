@@ -362,12 +362,49 @@ def generate_InstanceValue(df, df_meta):
             json_ld_data.append(elements)
     return json_ld_data
 
+def map_to_xsd_type(original_type):
+    """Map original data types to XSD data types with full URLs"""
+    type_mapping = {
+        # Numeric types
+        'int8': 'https://www.w3.org/TR/xmlschema-2/#byte',
+        'int16': 'https://www.w3.org/TR/xmlschema-2/#short',
+        'int32': 'https://www.w3.org/TR/xmlschema-2/#int',
+        'int64': 'https://www.w3.org/TR/xmlschema-2/#long',
+        'float': 'https://www.w3.org/TR/xmlschema-2/#float',
+        'double': 'https://www.w3.org/TR/xmlschema-2/#double',
+        'decimal': 'https://www.w3.org/TR/xmlschema-2/#decimal',
+        
+        # String types
+        'string': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'str': 'https://www.w3.org/TR/xmlschema-2/#string',
+        
+        # Date/Time types
+        'datetime': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
+        'date': 'https://www.w3.org/TR/xmlschema-2/#date',
+        'time': 'https://www.w3.org/TR/xmlschema-2/#time',
+        
+        # Boolean
+        'bool': 'https://www.w3.org/TR/xmlschema-2/#boolean',
+        
+        # Default fallback
+        'unknown': 'https://www.w3.org/TR/xmlschema-2/#string'
+    }
+    return type_mapping.get(original_type.lower(), 'https://www.w3.org/TR/xmlschema-2/#string')
+
 def generate_SubstantiveValueDomain(df_meta):
     json_ld_data = []
+    # Debug print
+    print("Debug - Variable Types:")
+    print(df_meta.readstat_variable_types)  # Changed from original_variable_types to readstat_variable_types
+    
     for variable in df_meta.column_names:
+        original_type = df_meta.readstat_variable_types[variable]  # Changed from original_variable_types
+        mapped_type = map_to_xsd_type(original_type)
+        
         elements = {
             "@id": f"#substantiveValueDomain-{variable}",
             "@type": "SubstantiveValueDomain",
+            "recommendedDataType": mapped_type,
             "isDescribedBy": f"#substantiveValueAndConceptDescription-{variable}"
         }
         if variable in df_meta.variable_value_labels:
@@ -375,18 +412,22 @@ def generate_SubstantiveValueDomain(df_meta):
         json_ld_data.append(elements)
     return json_ld_data
 
-def generate_SentinelConceptualDomain(df_meta):
+def generate_SentinelValueDomain(df_meta):  # Renamed from generate_SentinelConceptualDomain
     json_ld_data = []
     relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
     
     for variable in relevant_variables:
+        original_type = df_meta.readstat_variable_types[variable]  # Get the original type
+        mapped_type = map_to_xsd_type(original_type)  # Map to XSD type
+        
         elements = {
-            "@id": f"#sentinelConceptualDomain-{variable}",
-            "@type": "SentinelConceptualDomain",
+            "@id": f"#sentinelValueDomain-{variable}",
+            "@type": "SentinelValueDomain",  # Changed from SentinelConceptualDomain
+            "recommendedDataType": mapped_type,  # Added recommendedDataType
             "isDescribedBy": f"#sentinelValueAndConceptDescription-{variable}"
         }
         if variable in df_meta.variable_value_labels:
-            elements["takesConceptsFrom"] = f"#sentinelConceptScheme-{variable}"
+            elements["takesValuesFrom"] = f"#sentinelConceptScheme-{variable}"
         json_ld_data.append(elements)
     return json_ld_data
 
@@ -466,7 +507,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         generate_MeasureComponent(df_meta),
         generate_InstanceVariable(df_meta),
         generate_SubstantiveValueDomain(df_meta),
-        generate_SentinelConceptualDomain(df_meta),
+        generate_SentinelValueDomain(df_meta),
         generate_ValueAndConceptDescription(df_meta),
         generate_SubstantiveConceptScheme(df_meta),
         generate_SentinelConceptScheme(df_meta),
