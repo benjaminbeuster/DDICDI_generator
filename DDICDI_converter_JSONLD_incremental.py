@@ -206,8 +206,6 @@ def generate_PrimaryKeyComponent(df_meta):
 
 def generate_InstanceVariable(df_meta):
     json_ld_data = []
-
-    # Iterate through column names and associated index
     for idx, variable in enumerate(df_meta.column_names):
         elements = {
             "@id": f"#instanceVariable-{variable}",
@@ -217,12 +215,12 @@ def generate_InstanceVariable(df_meta):
             "hasIntendedDataType": df_meta.original_variable_types[variable],
             "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
             "has_ValueMapping": f"#valueMapping-{variable}",
-            'takesSubstantiveConceptsFrom': f"#substantiveConceptualDomain-{variable}"
+            'takesSubstantiveValuesFrom_SubstantiveValueDomain': f"#substantiveValueDomain-{variable}"
         }
         
         # Check if variable has sentinel concepts
         if variable in df_meta.missing_ranges or (len(df_meta.missing_ranges) == 0 and variable in df_meta.missing_user_values):
-            elements['takesSentinelConceptsFrom'] = f"#sentinelConceptualDomain-{variable}"
+            elements['takesSentinelValuesFrom'] = f"#sentinelValueDomain-{variable}"
 
         json_ld_data.append(elements)
 
@@ -364,16 +362,16 @@ def generate_InstanceValue(df, df_meta):
             json_ld_data.append(elements)
     return json_ld_data
 
-def generate_SubstantiveConceptualDomain(df_meta):
+def generate_SubstantiveValueDomain(df_meta):
     json_ld_data = []
     for variable in df_meta.column_names:
         elements = {
-            "@id": f"#substantiveConceptualDomain-{variable}",
-            "@type": "SubstantiveConceptualDomain",
+            "@id": f"#substantiveValueDomain-{variable}",
+            "@type": "SubstantiveValueDomain",
             "isDescribedBy": f"#substantiveValueAndConceptDescription-{variable}"
         }
         if variable in df_meta.variable_value_labels:
-            elements["takesConceptsFrom"] = f"#substantiveConceptScheme-{variable}"
+            elements["takesValuesFrom"] = f"#substantiveConceptScheme-{variable}"
         json_ld_data.append(elements)
     return json_ld_data
 
@@ -467,7 +465,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         generate_WideDataStructure(df_meta),
         generate_MeasureComponent(df_meta),
         generate_InstanceVariable(df_meta),
-        generate_SubstantiveConceptualDomain(df_meta),
+        generate_SubstantiveValueDomain(df_meta),
         generate_SentinelConceptualDomain(df_meta),
         generate_ValueAndConceptDescription(df_meta),
         generate_SubstantiveConceptScheme(df_meta),
