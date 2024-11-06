@@ -159,8 +159,7 @@ def generate_SubstantiveValueDomain_incremental(xf, df_meta, agency):
             original_type = df_meta.readstat_variable_types[variable]
             mapped_type = map_to_xsd_type(original_type)
             with xf.element(etree.QName(nsmap['cdi'], 'recommendedDataType')):
-                with xf.element(etree.QName(nsmap['cdi'], 'ControlledVocabularyEntry')):
-                    add_cdi_element_incremental(xf, 'entryValue', mapped_type)
+                add_cdi_element_incremental(xf, 'entryValue', mapped_type)
             with xf.element(etree.QName(nsmap['cdi'], 'SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription')):
                 add_ddiref_incremental(xf, f"#substantiveValueAndConceptDescription-{variable}", agency, "ValueAndConceptDescription")
 
@@ -175,8 +174,7 @@ def generate_SentinelValueDomain_incremental(xf, df_meta, agency):
             original_type = df_meta.readstat_variable_types[variable]
             mapped_type = map_to_xsd_type(original_type)
             with xf.element(etree.QName(nsmap['cdi'], 'recommendedDataType')):
-                with xf.element(etree.QName(nsmap['cdi'], 'ControlledVocabularyEntry')):
-                    add_cdi_element_incremental(xf, 'entryValue', mapped_type)
+                add_cdi_element_incremental(xf, 'entryValue', mapped_type)
 
             if variable in df_meta.variable_value_labels:
                 with xf.element(etree.QName(nsmap['cdi'], 'SentinelValueDomain_takesValuesFrom_EnumerationDomain')):
