@@ -233,7 +233,7 @@ def generate_InstanceVariable(df_meta):
             },
             "name": {
                 "@type": "ObjectName",
-                "content": variable
+                "name": variable
             },
             "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
             "has_ValueMapping": f"#valueMapping-{variable}",
