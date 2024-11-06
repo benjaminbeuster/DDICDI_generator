@@ -6,7 +6,8 @@ __all__ = ['generate_complete_xml_with_keys']
 
 nsmap = {
     'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/',
-    'r': 'ddi:reusable:3_3'
+    'r': 'ddi:reusable:3_3',
+    'xsd': 'http://www.w3.org/2001/XMLSchema'
 }
 agency = 'int.esseric'
 
@@ -154,10 +155,12 @@ def generate_SubstantiveValueDomain_incremental(xf, df_meta, agency):
     for variable in df_meta.column_names:
         with xf.element(etree.QName(nsmap['cdi'], 'SubstantiveValueDomain')):
             add_identifier_incremental(xf, f"#substantiveValueDomain-{variable}", agency)
-            # Add recommendedDataType
+            # Add recommendedDataType with mapped XSD type
+            original_type = df_meta.readstat_variable_types[variable]
+            mapped_type = map_to_xsd_type(original_type)
             with xf.element(etree.QName(nsmap['cdi'], 'recommendedDataType')):
                 with xf.element(etree.QName(nsmap['cdi'], 'ControlledVocabularyEntry')):
-                    add_cdi_element_incremental(xf, 'entryValue', "https://www.w3.org/TR/xmlschema-2/#string")
+                    add_cdi_element_incremental(xf, 'entryValue', mapped_type)
             with xf.element(etree.QName(nsmap['cdi'], 'SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription')):
                 add_ddiref_incremental(xf, f"#substantiveValueAndConceptDescription-{variable}", agency, "ValueAndConceptDescription")
 
@@ -611,7 +614,8 @@ def pretty_print_xml(input_file, output_file):
 def generate_complete_xml_with_keys(df, df_meta, vars=[], attribute_vars=[], spssfile=None, agency='int.esseric'):
     nsmap = {
         'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/',
-        'r': 'ddi:reusable:3_3'
+        'r': 'ddi:reusable:3_3',
+        'xsd': 'http://www.w3.org/2001/XMLSchema'
     }
 
     with tempfile.NamedTemporaryFile(suffix='.xml', delete=False) as temp_xml:
@@ -648,3 +652,32 @@ def generate_complete_xml_with_keys(df, df_meta, vars=[], attribute_vars=[], sps
             xml_content = etree.tostring(tree, encoding='utf-8', pretty_print=True, xml_declaration=True).decode('utf-8')
             os.remove(temp_xml.name)
             return xml_content
+
+def map_to_xsd_type(original_type):
+    """Map original data types to XSD data types"""
+    type_mapping = {
+        # Numeric types
+        'int8': 'xsd:byte',
+        'int16': 'xsd:short',
+        'int32': 'xsd:int',
+        'int64': 'xsd:long',
+        'float': 'xsd:float',
+        'double': 'xsd:double',
+        'decimal': 'xsd:decimal',
+        
+        # String types
+        'string': 'xsd:string',
+        'str': 'xsd:string',
+        
+        # Date/Time types
+        'datetime': 'xsd:dateTime',
+        'date': 'xsd:date',
+        'time': 'xsd:time',
+        
+        # Boolean
+        'bool': 'xsd:boolean',
+        
+        # Default fallback
+        'unknown': 'xsd:string'
+    }
+    return type_mapping.get(original_type.lower(), 'xsd:string')
