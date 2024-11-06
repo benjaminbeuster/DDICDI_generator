@@ -207,23 +207,39 @@ def generate_PrimaryKeyComponent(df_meta):
 def generate_InstanceVariable(df_meta):
     json_ld_data = []
     for idx, variable in enumerate(df_meta.column_names):
+        # Handle both list and dictionary cases for column_labels
+        label = (df_meta.column_labels[idx] 
+                if isinstance(df_meta.column_labels, list) 
+                else df_meta.column_labels.get(variable, variable))
+        
+        # Handle both list and dictionary cases for original_variable_types
+        data_type = (df_meta.original_variable_types[idx]
+                    if isinstance(df_meta.original_variable_types, list)
+                    else df_meta.original_variable_types.get(variable, "string"))
+
         elements = {
             "@id": f"#instanceVariable-{variable}",
             "@type": "InstanceVariable",
-            "name": variable,
-            "displayLabel": df_meta.column_labels[idx],
-            "hasIntendedDataType": df_meta.original_variable_types[variable],
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": str(data_type)
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": label
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "content": variable
+            },
             "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
             "has_ValueMapping": f"#valueMapping-{variable}",
-            'takesSubstantiveValuesFrom_SubstantiveValueDomain': f"#substantiveValueDomain-{variable}"
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": f"#substantiveValueDomain-{variable}"
         }
-        
-        # Check if variable has sentinel concepts
-        if variable in df_meta.missing_ranges or (len(df_meta.missing_ranges) == 0 and variable in df_meta.missing_user_values):
-            elements['takesSentinelValuesFrom'] = f"#sentinelValueDomain-{variable}"
-
         json_ld_data.append(elements)
-
     return json_ld_data
 
 def generate_SubstantiveConceptScheme(df_meta):
@@ -291,9 +307,6 @@ def generate_ValueMapping(df, df_meta):
             "defaultValue": "",
             "formats": []
         }
-        # Add DataPoint references for each value in the variable
-        for i in range(len(df[variable])):
-            elements["formats"].append(f"#dataPoint-{i}-{variable}")
         
         json_ld_data.append(elements)
     return json_ld_data
@@ -342,11 +355,15 @@ def generate_InstanceValue(df, df_meta):
             elements = {
                 "@id": f"#instanceValue-{idx}-{variable}",
                 "@type": "InstanceValue",
-                "content": value,
+                # Nested TypedString structure
+                "content": {
+                    "@type": "TypedString",
+                    "content": str(value)
+                },
                 "isStoredIn": f"#dataPoint-{idx}-{variable}"
             }
             
-            # Add value domain references based on missing values
+            # Add value domain references
             if variable in df_meta.missing_ranges:
                 for range_dict in df_meta.missing_ranges[variable]:
                     if value is not None and isinstance(range_dict['lo'], float):
@@ -393,18 +410,18 @@ def map_to_xsd_type(original_type):
 
 def generate_SubstantiveValueDomain(df_meta):
     json_ld_data = []
-    # Debug print
-    print("Debug - Variable Types:")
-    print(df_meta.readstat_variable_types)  # Changed from original_variable_types to readstat_variable_types
-    
     for variable in df_meta.column_names:
-        original_type = df_meta.readstat_variable_types[variable]  # Changed from original_variable_types
+        original_type = df_meta.readstat_variable_types[variable]
         mapped_type = map_to_xsd_type(original_type)
         
         elements = {
             "@id": f"#substantiveValueDomain-{variable}",
             "@type": "SubstantiveValueDomain",
-            "recommendedDataType": mapped_type,
+            # Nested TypedString for recommendedDataType
+            "recommendedDataType": {
+                "@type": "TypedString",
+                "content": mapped_type
+            },
             "isDescribedBy": f"#substantiveValueAndConceptDescription-{variable}"
         }
         if variable in df_meta.variable_value_labels:
@@ -412,18 +429,22 @@ def generate_SubstantiveValueDomain(df_meta):
         json_ld_data.append(elements)
     return json_ld_data
 
-def generate_SentinelValueDomain(df_meta):  # Renamed from generate_SentinelConceptualDomain
+def generate_SentinelValueDomain(df_meta):
     json_ld_data = []
     relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
     
     for variable in relevant_variables:
-        original_type = df_meta.readstat_variable_types[variable]  # Get the original type
-        mapped_type = map_to_xsd_type(original_type)  # Map to XSD type
+        original_type = df_meta.readstat_variable_types[variable]
+        mapped_type = map_to_xsd_type(original_type)
         
         elements = {
             "@id": f"#sentinelValueDomain-{variable}",
-            "@type": "SentinelValueDomain",  # Changed from SentinelConceptualDomain
-            "recommendedDataType": mapped_type,  # Added recommendedDataType
+            "@type": "SentinelValueDomain",
+            # Nested TypedString for recommendedDataType
+            "recommendedDataType": {
+                "@type": "TypedString",
+                "content": mapped_type
+            },
             "isDescribedBy": f"#sentinelValueAndConceptDescription-{variable}"
         }
         if variable in df_meta.variable_value_labels:
@@ -439,7 +460,11 @@ def generate_ValueAndConceptDescription(df_meta):
         elements = {
             "@id": f"#substantiveValueAndConceptDescription-{variable}",
             "@type": "ValueAndConceptDescription",
-            "classificationLevel": class_level[df_meta.variable_measure[variable]]
+            # Nested TypedString for classificationLevel
+            "classificationLevel": {
+                "@type": "TypedString",
+                "content": class_level[df_meta.variable_measure[variable]]
+            }
         }
         json_ld_data.append(elements)
     return json_ld_data
@@ -479,15 +504,34 @@ def generate_Concept(df_meta):
             elements = {
                 "@id": f"#{variable_name}-concept-{value}",
                 "@type": "skos:Concept",
-                "skos:notation": value,
-                "skos:prefLabel": label
+                # Nested TypedString for notation and prefLabel
+                "skos:notation": {
+                    "@type": "TypedString",
+                    "content": str(value)
+                },
+                "skos:prefLabel": {
+                    "@type": "TypedString",
+                    "content": str(label)
+                }
             }
             json_ld_data.append(elements)
     return json_ld_data
 
 def wrap_in_graph(*args):
-    """Helper function to flatten list of components into a single list"""
-    return [item for sublist in args for item in sublist]
+    """Helper function to separate DDI-CDI and SKOS components"""
+    all_items = [item for sublist in args for item in sublist]
+    
+    # Separate SKOS and DDI-CDI components
+    ddi_components = []
+    skos_components = []
+    
+    for item in all_items:
+        if item.get("@type", "").startswith("skos:"):
+            skos_components.append(item)
+        else:
+            ddi_components.append(item)
+    
+    return ddi_components, skos_components
 
 def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # Generate base components that are always included
@@ -527,22 +571,25 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
     if df_meta.attribute_vars:
         components.append(generate_AttributeComponent(df_meta))
     
-    # Get the flattened list of all components
-    all_objects = wrap_in_graph(*components)
+    # Get the separated lists of DDI-CDI and SKOS components
+    ddi_objects, skos_objects = wrap_in_graph(*components)
     
     # Create the final JSON-LD document
-    json_ld_doc = {
-        "@context": [
-            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
-            {
-                "skos": "http://www.w3.org/2004/02/skos/core#"
-            }
-        ],
-        "@type": "DDICDIModels",
-        "DDICDIModels": {
-            "@graph": all_objects
-        }
-    }
+    json_ld_doc = [
+        # Context object
+        {
+            "@context": [
+                "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
+                {
+                    "skos": "http://www.w3.org/2004/02/skos/core#"
+                }
+            ]
+        },
+        # All DDI-CDI objects
+        *ddi_objects,
+        # All SKOS objects
+        *skos_objects
+    ]
 
     def default_encode(obj):
         if isinstance(obj, np.int64):
