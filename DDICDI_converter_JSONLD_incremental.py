@@ -445,19 +445,28 @@ def generate_SentinelValueDomain(df_meta):
         json_ld_data.append(elements)
     return json_ld_data
 
+def get_classification_level(variable_type):
+    """
+    Determine the classification level based on the variable type
+    Valid values are: "Continuous", "Interval", "Nominal", "Ordinal", "Ratio"
+    """
+    # This mapping should be adjusted based on your specific needs
+    if variable_type in ['float', 'double', 'numeric']:
+        return "Continuous"
+    elif variable_type in ['integer', 'int']:
+        return "Interval"
+    elif variable_type in ['string', 'character']:
+        return "Nominal"
+    else:
+        return "Nominal"  # Default case
+
 def generate_ValueAndConceptDescription(df_meta):
     json_ld_data = []
-    class_level = {'nominal': 'Nominal', 'scale': 'Continuous', 'ordinal': 'Ordinal', 'unknown': 'Nominal'}
-    
     for variable in df_meta.column_names:
         elements = {
             "@id": f"#substantiveValueAndConceptDescription-{variable}",
             "@type": "ValueAndConceptDescription",
-            # Nested TypedString for classificationLevel
-            "classificationLevel": {
-                "@type": "TypedString",
-                "content": class_level[df_meta.variable_measure[variable]]
-            }
+            "classificationLevel": "Nominal"
         }
         json_ld_data.append(elements)
     return json_ld_data
