@@ -533,7 +533,8 @@ def wrap_in_graph(*args):
         else:
             ddi_components.append(item)
     
-    return ddi_components, skos_components
+    # Return DDI components directly and SKOS components in a dictionary
+    return ddi_components, {"@included": skos_components} if skos_components else {}
 
 def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # Generate base components that are always included
@@ -574,7 +575,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         components.append(generate_AttributeComponent(df_meta))
     
     # Get the separated lists of DDI-CDI and SKOS components
-    ddi_objects, skos_objects = wrap_in_graph(*components)
+    ddi_objects, skos_included = wrap_in_graph(*components)
     
     # Create the final JSON-LD document
     json_ld_doc = [
@@ -588,10 +589,12 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
             ]
         },
         # All DDI-CDI objects
-        *ddi_objects,
-        # All SKOS objects
-        *skos_objects
+        *ddi_objects
     ]
+
+    # Add SKOS objects under @included if they exist
+    if skos_included:
+        json_ld_doc.append(skos_included)
 
     def default_encode(obj):
         if isinstance(obj, np.int64):
