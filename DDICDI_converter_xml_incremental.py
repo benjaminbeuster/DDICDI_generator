@@ -151,16 +151,15 @@ def generate_InstanceVariable_incremental(xf, df_meta, agency):
                 add_ddiref_incremental(xf, f"#valueMapping-{variable}", agency, "ValueMapping")
 
 def generate_SubstantiveValueDomain_incremental(xf, df_meta, agency):
-    for var in df_meta.column_names:
+    for variable in df_meta.column_names:
         with xf.element(etree.QName(nsmap['cdi'], 'SubstantiveValueDomain')):
-            add_identifier_incremental(xf, f"#substantiveValueDomain-{var}", agency)
-            
-            if var in df_meta.variable_value_labels:
-                with xf.element(etree.QName(nsmap['cdi'], 'SubstantiveValueDomain_takesValuesFrom_EnumerationDomain')):
-                    add_ddiref_incremental(xf, f"#substantiveCodelist-{var}", agency, 'CodeList')
-            
+            add_identifier_incremental(xf, f"#substantiveValueDomain-{variable}", agency)
+            # Add recommendedDataType
+            with xf.element(etree.QName(nsmap['cdi'], 'recommendedDataType')):
+                with xf.element(etree.QName(nsmap['cdi'], 'ControlledVocabularyEntry')):
+                    add_cdi_element_incremental(xf, 'entryValue', "https://www.w3.org/TR/xmlschema-2/#string")
             with xf.element(etree.QName(nsmap['cdi'], 'SubstantiveValueDomain_isDescribedBy_ValueAndConceptDescription')):
-                add_ddiref_incremental(xf, f"#substantiveValueAndConceptDescription-{var}", agency, "ValueAndConceptDescription")
+                add_ddiref_incremental(xf, f"#substantiveValueAndConceptDescription-{variable}", agency, "ValueAndConceptDescription")
 
 def generate_SentinelValueDomain_incremental(xf, df_meta, agency):
     relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
@@ -168,6 +167,13 @@ def generate_SentinelValueDomain_incremental(xf, df_meta, agency):
     for variable in relevant_variables:
         with xf.element(etree.QName(nsmap['cdi'], 'SentinelValueDomain')):
             add_identifier_incremental(xf, f"#sentinelValueDomain-{variable}", agency)
+            
+            # Add recommendedDataType with mapped XSD type
+            original_type = df_meta.readstat_variable_types[variable]
+            mapped_type = map_to_xsd_type(original_type)
+            with xf.element(etree.QName(nsmap['cdi'], 'recommendedDataType')):
+                with xf.element(etree.QName(nsmap['cdi'], 'ControlledVocabularyEntry')):
+                    add_cdi_element_incremental(xf, 'entryValue', mapped_type)
 
             if variable in df_meta.variable_value_labels:
                 with xf.element(etree.QName(nsmap['cdi'], 'SentinelValueDomain_takesValuesFrom_EnumerationDomain')):

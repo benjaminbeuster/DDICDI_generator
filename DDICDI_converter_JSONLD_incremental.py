@@ -411,12 +411,16 @@ def map_to_xsd_type(original_type):
 def generate_SubstantiveValueDomain(df_meta):
     json_ld_data = []
     for variable in df_meta.column_names:
+        # Get the original type and map it to XSD type
+        original_type = df_meta.readstat_variable_types[variable]
+        mapped_type = map_to_xsd_type(original_type)
+        
         elements = {
             "@id": f"#substantiveValueDomain-{variable}",
             "@type": "SubstantiveValueDomain",
             "recommendedDataType": {
                 "@type": "ControlledVocabularyEntry",
-                "entryValue": "https://www.w3.org/TR/xmlschema-2/#string"
+                "entryValue": mapped_type  # Use the mapped type instead of hardcoded string
             },
             "isDescribedBy": f"#substantiveValueAndConceptDescription-{variable}"
         }
