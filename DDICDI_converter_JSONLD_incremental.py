@@ -411,21 +411,15 @@ def map_to_xsd_type(original_type):
 def generate_SubstantiveValueDomain(df_meta):
     json_ld_data = []
     for variable in df_meta.column_names:
-        original_type = df_meta.readstat_variable_types[variable]
-        mapped_type = map_to_xsd_type(original_type)
-        
         elements = {
             "@id": f"#substantiveValueDomain-{variable}",
             "@type": "SubstantiveValueDomain",
-            # Nested TypedString for recommendedDataType
             "recommendedDataType": {
-                "@type": "TypedString",
-                "content": mapped_type
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#string"
             },
             "isDescribedBy": f"#substantiveValueAndConceptDescription-{variable}"
         }
-        if variable in df_meta.variable_value_labels:
-            elements["takesValuesFrom"] = f"#substantiveConceptScheme-{variable}"
         json_ld_data.append(elements)
     return json_ld_data
 
@@ -440,10 +434,9 @@ def generate_SentinelValueDomain(df_meta):
         elements = {
             "@id": f"#sentinelValueDomain-{variable}",
             "@type": "SentinelValueDomain",
-            # Nested TypedString for recommendedDataType
             "recommendedDataType": {
-                "@type": "TypedString",
-                "content": mapped_type
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": mapped_type
             },
             "isDescribedBy": f"#sentinelValueAndConceptDescription-{variable}"
         }
