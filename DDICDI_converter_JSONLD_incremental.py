@@ -60,13 +60,11 @@ def generate_PhysicalSegmentLayout(df_meta):
         "isDelimited": False,
         "isFixedWidth": False,
         "delimiter": "",
-        "has_ValueMapping": [],
         "has_ValueMappingPosition": []
     }
     
     # Add both ValueMapping and ValueMappingPosition references for each variable
     for variable in df_meta.column_names:
-        elements["has_ValueMapping"].append(f"#valueMapping-{variable}")
         elements["has_ValueMappingPosition"].append(f"#valueMappingPosition-{variable}")
         
     json_ld_data.append(elements)

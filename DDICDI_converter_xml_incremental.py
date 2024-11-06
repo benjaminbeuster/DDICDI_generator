@@ -361,10 +361,6 @@ def generate_PhysicalSegmentLayout_incremental(xf, df_meta, agency):
             add_ddiref_incremental(xf, f"#logicalRecord", agency, "LogicalRecord")
 
         for variable in df_meta.column_names:
-            with xf.element(etree.QName(nsmap['cdi'], 'PhysicalSegmentLayout_has_ValueMapping')):
-                add_ddiref_incremental(xf, f"#valueMapping-{variable}", agency, "ValueMapping")
-
-        for variable in df_meta.column_names:
             with xf.element(etree.QName(nsmap['cdi'], 'PhysicalSegmentLayout_has_ValueMappingPosition')):
                 add_ddiref_incremental(xf, f"#valueMappingPosition-{variable}", agency, "ValueMappingPosition")
 
