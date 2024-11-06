@@ -306,6 +306,10 @@ def generate_ValueMapping(df, df_meta):
             "formats": []
         }
         
+        # Add DataPoint references if the dataframe has rows
+        if len(df) > 0:
+            elements["formats"] = [f"#dataPoint-{i}-{variable}" for i in range(len(df[variable]))]
+        
         json_ld_data.append(elements)
     return json_ld_data
 
