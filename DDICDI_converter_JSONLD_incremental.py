@@ -534,12 +534,10 @@ def generate_ValueAndConceptDescription(df_meta):
             "@type": "ValueAndConceptDescription",
             "description": {
                 "@type": "InternationalString",
-                "languageSpecificString": [
-                    {
-                        "@type": "LanguageString",
-                        "content": str(values)
-                    }
-                ]
+                "languageSpecificString": {  # Single object instead of array
+                    "@type": "LanguageString",
+                    "content": str(values)
+                }
             },
             "maximumValueExclusive": str(max_val),
             "minimumValueExclusive": str(min_val)
