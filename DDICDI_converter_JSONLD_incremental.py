@@ -103,8 +103,14 @@ def generate_WideDataSet(df_meta):
     elements = {
         "@id": "#wideDataSet",
         "@type": "WideDataSet",
-        "isStructuredBy": "#wideDataStructure"
+        "isStructuredBy": "#wideDataStructure",
+        "has_DataPoint": []
     }
+    
+    # Add references to all DataPoints
+    for variable in df_meta.column_names:
+        for idx in range(df_meta.number_rows):
+            elements["has_DataPoint"].append(f"#dataPoint-{idx}-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
@@ -332,7 +338,8 @@ def generate_DataPoint(df, df_meta):
             elements = {
                 "@id": f"#dataPoint-{idx}-{variable}",
                 "@type": "DataPoint",
-                "isDescribedBy": f"#instanceVariable-{variable}"
+                "isDescribedBy": f"#instanceVariable-{variable}",
+                "has_DataPoint_OF_DataSet": "#wideDataSet"
             }
             json_ld_data.append(elements)
     return json_ld_data
