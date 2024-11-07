@@ -475,13 +475,47 @@ def get_classification_level(variable_type):
 
 def generate_ValueAndConceptDescription(df_meta):
     json_ld_data = []
+    relevant_variables = df_meta.missing_ranges if df_meta.missing_ranges else df_meta.missing_user_values
+
+    class_level = {'nominal': 'Nominal', 'scale': 'Continuous', 'ordinal': 'Ordinal', 'unknown': 'Nominal'}
+    
+    # Generate substantive descriptions for all variables
     for variable in df_meta.column_names:
         elements = {
             "@id": f"#substantiveValueAndConceptDescription-{variable}",
             "@type": "ValueAndConceptDescription",
-            "classificationLevel": "Nominal"
+            "classificationLevel": class_level[df_meta.variable_measure[variable]]
         }
         json_ld_data.append(elements)
+
+    # Generate sentinel descriptions for variables with missing values
+    for variable in relevant_variables:
+        values = relevant_variables[variable]
+        if isinstance(values[0], dict):
+            # Handle range-based missing values
+            all_lo_values = [d['lo'] for d in values]
+            all_hi_values = [d['hi'] for d in values]
+            min_val = min(all_lo_values)
+            max_val = max(all_hi_values)
+        else:
+            # Handle single-value missing values
+            min_val, max_val = min(values), max(values)
+
+        elements = {
+            "@id": f"#sentinelValueAndConceptDescription-{variable}",
+            "@type": "ValueAndConceptDescription",
+            "description": {
+                "@type": "InternationalString",
+                "languageSpecificString": {
+                    "@type": "LanguageString",
+                    "content": str(values)
+                }
+            },
+            "maximumValueExclusive": str(max_val),
+            "minimumValueExclusive": str(min_val)
+        }
+        json_ld_data.append(elements)
+
     return json_ld_data
 
 def generate_SentinelConceptScheme(df_meta):
