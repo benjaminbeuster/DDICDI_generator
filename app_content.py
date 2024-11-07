@@ -5,31 +5,23 @@ prefix = "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/field-level-documentation/
 markdown_text = r"""
 ## DDI-CDI Subset
 
-This profile utilizes 24 classes from the DDI-CDI model (29.10.2024).
+This profile utilizes 25 classes from the DDI-CDI model (29.10.2024).
 
-|         |         |
-|------------------|------------------|
-| [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [DataStore]({0}/FormatDescription/DataStore.html) |
-| [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) |
-| [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) |
-| [ValueMapping]({0}/DataDescription/ValueMapping.html) | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) |
-| [ValueMappingPosition]({0}/DataDescription/ValueMappingPosition.html) | [InstanceVariable]({0}/Conceptual/InstanceVariable.html) |
-| [DataPoint]({0}/DataDescription/DataPoint.html) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) |
-| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) |
-| [InstanceValue]({0}/DataDescription/InstanceValue.html) | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) |
-| | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) |
-| | [AttributeComponent]({0}/DataDescription/Components/AttributeComponent.html) |
-| | [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) |
-| | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) |
-| | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) |
-| | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) |
-| | [Code]({0}/Representations/Code.html) |
-| | [Category]({0}/Representations/Category.html) |
-| | [Notation]({0}/Representations/Notation.html) |
-
-**Note on JSON-LD output:** The following DDI-CDI classes are mapped to SKOS vocabulary in the JSON-LD serialization:
-* `Codelist` → `skos:ConceptScheme`
-* `Code`, `Category`, and `Notation` → `skos:Concept`
+|  DDI-CDI Classes  |  DDI-CDI Classes  | SKOS Mapping in JSON-LD |
+|------------------|------------------|------------------|
+| [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) | |
+| [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) | |
+| [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) | |
+| [ValueMapping]({0}/DataDescription/ValueMapping.html) | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) | |
+| [ValueMappingPosition]({0}/DataDescription/ValueMappingPosition.html) | [AttributeComponent]({0}/DataDescription/Components/AttributeComponent.html) | |
+| [DataPoint]({0}/DataDescription/DataPoint.html) | [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) | |
+| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) | |
+| [InstanceValue]({0}/DataDescription/InstanceValue.html) | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) | |
+| [DataStore]({0}/FormatDescription/DataStore.html) | [EnumerationDomain]({0}/Representations/EnumerationDomain.html) | |
+| [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) | [`skos:ConceptScheme`](https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme) |
+| [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | [Code]({0}/Representations/Code.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
+| [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) | [Category]({0}/Representations/Category.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
+| [InstanceVariable]({0}/Conceptual/InstanceVariable.html) | [Notation]({0}/Representations/Notation.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
 """.format(prefix)
 
 from datetime import datetime
