@@ -522,13 +522,11 @@ def generate_ValueAndConceptDescription(df_meta):
     for variable in relevant_variables:
         values = relevant_variables[variable]
         if isinstance(values[0], dict):
-            # Handle range-based missing values
             all_lo_values = [d['lo'] for d in values]
             all_hi_values = [d['hi'] for d in values]
             min_val = min(all_lo_values)
             max_val = max(all_hi_values)
         else:
-            # Handle single-value missing values
             min_val, max_val = min(values), max(values)
 
         elements = {
@@ -536,10 +534,12 @@ def generate_ValueAndConceptDescription(df_meta):
             "@type": "ValueAndConceptDescription",
             "description": {
                 "@type": "InternationalString",
-                "languageSpecificString": {
-                    "@type": "LanguageString",
-                    "content": str(values)
-                }
+                "languageSpecificString": [
+                    {
+                        "@type": "LanguageString",
+                        "content": str(values)
+                    }
+                ]
             },
             "maximumValueExclusive": str(max_val),
             "minimumValueExclusive": str(min_val)
