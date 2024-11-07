@@ -635,11 +635,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
 
         print("Step 3: About to read file")
         # Read data based on file type
-        if '.dta' in tmp_filename:
-            print("Detected Stata file, using read_dta")
-            df, df_meta, file_name, n_rows = read_dta(tmp_filename)
-        elif '.sav' in tmp_filename:
-            print("Detected SPSS file, using read_sav") 
+        if '.dta' in tmp_filename or '.sav' in tmp_filename:
+            print("Reading file using read_sav") 
             df, df_meta, file_name, n_rows = read_sav(tmp_filename)
         else:
             raise ValueError(f"Unsupported file type. File must be .sav or .dta, got: {tmp_filename}")
