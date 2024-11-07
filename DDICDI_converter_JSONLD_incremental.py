@@ -103,15 +103,9 @@ def generate_WideDataSet(df_meta):
     elements = {
         "@id": "#wideDataSet",
         "@type": "WideDataSet",
-        "isStructuredBy": "#wideDataStructure",
-        "has_DataPoint": []
+        "isStructuredBy": "#wideDataStructure"
     }
     
-    # Add references to all DataPoints
-    for variable in df_meta.column_names:
-        for idx in range(df_meta.number_rows):
-            elements["has_DataPoint"].append(f"#dataPoint-{idx}-{variable}")
-
     json_ld_data.append(elements)
     return json_ld_data
 
@@ -429,11 +423,31 @@ def generate_SubstantiveValueDomain(df_meta):
             "@type": "SubstantiveValueDomain",
             "recommendedDataType": {
                 "@type": "ControlledVocabularyEntry",
-                "entryValue": mapped_type  # Use the mapped type instead of hardcoded string
+                "entryValue": mapped_type
             },
             "isDescribedBy": f"#substantiveValueAndConceptDescription-{variable}"
         }
+        
+        # Add reference to EnumerationDomain if variable has value labels
+        if variable in df_meta.variable_value_labels:
+            elements["takesValuesFrom"] = f"#substantiveEnumerationDomain-{variable}"
+            
         json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_SubstantiveEnumerationDomain(df_meta):
+    """Generate EnumerationDomain objects for substantive values"""
+    json_ld_data = []
+    
+    for variable in df_meta.column_names:
+        if variable in df_meta.variable_value_labels:
+            elements = {
+                "@id": f"#substantiveEnumerationDomain-{variable}",
+                "@type": "EnumerationDomain",
+                "sameAs": f"#substantiveConceptScheme-{variable}"
+            }
+            json_ld_data.append(elements)
+    
     return json_ld_data
 
 def generate_SentinelValueDomain(df_meta):
@@ -620,6 +634,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         generate_MeasureComponent(df_meta),
         generate_InstanceVariable(df_meta),
         generate_SubstantiveValueDomain(df_meta),
+        generate_SubstantiveEnumerationDomain(df_meta),
         generate_SentinelValueDomain(df_meta),
         generate_SentinelEnumerationDomain(df_meta),
         generate_ValueAndConceptDescription(df_meta),
