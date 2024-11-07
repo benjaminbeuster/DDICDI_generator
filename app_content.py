@@ -26,6 +26,10 @@ This profile utilizes 24 classes from the DDI-CDI model (29.10.2024).
 | | [Code]({0}/Representations/Code.html) |
 | | [Category]({0}/Representations/Category.html) |
 | | [Notation]({0}/Representations/Notation.html) |
+
+**Note on JSON-LD output:** The following DDI-CDI classes are mapped to SKOS vocabulary in the JSON-LD serialization:
+* `Codelist` → `skos:ConceptScheme`
+* `Code`, `Category`, and `Notation` → `skos:Concept`
 """.format(prefix)
 
 from datetime import datetime
