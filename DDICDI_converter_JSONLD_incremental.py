@@ -454,8 +454,24 @@ def generate_SentinelValueDomain(df_meta):
             "isDescribedBy": f"#sentinelValueAndConceptDescription-{variable}"
         }
         if variable in df_meta.variable_value_labels:
-            elements["takesValuesFrom"] = f"#sentinelConceptScheme-{variable}"
+            elements["takesValuesFrom"] = f"#sentinelEnumerationDomain-{variable}"
         json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_SentinelEnumerationDomain(df_meta):
+    """New function to generate EnumerationDomain objects"""
+    json_ld_data = []
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+    
+    for variable in relevant_variables:
+        if variable in df_meta.variable_value_labels:
+            elements = {
+                "@id": f"#sentinelEnumerationDomain-{variable}",
+                "@type": "EnumerationDomain",
+                "sameAs": f"#sentinelConceptScheme-{variable}"
+            }
+            json_ld_data.append(elements)
+    
     return json_ld_data
 
 def get_classification_level(variable_type):
@@ -605,6 +621,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
         generate_InstanceVariable(df_meta),
         generate_SubstantiveValueDomain(df_meta),
         generate_SentinelValueDomain(df_meta),
+        generate_SentinelEnumerationDomain(df_meta),
         generate_ValueAndConceptDescription(df_meta),
         generate_SubstantiveConceptScheme(df_meta),
         generate_SentinelConceptScheme(df_meta),
