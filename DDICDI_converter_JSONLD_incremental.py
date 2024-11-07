@@ -539,8 +539,11 @@ def wrap_in_graph(*args):
         else:
             ddi_components.append(item)
     
-    # Return DDI components directly and SKOS components in a dictionary
-    return ddi_components, {"@included": skos_components} if skos_components else {}
+    # Return components organized for the new structure
+    return {
+        "ddi_components": ddi_components,
+        "skos_components": skos_components if skos_components else None
+    }
 
 def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # Generate base components that are always included
@@ -580,27 +583,23 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
     if df_meta.attribute_vars:
         components.append(generate_AttributeComponent(df_meta))
     
-    # Get the separated lists of DDI-CDI and SKOS components
-    ddi_objects, skos_included = wrap_in_graph(*components)
+    # Get the separated components
+    components_dict = wrap_in_graph(*components)
     
-    # Create the final JSON-LD document
-    json_ld_doc = [
-        # Context object
-        {
-            "@context": [
-                "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
-                {
-                    "skos": "http://www.w3.org/2004/02/skos/core#"
-                }
-            ]
-        },
-        # All DDI-CDI objects
-        *ddi_objects
-    ]
+    # Create the final JSON-LD document with the new structure
+    json_ld_doc = {
+        "@context": [
+            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
+            {
+                "skos": "http://www.w3.org/2004/02/skos/core#"
+            }
+        ],
+        "DDICDIModels": components_dict["ddi_components"]
+    }
 
-    # Add SKOS objects under @included if they exist
-    if skos_included:
-        json_ld_doc.append(skos_included)
+    # Add @included only if there are SKOS components
+    if components_dict["skos_components"]:
+        json_ld_doc["@included"] = components_dict["skos_components"]
 
     def default_encode(obj):
         if isinstance(obj, np.int64):
