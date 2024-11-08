@@ -5,7 +5,7 @@ prefix = "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/field-level-documentation/
 markdown_text = r"""
 ## DDI-CDI Subset
 
-This profile utilizes 25 classes from the DDI-CDI model (29.10.2024).
+This profile utilizes 26 classes from the DDI-CDI model (29.10.2024).
 
 |  DDI-CDI Classes  |  DDI-CDI Classes  | SKOS Mapping in JSON-LD |
 |------------------|------------------|------------------|
