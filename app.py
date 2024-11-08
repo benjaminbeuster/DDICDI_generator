@@ -456,7 +456,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
 
             print("=== End Debug Information ===")
 
-            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include' if include_metadata else 'not include'} any data rows."
+            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include these 5 rows' if include_metadata else 'not include any data rows'}."
             
             return (
                 dash.no_update,  # table1 data
