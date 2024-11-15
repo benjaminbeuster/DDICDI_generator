@@ -49,15 +49,6 @@ logo_section = html.Div(
                 'objectFit': 'contain',
                 'marginRight': '10px'
             }
-        ),
-        html.Img(
-            src=app.get_asset_url('petals_logos.2.0-01.webp'),
-            style={
-                'height': '50px',  # Increased from 40px to 50px
-                'width': 'auto',
-                'marginRight': '10px',
-                'opacity': '0.8'
-            }
         )
     ],
     style={
@@ -84,17 +75,41 @@ navbar = dbc.NavbarSimple(
     }
 )
 
-about_section = dbc.Card(
-    dbc.CardBody(
-        dcc.Markdown(about_text, className="card-text")
-    ),
-    className="mt-4",  # Adding some margin at the top for spacing
-    style={
-        'fontFamily': "'Inter', sans-serif",
-        'fontSize': '15px',
-        'letterSpacing': '-0.01em'
-    }
-)
+about_section = dbc.Card([
+    dbc.CardBody([
+        dcc.Markdown(about_text, className="card-text"),
+        html.Div([
+            html.Img(
+                src=app.get_asset_url('petals_logos.2.0-01.webp'),
+                style={
+                    'height': '50px',
+                    'width': 'auto',
+                    'marginRight': '20px',
+                    'opacity': '0.8'
+                }
+            ),
+            html.Img(
+                src=app.get_asset_url('FAIR-IMPACT.png'),
+                style={
+                    'height': '40px',
+                    'width': 'auto',
+                    'opacity': '0.8'
+                }
+            )
+        ], style={
+            'display': 'flex',
+            'alignItems': 'center',
+            'justifyContent': 'center',
+            'marginTop': '20px',
+            'borderTop': f'1px solid {colors["border"]}',
+            'paddingTop': '20px'
+        })
+    ]),
+], className="mt-4", style={
+    'fontFamily': "'Inter', sans-serif",
+    'fontSize': '15px',
+    'letterSpacing': '-0.01em'
+})
 
 app.layout = dbc.Container([
     navbar,
