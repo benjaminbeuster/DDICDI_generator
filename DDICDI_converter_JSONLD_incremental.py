@@ -237,6 +237,12 @@ def generate_InstanceVariable(df_meta):
             "has_ValueMapping": f"#valueMapping-{variable}",
             "takesSubstantiveValuesFrom_SubstantiveValueDomain": f"#substantiveValueDomain-{variable}"
         }
+
+        # Add sentinel value domain reference if the variable has missing values
+        if (variable in df_meta.missing_ranges) or (
+                len(df_meta.missing_ranges) == 0 and variable in df_meta.missing_user_values):
+            elements["takesSentinelValuesFrom_SentinelValueDomain"] = f"#sentinelValueDomain-{variable}"
+
         json_ld_data.append(elements)
     return json_ld_data
 
