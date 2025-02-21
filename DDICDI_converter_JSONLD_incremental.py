@@ -36,7 +36,6 @@ def generate_PhysicalRecordSegment(df_meta, df):
     elements = {
         "@id": f"#physicalRecordSegment",
         "@type": "PhysicalRecordSegment",
-        "allowsDuplicates": False,
         "mapsTo": "#logicalRecord",
         "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
         "has_DataPointPosition": []

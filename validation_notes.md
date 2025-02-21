@@ -62,11 +62,9 @@ This command converts your JSON-LD file to Turtle format (data.ttl), which is an
 You have two options for validation:
 
 bash
-shacl validate --data=validation/ESS11-subset_v2.ttl --shapes=validation/ddi-cdi.shacl.ttl
-shacl validate --data=validation/ESS11-subset_v2.jsonld --shapes=validation/ddi-cdi.shacl.ttl
-This command will validate ESS11-subset_v2.ttl against new-ddi-cdi.schema.ttl and output any validation errors.
 
-The Turtle (.ttl) format provides a more readable RDF serialization that's easier to inspect and validate.
+shacl validate --data=validation/ESS11-subset.jsonld --shapes=validation/ddi-cdi.shacl.ttl
+
 
 ## Additional Resources
 - [DDI-CDI Documentation](https://ddi-cdi.github.io/)

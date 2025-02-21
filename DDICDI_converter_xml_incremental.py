@@ -339,7 +339,6 @@ def generate_PhysicalDataset_incremental(xf, df_meta, spssfile, agency):
 
 def generate_PhysicalRecordSegment_incremental(xf, df, df_meta, agency):
     with xf.element(etree.QName(nsmap['cdi'], 'PhysicalRecordSegment')):
-        add_cdi_element_incremental(xf, 'allowsDuplicates', "false")
         add_identifier_incremental(xf, f"#physicalRecordSegment", agency)
         with xf.element(etree.QName(nsmap['cdi'], 'PhysicalRecordSegment_has_PhysicalSegmentLayout')):
             add_ddiref_incremental(xf, f"#physicalSegmentLayout", agency, "PhysicalSegmentLayout")
