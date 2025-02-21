@@ -241,7 +241,8 @@ def generate_InstanceVariable(df_meta):
         # Add sentinel value domain reference if the variable has missing values
         if (variable in df_meta.missing_ranges) or (
                 len(df_meta.missing_ranges) == 0 and variable in df_meta.missing_user_values):
-            elements["takesSentinelValuesFrom_SentinelValueDomain"] = f"#sentinelValueDomain-{variable}"
+            # changed from takesSentinelValuesFrom_SentinelValueDomain to takesSentinelValuesFrom   
+            elements["takesSentinelValuesFrom"] = f"#sentinelValueDomain-{variable}"
 
         json_ld_data.append(elements)
     return json_ld_data
@@ -666,7 +667,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name'):
     # Create the final JSON-LD document with the new structure
     json_ld_doc = {
         "@context": [
-            "https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/json-ld/ddi-cdi.jsonld",
+            "https://docs.ddialliance.org/DDI-CDI/1.0/model/encoding/json-ld/ddi-cdi.jsonld",
             {
                 "skos": "http://www.w3.org/2004/02/skos/core#"
             }

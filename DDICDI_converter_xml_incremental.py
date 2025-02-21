@@ -428,12 +428,12 @@ def generate_InstanceValue_incremental(xf, df, df_meta, agency):
 def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file='output.xml'):
     temp_file = 'temp_output.xml'
     schema_location = ('http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/ '
-                       'https://ddi-cdi.github.io/ddi-cdi_v1.0-post/encoding/xml-schema/ddi-cdi.xsd')
+                       'https://docs.ddialliance.org/DDI-CDI/1.0/model/encoding/xml-schema/ddi-cdi.xsd')
     with etree.xmlfile(temp_file, encoding='UTF-8') as xf:
         xf.write_declaration(standalone=True)
         with xf.element(etree.QName(nsmap['cdi'], 'DDICDIModels'), nsmap=nsmap, 
                         attrib={"{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": schema_location}):
-            
+       
             # Physical structure components first
             generate_PhysicalDataset_incremental(xf, df_meta, spssfile, agency)
             generate_PhysicalRecordSegment_incremental(xf, df, df_meta, agency)
