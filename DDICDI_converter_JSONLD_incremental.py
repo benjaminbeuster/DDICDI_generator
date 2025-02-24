@@ -334,7 +334,7 @@ def generate_ValueMappingPosition(df_meta):
 def generate_DataPoint(df, df_meta):
     json_ld_data = []
     # Use a maximum number of rows to process
-    max_rows = min(len(df), 1000)  # Limit to 1000 rows max
+    max_rows = min(len(df), 100)  # Limit to 100 rows max
     
     # Process in batches for better performance
     for variable in df_meta.column_names:
@@ -354,7 +354,7 @@ def generate_DataPoint(df, df_meta):
 def generate_DataPointPosition(df, df_meta):
     json_ld_data = []
     # Use a maximum number of rows to process
-    max_rows = min(len(df), 1000)  # Limit to 1000 rows max
+    max_rows = min(len(df), 100)  # Limit to 100 rows max
     
     # Process in batches for better performance
     for variable in df_meta.column_names:
@@ -374,7 +374,7 @@ def generate_DataPointPosition(df, df_meta):
 def generate_InstanceValue(df, df_meta):
     json_ld_data = []
     # Use a maximum number of rows to process
-    max_rows = min(len(df), 1000)  # Limit to 1000 rows max
+    max_rows = min(len(df), 100)  # Limit to 100 rows max
     
     # If df has more than max_rows, take a sample
     if len(df) > max_rows:
@@ -656,7 +656,7 @@ def wrap_in_graph(*args):
         "skos_components": skos_components if skos_components else None
     }
 
-def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=1000, process_all_rows=False):
+def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=100, process_all_rows=False):
     """
     Generate complete JSON-LD representation of the dataset.
     
@@ -669,7 +669,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=1000, pro
     spssfile : str
         Name of the source file
     chunk_size : int
-        Size of chunks to process at once (default: 1000)
+        Size of chunks to process at once (default: 100)
     process_all_rows : bool
         Whether to process all rows (True) or limit to first chunk (False)
     """

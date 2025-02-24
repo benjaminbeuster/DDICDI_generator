@@ -18,6 +18,9 @@ from DDICDI_converter_JSONLD_incremental import (
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 
+# Configuration parameters
+MAX_ROWS_TO_PROCESS = 100  # Maximum number of rows to process by default
+PREVIEW_ROWS = 5  # Number of rows to show in the data preview table
 
 # Define the namespaces, DDI
 nsmap = {
@@ -287,7 +290,7 @@ app.layout = dbc.Container([
             # Add switch using dbc.Switch
             dbc.Switch(
                 id="include-metadata",
-                label="Include data rows (limited to 1000 rows for large datasets)",
+                label=f"Include data rows (limited to {MAX_ROWS_TO_PROCESS} rows for large datasets)",
                 value=False,
                 style={
                     'display': 'inline-block',
@@ -502,26 +505,26 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 if include_metadata:
                     data_subset = df
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
-                    elif len(df) > 1000:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                    elif len(df) > MAX_ROWS_TO_PROCESS:
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
                 else:
                     data_subset = df.head(0)
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
             else:
                 # For other triggers, maintain the current state
                 data_subset = df if include_metadata else df.head(0)
                 if include_metadata:
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
-                    elif len(df) > 1000:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                    elif len(df) > MAX_ROWS_TO_PROCESS:
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
                 else:
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
             
             return (
                 dash.no_update,  # table1 data
@@ -613,19 +616,19 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
                 if include_metadata:
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
-                    elif len(df) > 1000:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                    elif len(df) > MAX_ROWS_TO_PROCESS:
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
                 else:
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
 
                 # Clean up temp file
                 os.unlink(tmp_filename)
 
                 return (
-                    df.to_dict('records'),
+                    df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
                     columns1,
                     conditional_styles1,
                     table2_data,
@@ -769,26 +772,26 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             if include_metadata:
                 data_subset = df
                 if process_all_rows:
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
-                elif len(df) > 1000:
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                elif len(df) > MAX_ROWS_TO_PROCESS:
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                 else:
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
             else:
                 data_subset = df.head(0)
-                instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
         else:
             # For other triggers, maintain the current state
             data_subset = df if include_metadata else df.head(0)
             if include_metadata:
                 if process_all_rows:
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
-                elif len(df) > 1000:
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                elif len(df) > MAX_ROWS_TO_PROCESS:
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                 else:
-                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
             else:
-                instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
 
         # Generate outputs with the conditional data selection
         xml_data = generate_complete_xml_with_keys(
@@ -818,7 +821,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 f.write(f"Identifiers: {identifiers}\n")
                 f.write(f"Attributes: {attributes}\n")
 
-        return (df.to_dict('records'), columns1, conditional_styles1, 
+        return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
                 table2_data, columns2, conditional_styles2, 
                 xml_data, {'display': 'block'}, 
                 instruction_text, json_ld_data,
@@ -958,11 +961,11 @@ def download_active_content(n_clicks, xml_style, xml_content, json_content, file
 )
 def show_performance_warning(data, include_metadata, process_all_rows):
     if data and 'df' in globals():
-        if len(df) > 1000:
+        if len(df) > MAX_ROWS_TO_PROCESS:
             if include_metadata and process_all_rows:
                 warning_text = f"Warning: Your dataset has {len(df):,} rows. Processing ALL rows may take significant time and memory. The complete dataset will be included in the XML/JSON-LD output."
             elif include_metadata:
-                warning_text = f"Warning: Your dataset has {len(df):,} rows. For performance reasons, only the first 1,000 rows will be included in the XML/JSON-LD output. Enable 'Process ALL rows' option to include the complete dataset."
+                warning_text = f"Warning: Your dataset has {len(df):,} rows. For performance reasons, only the first {MAX_ROWS_TO_PROCESS} rows will be included in the XML/JSON-LD output. Enable 'Process ALL rows' option to include the complete dataset."
             else:
                 warning_text = f"Warning: Your dataset has {len(df):,} rows. Currently, no data rows will be included in the output. Enable 'Include data rows' to include data in the output."
             
@@ -988,7 +991,7 @@ def show_performance_warning(data, include_metadata, process_all_rows):
      Input('table1', 'data')]
 )
 def toggle_process_all_rows(include_metadata, data):
-    if include_metadata and data and 'df' in globals() and len(df) > 1000:
+    if include_metadata and data and 'df' in globals() and len(df) > MAX_ROWS_TO_PROCESS:
         return {
             'display': 'inline-block',
             'marginLeft': '15px',
