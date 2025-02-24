@@ -19,7 +19,7 @@ from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 
 # Configuration parameters
-MAX_ROWS_TO_PROCESS = 100  # Maximum number of rows to process by default
+MAX_ROWS_TO_PROCESS = 5  # Maximum number of rows to process by default
 PREVIEW_ROWS = 5  # Number of rows to show in the data preview table
 
 # Define the namespaces, DDI

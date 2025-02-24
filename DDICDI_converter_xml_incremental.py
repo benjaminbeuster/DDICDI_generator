@@ -235,8 +235,7 @@ def generate_CodeList_incremental(xf, df_meta, agency):
 
                         if lo_is_numeric and hi_is_numeric:
                             excluded_values.update(
-                                range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1)
-                            )
+                                range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1))
                         elif isinstance(dict_range['lo'], str):
                             excluded_values.add(dict_range['lo'])
                         else:
@@ -383,7 +382,7 @@ def generate_ValueMappingPosition_incremental(xf, df_meta, agency):
 
 def generate_DataPoint_incremental(xf, df, df_meta, agency):
     # Limit the number of rows to process for performance
-    max_rows = min(len(df), 100)  # Limit to 100 rows max
+    max_rows = min(len(df), 5)  # Limit to 5 rows max
     
     for variable in df_meta.column_names:
         for idx in range(max_rows):
@@ -394,7 +393,7 @@ def generate_DataPoint_incremental(xf, df, df_meta, agency):
 
 def generate_DataPointPosition_incremental(xf, df, df_meta, agency):
     # Limit the number of rows to process for performance
-    max_rows = min(len(df), 100)  # Limit to 100 rows max
+    max_rows = min(len(df), 5)  # Limit to 5 rows max
     
     for variable in df_meta.column_names:
         for idx in range(max_rows):
@@ -406,7 +405,7 @@ def generate_DataPointPosition_incremental(xf, df, df_meta, agency):
 
 def generate_InstanceValue_incremental(xf, df, df_meta, agency):
     # Limit the number of rows to process for performance
-    max_rows = min(len(df), 100)  # Limit to 100 rows max
+    max_rows = min(len(df), 5)  # Limit to 5 rows max
     
     # If df has more than max_rows, take a sample
     if len(df) > max_rows:
@@ -449,7 +448,7 @@ def generate_InstanceValue_incremental(xf, df, df_meta, agency):
                 with xf.element(etree.QName(nsmap['cdi'], 'InstanceValue_isStoredIn_DataPoint')):
                     add_ddiref_incremental(xf, f"#dataPoint-{idx}-{variable}", agency, "DataPoint")
 
-def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file='output.xml', chunk_size=100, process_all_rows=False):
+def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file='output.xml', chunk_size=5, process_all_rows=False):
     """
     Generate complete XML representation of the dataset.
     
@@ -464,7 +463,7 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
     output_file : str
         Path to the output XML file
     chunk_size : int
-        Size of chunks to process at once (default: 100)
+        Size of chunks to process at once (default: 5)
     process_all_rows : bool
         Whether to process all rows (True) or limit to first chunk (False)
     """
@@ -653,7 +652,7 @@ def generate_complete_xml_incremental(df, df_meta, spssfile='name', output_file=
     # Optionally, remove the temporary file
     os.remove(temp_file)
 
-def generate_complete_xml_with_keys(df, df_meta, vars=[], attribute_vars=[], spssfile=None, agency='int.esseric', chunk_size=100, process_all_rows=False):
+def generate_complete_xml_with_keys(df, df_meta, vars=[], attribute_vars=[], spssfile=None, agency='int.esseric', chunk_size=5, process_all_rows=False):
     """
     Generate complete XML representation with primary keys.
     
@@ -672,7 +671,7 @@ def generate_complete_xml_with_keys(df, df_meta, vars=[], attribute_vars=[], sps
     agency : str
         Agency identifier
     chunk_size : int
-        Size of chunks to process at once (default: 100)
+        Size of chunks to process at once (default: 5)
     process_all_rows : bool
         Whether to process all rows (True) or limit to first chunk (False)
     """
