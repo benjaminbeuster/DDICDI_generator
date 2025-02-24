@@ -430,7 +430,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
             print(f"Identifiers: {identifiers}")
             
             # Get and log data subset
-            data_subset = df.head(5) if include_metadata else df.head(0)
+            data_subset = df if include_metadata else df.head(0)
             print(f"Data subset shape: {data_subset.shape}")
             print(f"Data subset columns: {data_subset.columns.tolist()}")
             
@@ -546,7 +546,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
                 table2_data = df2.to_dict('records')
 
                 # Generate initial XML and JSON-LD
-                data_subset = df.head(5) if include_metadata else df.head(0)
+                data_subset = df if include_metadata else df.head(0)
                 xml_data = generate_complete_xml_with_keys(
                     data_subset, 
                     df_meta, 
@@ -603,7 +603,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
             f.write(f"Attributes: {attributes}\n")
             
         # Generate new XML and JSON-LD with updated classifications
-        data_subset = df.head(5) if include_metadata else df.head(0)
+        data_subset = df if include_metadata else df.head(0)
         xml_data = generate_complete_xml_with_keys(
             data_subset, 
             df_meta, 
@@ -705,14 +705,14 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
         # Modify this section to properly handle include_metadata
         if trigger == 'include-metadata' or trigger == 'upload-data':
             if include_metadata:
-                data_subset = df.head(5)
+                data_subset = df
                 instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include these 5 rows."
             else:
                 data_subset = df.head(0)
                 instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
         else:
             # For other triggers, maintain the current state
-            data_subset = df.head(5) if include_metadata else df.head(0)
+            data_subset = df if include_metadata else df.head(0)
             instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include' if include_metadata else 'not include'} any data rows."
 
         # Generate outputs with the conditional data selection
