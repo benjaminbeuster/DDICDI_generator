@@ -287,12 +287,34 @@ app.layout = dbc.Container([
             # Add switch using dbc.Switch
             dbc.Switch(
                 id="include-metadata",
-                label="Include cell metadata",
+                label="Include data rows (limited to 1000 rows for large datasets)",
                 value=False,
                 style={
                     'display': 'inline-block',
                     'marginLeft': '15px',
                     'color': colors['secondary']
+                }
+            ),
+            # Add a switch for processing all rows
+            dbc.Switch(
+                id="process-all-rows",
+                label="Process ALL rows (may be slow for large datasets)",
+                value=False,
+                style={
+                    'display': 'inline-block',
+                    'marginLeft': '15px',
+                    'color': colors['secondary'],
+                    'display': 'none'  # Initially hidden, shown only when include-metadata is true
+                }
+            ),
+            # Add a warning message about large datasets
+            html.Div(
+                id="performance-warning",
+                style={
+                    'color': '#e74c3c',
+                    'fontSize': '13px',
+                    'marginTop': '5px',
+                    'display': 'none'
                 }
             ),
             dcc.Download(id='download-active'),
@@ -409,21 +431,23 @@ def update_instruction_text_style(data):
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
      Input('include-metadata', 'value'),
-     Input('table2', 'data')],
+     Input('table2', 'data'),
+     Input('process-all-rows', 'value')],
     [State('upload-data', 'filename')]
 )
-def combined_callback(contents, selected_rows, include_metadata, table2_data, filename):
+def combined_callback(contents, selected_rows, include_metadata, table2_data, process_all_rows, filename):
     global df, df_meta
     
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
 
     # Handle metadata toggle separately
-    if trigger == 'include-metadata' and 'df' in globals():
+    if trigger in ['include-metadata', 'process-all-rows'] and 'df' in globals():
         try:
             # Debug logging
             print("=== Debug Information ===")
             print(f"Include metadata: {include_metadata}")
+            print(f"Process all rows: {process_all_rows}")
             
             # Get and log identifiers
             identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier'] if table2_data else []
@@ -446,7 +470,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
                     data_subset, 
                     df_meta, 
                     vars=identifiers,
-                    spssfile=filename
+                    spssfile=filename,
+                    process_all_rows=process_all_rows
                 )
                 print("XML generation successful")
             except Exception as e:
@@ -460,7 +485,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
                 json_ld_data = generate_complete_json_ld(
                     data_subset, 
                     df_meta,
-                    spssfile=filename
+                    spssfile=filename,
+                    process_all_rows=process_all_rows
                 )
                 print("JSON-LD generation successful")
             except Exception as e:
@@ -471,7 +497,31 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
 
             print("=== End Debug Information ===")
 
-            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include these 5 rows' if include_metadata else 'not include any data rows'}."
+            # Modify this section to properly handle include_metadata
+            if trigger == 'include-metadata' or trigger == 'upload-data':
+                if include_metadata:
+                    data_subset = df
+                    if process_all_rows:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                    elif len(df) > 1000:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                    else:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                else:
+                    data_subset = df.head(0)
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+            else:
+                # For other triggers, maintain the current state
+                data_subset = df if include_metadata else df.head(0)
+                if include_metadata:
+                    if process_all_rows:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                    elif len(df) > 1000:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                    else:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                else:
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
             
             return (
                 dash.no_update,  # table1 data
@@ -482,7 +532,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
                 dash.no_update,  # table2 style
                 xml_data,        # xml output
                 dash.no_update,  # button group style
-                instruction_text,# table1 instruction
+                instruction_text, # table1 instruction
                 json_ld_data,    # json output
                 dash.no_update,  # table switch button style
                 dash.no_update,  # include metadata style
@@ -551,15 +601,25 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
                     data_subset, 
                     df_meta, 
                     vars=[],
-                    spssfile=filename
+                    spssfile=filename,
+                    process_all_rows=process_all_rows
                 )
                 json_ld_data = generate_complete_json_ld(
                     data_subset, 
                     df_meta,
-                    spssfile=filename
+                    spssfile=filename,
+                    process_all_rows=process_all_rows
                 )
 
-                instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'."
+                if include_metadata:
+                    if process_all_rows:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                    elif len(df) > 1000:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                    else:
+                        instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                else:
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
 
                 # Clean up temp file
                 os.unlink(tmp_filename)
@@ -608,12 +668,14 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
             data_subset, 
             df_meta, 
             vars=identifiers,
-            spssfile=filename
+            spssfile=filename,
+            process_all_rows=process_all_rows
         )
         json_ld_data = generate_complete_json_ld(
             data_subset, 
             df_meta,
-            spssfile=filename
+            spssfile=filename,
+            process_all_rows=process_all_rows
         )
         
         # Return all outputs with updated XML and JSON
@@ -706,27 +768,42 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, fi
         if trigger == 'include-metadata' or trigger == 'upload-data':
             if include_metadata:
                 data_subset = df
-                instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include these 5 rows."
+                if process_all_rows:
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                elif len(df) > 1000:
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                else:
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
             else:
                 data_subset = df.head(0)
                 instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
         else:
             # For other triggers, maintain the current state
             data_subset = df if include_metadata else df.head(0)
-            instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will {'include' if include_metadata else 'not include'} any data rows."
+            if include_metadata:
+                if process_all_rows:
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                elif len(df) > 1000:
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to 1000 rows due to performance limitations."
+                else:
+                    instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+            else:
+                instruction_text = f"The table below shows the first 5 rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
 
         # Generate outputs with the conditional data selection
         xml_data = generate_complete_xml_with_keys(
             data_subset, 
             df_meta, 
             vars=vars,
-            spssfile=filename
+            spssfile=filename,
+            process_all_rows=process_all_rows
         )
 
         json_ld_data = generate_complete_json_ld(
             data_subset, 
             df_meta,
-            spssfile=filename
+            spssfile=filename,
+            process_all_rows=process_all_rows
         )
 
         # Add debug logging for variable types
@@ -870,6 +947,55 @@ def download_active_content(n_clicks, xml_style, xml_content, json_content, file
     else:
         download_filename = os.path.splitext(filename)[0] + '.jsonld'
         return dict(content=json_content, filename=download_filename, type='application/json')
+
+# Add callback to show performance warning for large datasets
+@app.callback(
+    [Output('performance-warning', 'children'),
+     Output('performance-warning', 'style')],
+    [Input('table1', 'data'),
+     Input('include-metadata', 'value'),
+     Input('process-all-rows', 'value')]
+)
+def show_performance_warning(data, include_metadata, process_all_rows):
+    if data and 'df' in globals():
+        if len(df) > 1000:
+            if include_metadata and process_all_rows:
+                warning_text = f"Warning: Your dataset has {len(df):,} rows. Processing ALL rows may take significant time and memory. The complete dataset will be included in the XML/JSON-LD output."
+            elif include_metadata:
+                warning_text = f"Warning: Your dataset has {len(df):,} rows. For performance reasons, only the first 1,000 rows will be included in the XML/JSON-LD output. Enable 'Process ALL rows' option to include the complete dataset."
+            else:
+                warning_text = f"Warning: Your dataset has {len(df):,} rows. Currently, no data rows will be included in the output. Enable 'Include data rows' to include data in the output."
+            
+            warning_style = {
+                'color': '#e74c3c' if include_metadata and process_all_rows else '#f39c12',
+                'fontSize': '13px',
+                'marginTop': '5px',
+                'display': 'block',
+                'fontWeight': '500',
+                'padding': '8px',
+                'borderRadius': '4px',
+                'backgroundColor': '#fef9e7' if include_metadata and process_all_rows else '#fcf3cf'
+            }
+            return warning_text, warning_style
+    
+    # Default - no warning
+    return "", {'display': 'none'}
+
+# Add callback to show/hide the process-all-rows switch based on include-metadata
+@app.callback(
+    Output('process-all-rows', 'style'),
+    [Input('include-metadata', 'value'),
+     Input('table1', 'data')]
+)
+def toggle_process_all_rows(include_metadata, data):
+    if include_metadata and data and 'df' in globals() and len(df) > 1000:
+        return {
+            'display': 'inline-block',
+            'marginLeft': '15px',
+            'color': colors['secondary']
+        }
+    else:
+        return {'display': 'none'}
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback
