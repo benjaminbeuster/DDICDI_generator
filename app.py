@@ -279,7 +279,7 @@ app.layout = dbc.Container([
             # Group the buttons together in a ButtonGroup
             dbc.ButtonGroup(
                 [
-                    dbc.Button('XML', id='btn-download', color="primary", className="mr-1"),
+                    dbc.Button('Generate XML', id='btn-download', color="secondary", className="mr-1"),
                     dbc.Button('JSON-LD', id='btn-download-json', color="primary", className="mr-1"),
                     dbc.Button('Download', id='btn-download-active', color="success"),
                 ],
@@ -425,7 +425,6 @@ def update_instruction_text_style(data):
      Output('table2', 'data'),
      Output('table2', 'columns'),
      Output('table2', 'style_data_conditional'),
-     Output('xml-ld-output', 'children'),
      Output('button-group', 'style'),
      Output('table1-instruction', 'children'),
      Output('json-ld-output', 'children'),
@@ -468,22 +467,6 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 df_meta.identifier_vars = identifiers
                 print(f"df_meta.identifier_vars after: {df_meta.identifier_vars}")
             
-            # Generate XML with detailed error handling
-            try:
-                xml_data = generate_complete_xml_with_keys(
-                    data_subset, 
-                    df_meta, 
-                    vars=identifiers,
-                    spssfile=filename,
-                    process_all_rows=process_all_rows
-                )
-                print("XML generation successful")
-            except Exception as e:
-                print(f"XML generation error: {str(e)}")
-                import traceback
-                print(traceback.format_exc())
-                xml_data = "Error generating XML"
-
             # Generate JSON-LD with detailed error handling
             try:
                 json_ld_data = generate_complete_json_ld(
@@ -506,26 +489,26 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 if include_metadata:
                     data_subset = df
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                     elif len(df) > MAX_ROWS_TO_PROCESS:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
                 else:
                     data_subset = df.head(0)
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
             else:
                 # For other triggers, maintain the current state
                 data_subset = df if include_metadata else df.head(0)
                 if include_metadata:
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                     elif len(df) > MAX_ROWS_TO_PROCESS:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
                 else:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
             
             return (
                 dash.no_update,  # table1 data
@@ -534,7 +517,6 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 dash.no_update,  # table2 data
                 dash.no_update,  # table2 columns
                 dash.no_update,  # table2 style
-                xml_data,        # xml output
                 dash.no_update,  # button group style
                 instruction_text, # table1 instruction
                 json_ld_data,    # json output
@@ -548,7 +530,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             import traceback
             print(traceback.format_exc())
             # Return error state
-            return [dash.no_update] * 13
+            return [dash.no_update] * 12
 
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:
@@ -599,15 +581,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 df2['var_type'] = 'measure'
                 table2_data = df2.to_dict('records')
 
-                # Generate initial XML and JSON-LD
+                # Generate only JSON-LD initially
                 data_subset = df if include_metadata else df.head(0)
-                xml_data = generate_complete_xml_with_keys(
-                    data_subset, 
-                    df_meta, 
-                    vars=[],
-                    spssfile=filename,
-                    process_all_rows=process_all_rows
-                )
                 json_ld_data = generate_complete_json_ld(
                     data_subset, 
                     df_meta,
@@ -617,13 +592,13 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
                 if include_metadata:
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                     elif len(df) > MAX_ROWS_TO_PROCESS:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
                 else:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
 
                 # Clean up temp file
                 os.unlink(tmp_filename)
@@ -635,7 +610,6 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     table2_data,
                     columns2,
                     conditional_styles2,
-                    xml_data,
                     {'display': 'block'},
                     instruction_text,
                     json_ld_data,
@@ -646,7 +620,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
         except Exception as e:
             print(f"Error processing file: {str(e)}")
-            return [], [], [], [], [], [], f"Error: {str(e)}", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None
+            return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None
 
     # When table2 data changes (dropdown selections change)
     if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
@@ -666,15 +640,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             f.write(f"Identifiers: {identifiers}\n")
             f.write(f"Attributes: {attributes}\n")
             
-        # Generate new XML and JSON-LD with updated classifications
+        # Generate only JSON-LD with updated classifications
         data_subset = df if include_metadata else df.head(0)
-        xml_data = generate_complete_xml_with_keys(
-            data_subset, 
-            df_meta, 
-            vars=identifiers,
-            spssfile=filename,
-            process_all_rows=process_all_rows
-        )
         json_ld_data = generate_complete_json_ld(
             data_subset, 
             df_meta,
@@ -682,7 +649,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             process_all_rows=process_all_rows
         )
         
-        # Return all outputs with updated XML and JSON
+        # Return all outputs with updated JSON
         return (
             dash.no_update,  # table1 data
             dash.no_update,  # table1 columns
@@ -690,7 +657,6 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             table2_data,     # table2 data
             dash.no_update,  # table2 columns
             dash.no_update,  # table2 style
-            xml_data,        # xml output
             dash.no_update,  # button group style
             dash.no_update,  # table1 instruction
             json_ld_data,    # json output
@@ -700,7 +666,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         )
 
     if not contents:
-        return [], [], [], [], [], [], "", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update
+        return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update
 
     try:
         print("Step 1: Starting file processing")
@@ -773,36 +739,28 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             if include_metadata:
                 data_subset = df
                 if process_all_rows:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                 elif len(df) > MAX_ROWS_TO_PROCESS:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                 else:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
             else:
                 data_subset = df.head(0)
-                instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
         else:
             # For other triggers, maintain the current state
             data_subset = df if include_metadata else df.head(0)
             if include_metadata:
                 if process_all_rows:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include ALL {len(df)} rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                 elif len(df) > MAX_ROWS_TO_PROCESS:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                 else:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will include all {len(df)} rows."
+                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
             else:
-                instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated XML and JSON-LD output will not include any data rows."
+                instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
 
-        # Generate outputs with the conditional data selection
-        xml_data = generate_complete_xml_with_keys(
-            data_subset, 
-            df_meta, 
-            vars=vars,
-            spssfile=filename,
-            process_all_rows=process_all_rows
-        )
-
+        # Generate only JSON-LD with the conditional data selection
         json_ld_data = generate_complete_json_ld(
             data_subset, 
             df_meta,
@@ -824,7 +782,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
         return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
                 table2_data, columns2, conditional_styles2, 
-                xml_data, {'display': 'block'}, 
+                {'display': 'block'}, 
                 instruction_text, json_ld_data,
                 {'display': 'block'},
                 {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
@@ -833,7 +791,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], "An error occurred while processing the file.", {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None
+        return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None
 
     finally:
         if 'tmp_filename' in locals():
@@ -915,8 +873,8 @@ def toggle_output_display(xml_clicks, json_clicks, xml_style, json_style):
     }
     
     if not ctx.triggered:
-        # Default state: show XML, hide JSON
-        return {**base_style, 'display': 'block'}, {**base_style, 'display': 'none'}
+        # Default state: hide XML, show JSON (reversed from original)
+        return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
     
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
@@ -925,8 +883,8 @@ def toggle_output_display(xml_clicks, json_clicks, xml_style, json_style):
     elif button_id == 'btn-download-json':
         return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
     
-    # Fallback to default state
-    return {**base_style, 'display': 'block'}, {**base_style, 'display': 'none'}
+    # Fallback to default state (now JSON-LD is default)
+    return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
 
 # Add new callback for the download button
 @app.callback(
@@ -946,6 +904,10 @@ def download_active_content(n_clicks, xml_style, xml_content, json_content, file
     is_xml_visible = xml_style.get('display') == 'block'
     
     if is_xml_visible:
+        # If XML content is empty, it means the XML button was clicked but 
+        # generate_xml_on_demand hasn't been triggered yet, so we skip
+        if not xml_content:
+            return dash.no_update
         download_filename = os.path.splitext(filename)[0] + '.xml'
         return dict(content=xml_content, filename=download_filename, type='text/xml')
     else:
@@ -961,20 +923,20 @@ def download_active_content(n_clicks, xml_style, xml_content, json_content, file
      Input('process-all-rows', 'value')]
 )
 def show_performance_warning(data, include_metadata, process_all_rows):
-    if data and 'df' in globals():
+    # Only show warning if we have data and include_metadata is True
+    if data and include_metadata and 'df' in globals():
         if len(df) > MAX_ROWS_TO_PROCESS:
-            if include_metadata and process_all_rows:
-                warning_text = f"Warning: Your dataset has {len(df):,} rows. Processing ALL rows may take significant time and memory. The complete dataset will be included in the XML/JSON-LD output."
-            elif include_metadata:
-                warning_text = f"Warning: Your dataset has {len(df):,} rows. For performance reasons, only the first {MAX_ROWS_TO_PROCESS} rows will be included in the XML/JSON-LD output. Enable 'Process ALL rows' option to include the complete dataset."
+            if process_all_rows:
+                warning_text = f"Warning: Processing all {len(df)} rows may take significantly longer. The generated JSON-LD will include all rows."
             else:
-                warning_text = f"Warning: Your dataset has {len(df):,} rows. Currently, no data rows will be included in the output. Enable 'Include data rows' to include data in the output."
+                warning_text = f"Warning: For performance reasons, only the first {MAX_ROWS_TO_PROCESS} rows will be included in the JSON-LD output."
             
             warning_style = {
-                'color': '#e74c3c' if include_metadata and process_all_rows else '#f39c12',
-                'fontSize': '13px',
-                'marginTop': '5px',
                 'display': 'block',
+                'color': '#9B870C',
+                'fontFamily': "'Inter', sans-serif",
+                'fontSize': '14px',
+                'margin': '10px 0',
                 'fontWeight': '500',
                 'padding': '8px',
                 'borderRadius': '4px',
@@ -1000,6 +962,59 @@ def toggle_process_all_rows(include_metadata, data):
         }
     else:
         return {'display': 'none'}
+
+@app.callback(
+    Output('xml-ld-output', 'children'),
+    [Input('btn-download', 'n_clicks')],
+    [State('upload-data', 'filename'),
+     State('table2', 'data'),
+     State('table2', 'selected_rows'),
+     State('include-metadata', 'value'),
+     State('process-all-rows', 'value')]
+)
+def generate_xml_on_demand(n_clicks, filename, table2_data, selected_rows, include_metadata, process_all_rows):
+    # Only generate XML when button is clicked
+    if n_clicks is None:
+        return ""
+    
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise dash.exceptions.PreventUpdate
+    
+    # Check if we have the necessary data
+    if 'df' not in globals() or 'df_meta' not in globals():
+        return "Please upload a file first."
+    
+    try:
+        # Get selected variables
+        vars = []
+        if selected_rows and table2_data:
+            vars = [table2_data[row_index]["name"] for row_index in selected_rows]
+            
+        # Update classifications based on dropdown selections in table2_data
+        if table2_data:
+            measures = [row['name'] for row in table2_data if row.get('var_type') == 'measure']
+            identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier']
+            attributes = [row['name'] for row in table2_data if row.get('var_type') == 'attribute']
+            
+            df_meta.measure_vars = measures
+            df_meta.identifier_vars = identifiers
+            df_meta.attribute_vars = attributes
+            
+        # Generate XML with the conditional data selection
+        data_subset = df if include_metadata else df.head(0)
+        xml_data = generate_complete_xml_with_keys(
+            data_subset, 
+            df_meta, 
+            vars=vars,
+            spssfile=filename,
+            process_all_rows=process_all_rows
+        )
+        
+        return xml_data
+    except Exception as e:
+        print(f"Error generating XML: {str(e)}")
+        return f"Error generating XML: {str(e)}"
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback
