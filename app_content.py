@@ -20,8 +20,8 @@ This profile utilizes 26 classes from the DDI-CDI model (25.01.2025).
 | [DataStore]({0}/FormatDescription/DataStore.html) | [EnumerationDomain]({0}/Representations/EnumerationDomain.html) | |
 | [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) | [`skos:ConceptScheme`](https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme) |
 | [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | [Code]({0}/Representations/Code.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
-| [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) | [Category]({0}/Representations/Category.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
-| [InstanceVariable]({0}/Conceptual/InstanceVariable.html) | [Notation]({0}/Representations/Notation.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
+| [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) | [Category]({0}/Conceptual/Category.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
+| [InstanceVariable]({0}/Conceptual/InstanceVariable.html) | [Notation]({0}/DataDescription/Notation.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
 """.format(prefix)
 
 from datetime import datetime
