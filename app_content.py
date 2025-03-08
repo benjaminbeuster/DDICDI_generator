@@ -12,8 +12,8 @@ This profile utilizes 26 classes from the DDI-CDI model (25.01.2025).
 | [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) | |
 | [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) | |
 | [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) | |
-| [ValueMapping]({0}/DataDescription/ValueMapping.html) | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) | |
-| [ValueMappingPosition]({0}/DataDescription/ValueMappingPosition.html) | [AttributeComponent]({0}/DataDescription/Components/AttributeComponent.html) | |
+| [ValueMapping]({0}/FormatDescription/ValueMapping.html) | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) | |
+| [ValueMappingPosition]({0}/FormatDescription/ValueMappingPosition.html) | [AttributeComponent]({0}/DataDescription/Components/AttributeComponent.html) | |
 | [DataPoint]({0}/DataDescription/DataPoint.html) | [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) | |
 | [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) | |
 | [InstanceValue]({0}/DataDescription/InstanceValue.html) | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) | |

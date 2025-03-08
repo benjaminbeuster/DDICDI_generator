@@ -373,6 +373,7 @@ app.layout = dbc.Container([
                         dbc.CardBody(
                             dcc.Markdown(markdown_text, 
                                 dangerously_allow_html=True,
+                                link_target="_blank",
                                 className="card-text"
                             ),
                             style={
