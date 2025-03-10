@@ -66,7 +66,10 @@ header_dict = {
     'padding': '10px 12px',
     'fontFamily': "'Inter', sans-serif",
     'fontWeight': '600',
-    'height': '36px'
+    'height': '36px',
+    'position': 'sticky',
+    'top': '0',
+    'zIndex': '1'
 }
 
 table_style = {
