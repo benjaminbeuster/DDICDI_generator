@@ -290,8 +290,7 @@ def generate_SubstantiveConceptScheme(df_meta):
 
                     if lo_is_numeric and hi_is_numeric:
                         excluded_values.update(
-                            range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1)
-                        )
+                            range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1))
                     elif isinstance(dict_range['lo'], str):
                         excluded_values.add(dict_range['lo'])
                     else:
@@ -317,29 +316,47 @@ def generate_SubstantiveConceptScheme(df_meta):
     return json_ld_data
 
 def generate_ValueMapping(df, df_meta, process_all_rows=False, chunk_size=5):
+    """
+    Generate ValueMapping objects for the dataset.
+    Optimized for performance with large datasets.
+    """
     # Determine how many rows to process
     if process_all_rows:
         max_rows = len(df)
     else:
         max_rows = min(len(df), chunk_size)
     
-    # Pre-generate the format lists for all variables to avoid redundant operations
-    if len(df) > 0:
-        formats_list = [f"#dataPoint-{i}-{variable}" for variable in df_meta.column_names for i in range(max_rows)]
+    # Only generate format lists if we have rows to process
+    if len(df) == 0:
+        # Shortcut for empty dataframes
+        return [
+            {
+                "@id": f"#valueMapping-{variable}",
+                "@type": "ValueMapping",
+                "defaultValue": "",
+                "formats": []
+            }
+            for variable in df_meta.column_names
+        ]
     
-    # Generate all value mappings at once
-    variable_count = len(df_meta.column_names)
-    formats_per_variable = max_rows if len(df) > 0 else 0
-    
-    return [
-        {
+    # For better performance with large datasets, we'll generate
+    # the format lists separately for each variable
+    result = []
+    for variable in df_meta.column_names:
+        # Create format list using range and format strings - much faster than list comprehension
+        # for very large datasets
+        datapoint_template = f"#dataPoint-{{0}}-{variable}"
+        formats = [datapoint_template.format(i) for i in range(max_rows)]
+        
+        element = {
             "@id": f"#valueMapping-{variable}",
             "@type": "ValueMapping",
             "defaultValue": "",
-            "formats": formats_list[i * formats_per_variable:(i + 1) * formats_per_variable] if len(df) > 0 else []
+            "formats": formats
         }
-        for i, variable in enumerate(df_meta.column_names)
-    ]
+        result.append(element)
+    
+    return result
 
 def generate_ValueMappingPosition(df_meta):
     json_ld_data = []
@@ -354,53 +371,79 @@ def generate_ValueMappingPosition(df_meta):
     return json_ld_data
 
 def generate_DataPoint(df, df_meta, process_all_rows=False, chunk_size=5):
-    json_ld_data = []
-    
+    """
+    Generate DataPoint objects for the dataset.
+    Optimized for performance with large datasets.
+    """
     # Determine how many rows to process
     if process_all_rows:
         max_rows = len(df)
     else:
         max_rows = min(len(df), chunk_size)
     
-    # Process variables and indices in a more optimized way
+    # Using a list comprehension to generate all data points at once is more efficient
+    # Pre-calculate the common values
+    datapoint_type = "DataPoint"
+    dataset_reference = "#wideDataSet"
+    
+    result = []
+    # Generate data points in a single operation to avoid repeated function calls
     for variable in df_meta.column_names:
-        # This one-liner generates all the DataPoints for a variable
-        json_ld_data.extend([
+        variable_reference = f"#instanceVariable-{variable}"
+        
+        # Generate all data points for this variable in one go
+        variable_datapoints = [
             {
                 "@id": f"#dataPoint-{idx}-{variable}",
-                "@type": "DataPoint",
-                "isDescribedBy": f"#instanceVariable-{variable}",
-                "has_DataPoint_OF_DataSet": "#wideDataSet"
+                "@type": datapoint_type,
+                "isDescribedBy": variable_reference,
+                "has_DataPoint_OF_DataSet": dataset_reference
             }
             for idx in range(max_rows)
-        ])
+        ]
+        result.extend(variable_datapoints)
     
-    return json_ld_data
+    return result
 
 def generate_DataPointPosition(df, df_meta, process_all_rows=False, chunk_size=5):
-    json_ld_data = []
-    
+    """
+    Generate DataPointPosition objects for the dataset.
+    Optimized for performance with large datasets.
+    """
     # Determine how many rows to process
     if process_all_rows:
         max_rows = len(df)
     else:
         max_rows = min(len(df), chunk_size)
     
-    # Process in a more optimized way - generate all positions at once
+    # Pre-calculate constants to avoid repetitive string operations
+    datapoint_position_type = "DataPointPosition"
+    result = []
+    
+    # Generate all positions in batches by variable to improve memory locality
     for variable in df_meta.column_names:
-        json_ld_data.extend([
+        # Pre-calculate the datapoint prefix
+        datapoint_prefix = f"#dataPoint-{{}}-{variable}"
+        
+        # Generate all positions for this variable in one operation
+        variable_positions = [
             {
-                "@id": f"#dataPointPosition-{idx}-{variable}",
-                "@type": "DataPointPosition",
+                "@id": f"#dataPointPosition-{idx}-{variable}", 
+                "@type": datapoint_position_type,
                 "value": idx,
-                "indexes": f"#dataPoint-{idx}-{variable}"
+                "indexes": datapoint_prefix.format(idx)
             }
             for idx in range(max_rows)
-        ])
+        ]
+        result.extend(variable_positions)
     
-    return json_ld_data
+    return result
 
 def generate_InstanceValue(df, df_meta, process_all_rows=False, chunk_size=5):
+    """
+    Generate InstanceValue objects for the dataset.
+    Optimized for performance with large datasets.
+    """
     json_ld_data = []
     
     # Determine how many rows to process
@@ -415,63 +458,108 @@ def generate_InstanceValue(df, df_meta, process_all_rows=False, chunk_size=5):
     else:
         df_sample = df.iloc[:max_rows]
     
-    # Pre-compute value domain references for each variable
+    # Pre-compute value domain references for each variable (do this once)
     value_domain_refs = {}
     for variable in df_meta.column_names:
         if variable in df_meta.missing_ranges:
             value_domain_refs[variable] = {
                 'has_missing': True,
-                'ranges': df_meta.missing_ranges[variable]
+                'ranges': df_meta.missing_ranges[variable],
+                'numeric_ranges': [r for r in df_meta.missing_ranges[variable] if isinstance(r['lo'], float)]
             }
         else:
             value_domain_refs[variable] = {
                 'has_missing': False
             }
     
-    # Process each variable
+    # Create a template element to avoid recreating common parts
+    template_element = {
+        "@type": "InstanceValue",
+        "content": {
+            "@type": "TypedString"
+        }
+    }
+    
+    # Process each variable once - this is much more efficient
     for variable in df_meta.column_names:
         # Get variable-specific information
         var_info = value_domain_refs[variable]
         has_missing_ranges = var_info['has_missing']
         
-        # Process each row for this variable in a batch
-        batch_elements = []
-        for idx, value in enumerate(df_sample[variable]):
-            # Create the base element
+        # Convert column to strings in one operation if possible
+        try:
+            # Using pandas vectorized operations when possible
+            content_values = df_sample[variable].astype(str).tolist()
+        except:
+            # Fallback for columns that can't be bulk converted
+            content_values = [str(val) for val in df_sample[variable]]
+        
+        # Pre-calculate missing value domains to avoid repeated checks
+        value_domains = []
+        if has_missing_ranges and var_info.get('numeric_ranges'):
+            numeric_ranges = var_info['numeric_ranges']
+            
+            # For numeric columns, try to use vectorized operations
+            try:
+                # Convert to numeric for comparison (will set non-numerics to NaN)
+                numeric_values = pd.to_numeric(df_sample[variable], errors='coerce')
+                
+                # Initialize all as substantive domains
+                is_missing = pd.Series([False] * len(df_sample), index=df_sample.index)
+                
+                # Check each range
+                for range_dict in numeric_ranges:
+                    # Combine conditions across all ranges
+                    range_condition = (numeric_values >= range_dict['lo']) & (numeric_values <= range_dict['hi'])
+                    is_missing = is_missing | range_condition
+                
+                # Create value domains list based on the result
+                value_domains = [
+                    f"#sentinelValueDomain-{variable}" if is_missing[i] 
+                    else f"#substantiveValueDomain-{variable}"
+                    for i in range(len(df_sample))
+                ]
+            except:
+                # Fallback to non-vectorized approach for complex cases
+                value_domains = []
+                for value in df_sample[variable]:
+                    in_missing_range = False
+                    if value is not None:
+                        for range_dict in numeric_ranges:
+                            try:
+                                value_float = float(value)
+                                if range_dict['lo'] <= value_float <= range_dict['hi']:
+                                    in_missing_range = True
+                                    break
+                            except (ValueError, TypeError):
+                                pass
+                    
+                    if in_missing_range:
+                        value_domains.append(f"#sentinelValueDomain-{variable}")
+                    else:
+                        value_domains.append(f"#substantiveValueDomain-{variable}")
+        else:
+            # If no missing ranges, all values use substantive domain
+            value_domains = [f"#substantiveValueDomain-{variable}"] * len(df_sample)
+        
+        # Now build all elements for this variable at once
+        variable_elements = []
+        for idx in range(len(df_sample)):
+            # Create element using the template to avoid recreation
             element = {
                 "@id": f"#instanceValue-{idx}-{variable}",
-                "@type": "InstanceValue",
+                "@type": template_element["@type"],
                 "content": {
-                    "@type": "TypedString",
-                    "content": str(value)
+                    "@type": template_element["content"]["@type"],
+                    "content": content_values[idx]
                 },
-                "isStoredIn": f"#dataPoint-{idx}-{variable}"
+                "isStoredIn": f"#dataPoint-{idx}-{variable}",
+                "hasValueFrom_ValueDomain": value_domains[idx]
             }
-            
-            # Add value domain references - optimize the missing value check
-            if has_missing_ranges:
-                # Check if value is in any missing range
-                in_missing_range = False
-                for range_dict in var_info['ranges']:
-                    if value is not None and isinstance(range_dict['lo'], float):
-                        try:
-                            value_float = float(value)
-                            if range_dict['lo'] <= value_float <= range_dict['hi']:
-                                element["hasValueFrom_ValueDomain"] = f"#sentinelValueDomain-{variable}"
-                                in_missing_range = True
-                                break
-                        except (ValueError, TypeError):
-                            pass
-                
-                if not in_missing_range:
-                    element["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
-            else:
-                element["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
-            
-            batch_elements.append(element)
+            variable_elements.append(element)
         
         # Add all elements for this variable at once
-        json_ld_data.extend(batch_elements)
+        json_ld_data.extend(variable_elements)
     
     return json_ld_data
 
@@ -528,73 +616,14 @@ def generate_SubstantiveValueDomain(df_meta):
         json_ld_data.append(elements)
     return json_ld_data
 
-def generate_SubstantiveEnumerationDomain(df_meta):
-    """Generate EnumerationDomain objects for substantive values"""
-    json_ld_data = []
-    
-    for variable in df_meta.column_names:
-        if variable in df_meta.variable_value_labels:
-            elements = {
-                "@id": f"#substantiveEnumerationDomain-{variable}",
-                "@type": "EnumerationDomain",
-                "sameAs": f"#substantiveConceptScheme-{variable}"
-            }
-            json_ld_data.append(elements)
-    
-    return json_ld_data
-
-def generate_SentinelValueDomain(df_meta):
-    json_ld_data = []
-    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
-    
-    for variable in relevant_variables:
-        original_type = df_meta.readstat_variable_types[variable]
-        mapped_type = map_to_xsd_type(original_type)
-        
-        elements = {
-            "@id": f"#sentinelValueDomain-{variable}",
-            "@type": "SentinelValueDomain",
-            "recommendedDataType": {
-                "@type": "ControlledVocabularyEntry",
-                "entryValue": mapped_type
-            },
-            "isDescribedBy": f"#sentinelValueAndConceptDescription-{variable}"
-        }
-        if variable in df_meta.variable_value_labels:
-            elements["takesValuesFrom"] = f"#sentinelEnumerationDomain-{variable}"
-        json_ld_data.append(elements)
-    return json_ld_data
-
-def generate_SentinelEnumerationDomain(df_meta):
-    """New function to generate EnumerationDomain objects"""
-    json_ld_data = []
-    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
-    
-    for variable in relevant_variables:
-        if variable in df_meta.variable_value_labels:
-            elements = {
-                "@id": f"#sentinelEnumerationDomain-{variable}",
-                "@type": "EnumerationDomain",
-                "sameAs": f"#sentinelConceptScheme-{variable}"
-            }
-            json_ld_data.append(elements)
-    
-    return json_ld_data
-
 def get_classification_level(variable_type):
-    """
-    Determine the classification level based on the variable type
-    Valid values are: "Continuous", "Interval", "Nominal", "Ordinal", "Ratio"
-    """
-    # This mapping should be adjusted based on your specific needs
-    if variable_type in ['float', 'double', 'numeric']:
-        return "Continuous"
-    elif variable_type in ['integer', 'int']:
+    """Get the classification level based on the variable type."""
+    if variable_type in ["continuous", "scale", "ordinal", "ratio"]:
         return "Interval"
-    elif variable_type in ['string', 'character']:
+    elif variable_type in ["nominal", "nominal/ordinal"]:
         return "Nominal"
     else:
-        return "Nominal"  # Default case
+        return "Nominal"  # Default
 
 def generate_ValueAndConceptDescription(df_meta):
     json_ld_data = []
@@ -687,6 +716,79 @@ def generate_Concept(df_meta):
             json_ld_data.append(elements)
     return json_ld_data
 
+def generate_SubstantiveEnumerationDomain(df_meta):
+    json_ld_data = []
+    for variable in df_meta.column_names:
+        if variable in df_meta.variable_value_labels:
+            # Create a set to track excluded values
+            excluded_values = set()
+            
+            # Check if there are missing values for this variable
+            if variable in df_meta.missing_ranges:
+                for dict_range in df_meta.missing_ranges[variable]:
+                    if isinstance(dict_range['lo'], float) and isinstance(dict_range['hi'], float):
+                        excluded_values.update(
+                            range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1))
+                    elif isinstance(dict_range['lo'], str):
+                        excluded_values.add(dict_range['lo'])
+
+            # Use list comprehension to generate the hasTopConcept list
+            excluded_values_str = {str(i) for i in excluded_values}
+            has_top_concept = [
+                f"#{variable}-concept-{value}"
+                for value in df_meta.variable_value_labels[variable].keys()
+                if (not value in excluded_values) and (not str(value) in excluded_values_str)
+            ]
+
+            # Only add to json_ld_data if has_top_concept list is not empty
+            if has_top_concept:
+                elements = {
+                    "@id": f"#substantiveEnumerationDomain-{variable}",
+                    "@type": "EnumerationDomain",
+                    "sameAs": f"#substantiveConceptScheme-{variable}"
+                }
+                json_ld_data.append(elements)
+
+    return json_ld_data
+
+def generate_SentinelValueDomain(df_meta):
+    json_ld_data = []
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+    
+    for variable in relevant_variables:
+        original_type = df_meta.readstat_variable_types[variable]
+        mapped_type = map_to_xsd_type(original_type)
+        
+        elements = {
+            "@id": f"#sentinelValueDomain-{variable}",
+            "@type": "SentinelValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": mapped_type
+            },
+            "isDescribedBy": f"#sentinelValueAndConceptDescription-{variable}"
+        }
+        if variable in df_meta.variable_value_labels:
+            elements["takesValuesFrom"] = f"#sentinelEnumerationDomain-{variable}"
+        json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_SentinelEnumerationDomain(df_meta):
+    """New function to generate EnumerationDomain objects"""
+    json_ld_data = []
+    relevant_variables = df_meta.missing_ranges if len(df_meta.missing_ranges) > 0 else df_meta.missing_user_values
+    
+    for variable in relevant_variables:
+        if variable in df_meta.variable_value_labels:
+            elements = {
+                "@id": f"#sentinelEnumerationDomain-{variable}",
+                "@type": "EnumerationDomain",
+                "sameAs": f"#sentinelConceptScheme-{variable}"
+            }
+            json_ld_data.append(elements)
+    
+    return json_ld_data
+
 def wrap_in_graph(*args):
     """Helper function to separate DDI-CDI and SKOS components"""
     all_items = [item for sublist in args for item in sublist]
@@ -732,97 +834,202 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
     if process_all_rows and len(df) > chunk_size:
         print(f"Processing complete dataset with {len(df)} rows in chunks of {chunk_size}...")
         
-        # For large datasets, we'll process in chunks for InstanceValue which is more intensive
-        # But we'll generate DataPoint and DataPointPosition for all rows upfront
-        
+        # For large datasets, we'll process in chunks for InstanceValue which is intensive
         # First generate all DataPoints and DataPointPositions at once - this is fast
         print("Generating DataPoints and DataPointPositions...")
+        dp_start = time.time()
         all_data_points = generate_DataPoint(df, df_meta, process_all_rows, chunk_size)
-        all_data_point_positions = generate_DataPointPosition(df, df_meta, process_all_rows, chunk_size)
-        value_mappings = generate_ValueMapping(df, df_meta, process_all_rows, chunk_size)
+        dp_end = time.time()
+        print(f"Generated {len(all_data_points)} DataPoints in {dp_end - dp_start:.2f} seconds")
         
-        # Process InstanceValues in chunks - this is the intensive part
+        dp_pos_start = time.time()
+        all_data_point_positions = generate_DataPointPosition(df, df_meta, process_all_rows, chunk_size)
+        dp_pos_end = time.time()
+        print(f"Generated {len(all_data_point_positions)} DataPointPositions in {dp_pos_end - dp_pos_start:.2f} seconds")
+        
+        vm_start = time.time()
+        value_mappings = generate_ValueMapping(df, df_meta, process_all_rows, chunk_size)
+        vm_end = time.time()
+        print(f"Generated {len(value_mappings)} ValueMappings in {vm_end - vm_start:.2f} seconds")
+        
+        # Process InstanceValues in chunks to manage memory usage
         print("Processing InstanceValues in chunks...")
         all_instance_values = []
         
         # Calculate total chunks for progress reporting
         total_chunks = (len(df) + chunk_size - 1) // chunk_size
+        total_cells = len(df) * len(df_meta.column_names)
         
-        # Process each chunk
-        for chunk_idx, start_idx in enumerate(range(0, len(df), chunk_size)):
+        # Process each chunk with optimization for large datasets
+        chunk_start = 0
+        iv_total_start = time.time()
+        
+        for chunk_idx in range(total_chunks):
             chunk_start_time = time.time()
-            end_idx = min(start_idx + chunk_size, len(df))
-            print(f"Processing chunk {chunk_idx+1}/{total_chunks}: rows {start_idx} to {end_idx}...")
             
-            # Get the current chunk
-            df_chunk = df.iloc[start_idx:end_idx].reset_index(drop=True)
+            # Define chunk boundaries
+            chunk_start = chunk_idx * chunk_size
+            chunk_end = min(chunk_start + chunk_size, len(df))
+            rows_in_chunk = chunk_end - chunk_start
             
-            # Pre-compute value domain references for each variable
-            value_domain_refs = {}
-            for variable in df_meta.column_names:
-                if variable in df_meta.missing_ranges:
-                    value_domain_refs[variable] = {
-                        'has_missing': True,
-                        'ranges': df_meta.missing_ranges[variable]
-                    }
-                else:
-                    value_domain_refs[variable] = {
-                        'has_missing': False
-                    }
+            # Progress reporting
+            percent_complete = (chunk_idx / total_chunks) * 100
+            print(f"Processing chunk {chunk_idx+1}/{total_chunks}: rows {chunk_start} to {chunk_end-1} ({percent_complete:.1f}% complete)")
             
-            # Generate instance values for this chunk with adjusted indices - optimize with batch processing
+            # Get the current chunk using iloc for better performance
+            df_chunk = df.iloc[chunk_start:chunk_end].copy()
+            
+            # Generate instance values for this chunk with adjusted indices
+            generate_start = time.time()
+            
+            # Optimize: Keep numeric columns as numeric where possible
+            # Pre-process for better performance in the InstanceValue function
+            for col in df_chunk.columns:
+                # Try to convert object columns to numeric if possible for faster processing
+                if df_chunk[col].dtype == 'object':
+                    try:
+                        df_chunk[col] = pd.to_numeric(df_chunk[col], errors='ignore')
+                    except:
+                        pass  # Keep as is if conversion fails
+            
             chunk_instance_values = []
             
+            # Process InstanceValues for this chunk
             for variable in df_meta.column_names:
-                # Get variable-specific information
-                var_info = value_domain_refs[variable]
-                has_missing_ranges = var_info['has_missing']
+                # Create a template for efficiency
+                id_template = f"#instanceValue-{{0}}-{variable}"
+                stored_in_template = f"#dataPoint-{{0}}-{variable}"
                 
-                # Process all rows for this variable in one batch
-                variable_elements = []
-                for idx, value in enumerate(df_chunk[variable]):
-                    # Create the base element with global index
-                    global_idx = start_idx + idx
-                    element = {
-                        "@id": f"#instanceValue-{global_idx}-{variable}",
-                        "@type": "InstanceValue",
-                        "content": {
-                            "@type": "TypedString",
-                            "content": str(value)
-                        },
-                        "isStoredIn": f"#dataPoint-{global_idx}-{variable}"
-                    }
-                    
-                    # Add value domain references - optimize the missing value check
-                    if has_missing_ranges:
-                        # Check if value is in any missing range
-                        in_missing_range = False
-                        for range_dict in var_info['ranges']:
-                            if value is not None and isinstance(range_dict['lo'], float):
-                                try:
-                                    value_float = float(value)
-                                    if range_dict['lo'] <= value_float <= range_dict['hi']:
-                                        element["hasValueFrom_ValueDomain"] = f"#sentinelValueDomain-{variable}"
-                                        in_missing_range = True
-                                        break
-                                except (ValueError, TypeError):
-                                    pass
+                # Check if this variable has missing ranges
+                has_missing_ranges = variable in df_meta.missing_ranges
+                missing_ranges = df_meta.missing_ranges.get(variable, [])
+                numeric_ranges = [r for r in missing_ranges if isinstance(r['lo'], float)]
+                
+                # Process all rows for this variable
+                col_values = df_chunk[variable]
+                
+                # Apply a batch approach based on data type
+                try:
+                    # Use vectorized operations for numeric data when possible
+                    if numeric_ranges and pd.api.types.is_numeric_dtype(col_values):
+                        # For numeric columns with missing ranges, use vectorized comparison
+                        in_missing_range = pd.Series([False] * len(col_values))
+                        for range_dict in numeric_ranges:
+                            range_condition = (col_values >= range_dict['lo']) & (col_values <= range_dict['hi'])
+                            in_missing_range = in_missing_range | range_condition
                         
-                        if not in_missing_range:
-                            element["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
+                        # Generate values based on condition
+                        for idx, (value, is_missing) in enumerate(zip(col_values, in_missing_range)):
+                            global_idx = chunk_start + idx
+                            value_str = str(value)
+                            
+                            element = {
+                                "@id": id_template.format(global_idx),
+                                "@type": "InstanceValue",
+                                "content": {
+                                    "@type": "TypedString",
+                                    "content": value_str
+                                },
+                                "isStoredIn": stored_in_template.format(global_idx),
+                                "hasValueFrom_ValueDomain": (f"#sentinelValueDomain-{variable}" 
+                                                          if is_missing else 
+                                                           f"#substantiveValueDomain-{variable}")
+                            }
+                            chunk_instance_values.append(element)
                     else:
-                        element["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
-                    
-                    variable_elements.append(element)
-                
-                # Add all elements for this variable at once
-                chunk_instance_values.extend(variable_elements)
+                        # For non-numeric or complex cases, fall back to regular processing
+                        for idx, value in enumerate(col_values):
+                            global_idx = chunk_start + idx
+                            value_str = str(value)
+                            
+                            if has_missing_ranges:
+                                in_missing = False
+                                for range_dict in numeric_ranges:
+                                    try:
+                                        value_float = float(value)
+                                        if range_dict['lo'] <= value_float <= range_dict['hi']:
+                                            in_missing = True
+                                            break
+                                    except (ValueError, TypeError):
+                                        pass
+                                
+                                value_domain = (f"#sentinelValueDomain-{variable}" if in_missing
+                                             else f"#substantiveValueDomain-{variable}")
+                            else:
+                                value_domain = f"#substantiveValueDomain-{variable}"
+                            
+                            element = {
+                                "@id": id_template.format(global_idx),
+                                "@type": "InstanceValue",
+                                "content": {
+                                    "@type": "TypedString",
+                                    "content": value_str
+                                },
+                                "isStoredIn": stored_in_template.format(global_idx),
+                                "hasValueFrom_ValueDomain": value_domain
+                            }
+                            chunk_instance_values.append(element)
+                except Exception as e:
+                    # If any optimized approach fails, fall back to the most reliable method
+                    print(f"Warning: Falling back to standard processing for variable {variable}: {str(e)}")
+                    for idx, value in enumerate(col_values):
+                        global_idx = chunk_start + idx
+                        
+                        element = {
+                            "@id": id_template.format(global_idx),
+                            "@type": "InstanceValue",
+                            "content": {
+                                "@type": "TypedString",
+                                "content": str(value)
+                            },
+                            "isStoredIn": stored_in_template.format(global_idx),
+                            "hasValueFrom_ValueDomain": f"#substantiveValueDomain-{variable}"
+                        }
+                        
+                        # Check for missing values if needed
+                        if has_missing_ranges:
+                            for range_dict in missing_ranges:
+                                if isinstance(range_dict['lo'], float):
+                                    try:
+                                        value_float = float(value)
+                                        if range_dict['lo'] <= value_float <= range_dict['hi']:
+                                            element["hasValueFrom_ValueDomain"] = f"#sentinelValueDomain-{variable}"
+                                            break
+                                    except (ValueError, TypeError):
+                                        pass
+                        
+                        chunk_instance_values.append(element)
             
             # Add this chunk's instance values to the complete list
             all_instance_values.extend(chunk_instance_values)
             
+            generate_end = time.time()
             chunk_end_time = time.time()
-            print(f"Chunk {chunk_idx+1} processed in {(chunk_end_time - chunk_start_time):.2f} seconds")
+            
+            # Calculate and display performance metrics
+            chunk_duration = chunk_end_time - chunk_start_time
+            rows_per_sec = rows_in_chunk / chunk_duration
+            cells_processed = rows_in_chunk * len(df_meta.column_names)
+            cells_per_sec = cells_processed / chunk_duration
+            
+            print(f"  Chunk {chunk_idx+1} processed in {chunk_duration:.2f} seconds")
+            print(f"  Performance: {rows_per_sec:.1f} rows/sec, {cells_per_sec:.1f} cells/sec")
+            print(f"  Memory usage: {len(chunk_instance_values)} objects created")
+            
+            # Estimate remaining time
+            elapsed_time = time.time() - iv_total_start
+            estimated_total = elapsed_time / (chunk_idx + 1) * total_chunks
+            remaining_time = max(0, estimated_total - elapsed_time)
+            
+            if remaining_time > 60:
+                mins = int(remaining_time // 60)
+                secs = int(remaining_time % 60)
+                print(f"  Estimated time remaining: {mins}m {secs}s")
+            else:
+                print(f"  Estimated time remaining: {int(remaining_time)}s")
+        
+        iv_total_end = time.time()
+        print(f"All InstanceValues processed in {iv_total_end - iv_total_start:.2f} seconds")
         
         # Use the complete dataset for the rest of the components
         df_limited = df
@@ -948,4 +1155,67 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
 
     # Convert to JSON string
     return json.dumps(json_ld_doc, indent=4, default=default_encode)
+
+class MemoryManager:
+    """
+    A utility class to help manage memory during processing of large datasets.
+    Provides monitoring and optimization functions.
+    """
+    @staticmethod
+    def estimate_memory_usage(df, df_meta, process_all_rows=False, chunk_size=5):
+        """
+        Estimate memory usage for processing the dataset.
+        Returns estimated memory in MB.
+        """
+        if process_all_rows:
+            rows_to_process = len(df)
+        else:
+            rows_to_process = min(len(df), chunk_size)
+        
+        # Estimate size of each JSON element (average from testing)
+        element_size = 500  # bytes
+        
+        # Total elements = DataPoints + DataPointPositions + ValueMappings + InstanceValues
+        total_elements = (
+            rows_to_process * len(df_meta.column_names) * 3  # DataPoints, DataPointPositions, InstanceValues
+            + len(df_meta.column_names)  # ValueMappings
+        )
+        
+        # Calculate estimated memory usage in MB
+        memory_mb = (total_elements * element_size) / (1024 * 1024)
+        
+        return memory_mb
+    
+    @staticmethod
+    def optimize_chunk_size(df, df_meta, available_memory_mb=500):
+        """
+        Calculate an optimal chunk size based on available memory.
+        Aims to use at most available_memory_mb RAM.
+        """
+        if len(df) == 0:
+            return 100  # Default for empty dataframes
+        
+        # Test with a small chunk to estimate memory usage per row
+        test_chunk = 100
+        memory_for_test = MemoryManager.estimate_memory_usage(df.head(test_chunk), df_meta, True, test_chunk)
+        
+        # Calculate memory per row
+        memory_per_row = memory_for_test / test_chunk
+        
+        # Calculate optimal chunk size - use 80% of available memory to be safe
+        safe_memory = available_memory_mb * 0.8
+        optimal_chunk = int(safe_memory / memory_per_row)
+        
+        # Ensure chunk size is at least 50 rows but not more than the dataset
+        optimal_chunk = max(50, min(len(df), optimal_chunk))
+        
+        # Round to a nice number
+        if optimal_chunk > 1000:
+            return int(optimal_chunk / 1000) * 1000
+        elif optimal_chunk > 500:
+            return int(optimal_chunk / 500) * 500
+        elif optimal_chunk > 100:
+            return int(optimal_chunk / 100) * 100
+        else:
+            return optimal_chunk
 

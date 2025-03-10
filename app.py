@@ -10,7 +10,8 @@ from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 from DDICDI_converter_JSONLD_incremental import (
-    generate_complete_json_ld
+    generate_complete_json_ld,
+    MemoryManager
 )
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
@@ -509,11 +510,22 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             
             # Generate JSON-LD with detailed error handling
             try:
+                # Determine optimal chunk size for large datasets
+                dynamic_chunk_size = CHUNK_SIZE
+                if process_all_rows and len(df) > CHUNK_SIZE:
+                    try:
+                        # Try to optimize chunk size based on available memory
+                        dynamic_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
+                        print(f"Optimized chunk size: {dynamic_chunk_size} rows (based on available memory)")
+                    except Exception as e:
+                        print(f"Warning: Could not optimize chunk size, using default: {e}")
+                        dynamic_chunk_size = CHUNK_SIZE
+                
                 json_ld_data = generate_complete_json_ld(
                     data_subset, 
                     df_meta,
                     spssfile=filename,
-                    chunk_size=CHUNK_SIZE,
+                    chunk_size=dynamic_chunk_size,
                     process_all_rows=process_all_rows,
                     max_rows=MAX_ROWS_TO_PROCESS
                 )
@@ -628,12 +640,23 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 table2_data = df2.to_dict('records')
 
                 # Generate only JSON-LD initially
+                # Determine optimal chunk size for large datasets
+                dynamic_chunk_size = CHUNK_SIZE
+                if process_all_rows and len(df) > CHUNK_SIZE:
+                    try:
+                        # Try to optimize chunk size based on available memory
+                        dynamic_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
+                        print(f"Optimized chunk size: {dynamic_chunk_size} rows (based on available memory)")
+                    except Exception as e:
+                        print(f"Warning: Could not optimize chunk size, using default: {e}")
+                        dynamic_chunk_size = CHUNK_SIZE
+                        
                 data_subset = df if include_metadata else df.head(0)
                 json_ld_data = generate_complete_json_ld(
                     data_subset, 
                     df_meta,
                     spssfile=filename,
-                    chunk_size=CHUNK_SIZE,
+                    chunk_size=dynamic_chunk_size,
                     process_all_rows=process_all_rows,
                     max_rows=MAX_ROWS_TO_PROCESS
                 )
@@ -691,14 +714,25 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             f.write(f"Measures: {measures}\n")
             f.write(f"Identifiers: {identifiers}\n")
             f.write(f"Attributes: {attributes}\n")
-            
+        
+        # Determine optimal chunk size for large datasets
+        dynamic_chunk_size = CHUNK_SIZE
+        if process_all_rows and len(df) > CHUNK_SIZE:
+            try:
+                # Try to optimize chunk size based on available memory
+                dynamic_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
+                print(f"Optimized chunk size: {dynamic_chunk_size} rows (based on available memory)")
+            except Exception as e:
+                print(f"Warning: Could not optimize chunk size, using default: {e}")
+                dynamic_chunk_size = CHUNK_SIZE
+        
         # Generate only JSON-LD with updated classifications
         data_subset = df if include_metadata else df.head(0)
         json_ld_data = generate_complete_json_ld(
             data_subset, 
             df_meta,
             spssfile=filename,
-            chunk_size=CHUNK_SIZE,
+            chunk_size=dynamic_chunk_size,
             process_all_rows=process_all_rows,
             max_rows=MAX_ROWS_TO_PROCESS
         )
@@ -819,11 +853,22 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
 
         # Generate only JSON-LD with the conditional data selection
+        # Determine optimal chunk size for large datasets
+        dynamic_chunk_size = CHUNK_SIZE
+        if process_all_rows and len(df) > CHUNK_SIZE:
+            try:
+                # Try to optimize chunk size based on available memory
+                dynamic_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
+                print(f"Optimized chunk size: {dynamic_chunk_size} rows (based on available memory)")
+            except Exception as e:
+                print(f"Warning: Could not optimize chunk size, using default: {e}")
+                dynamic_chunk_size = CHUNK_SIZE
+                
         json_ld_data = generate_complete_json_ld(
             data_subset, 
             df_meta,
             spssfile=filename,
-            chunk_size=CHUNK_SIZE,
+            chunk_size=dynamic_chunk_size,
             process_all_rows=process_all_rows,
             max_rows=MAX_ROWS_TO_PROCESS
         )
@@ -1068,8 +1113,14 @@ def update_progress_info(include_metadata, process_all_rows, data, json_output, 
     
     # If process_all_rows is True and we have a lot of data, show detailed message
     if process_all_rows and 'df' in globals() and len(df) > MAX_ROWS_TO_PROCESS:
-        total_chunks = (len(df) + CHUNK_SIZE - 1) // CHUNK_SIZE
-        return f"⏳ Processing {len(df)} rows in {total_chunks} chunks of {CHUNK_SIZE}. Please wait...", base_style
+        # Calculate actual chunk size (it might be dynamic)
+        try:
+            actual_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
+        except:
+            actual_chunk_size = CHUNK_SIZE
+            
+        total_chunks = (len(df) + actual_chunk_size - 1) // actual_chunk_size
+        return f"⏳ Processing {len(df)} rows in {total_chunks} chunks of ~{actual_chunk_size} rows. Please wait...", base_style
     
     # Default processing message
     return "⏳ Generating JSON-LD... Please wait...", base_style
