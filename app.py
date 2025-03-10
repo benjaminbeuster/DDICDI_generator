@@ -35,7 +35,10 @@ agency = 'int.example'
 server = Flask(__name__)
 
 # Define the Dash app and associate it with the Flask server
-app = dash.Dash(__name__, server=server, external_stylesheets=[dbc.themes.LITERA])
+app = dash.Dash(__name__, server=server, external_stylesheets=[
+    dbc.themes.LITERA,
+    "https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+])
 
 # add title
 app.title = app_title
@@ -282,9 +285,14 @@ app.layout = dbc.Container([
             # Group the buttons together in a ButtonGroup
             dbc.ButtonGroup(
                 [
-                    dbc.Button('JSON-LD', id='btn-download-json', color="primary", className="mr-1"),
-                    dbc.Button('N-Triples', id='btn-download-nt', color="info", className="mr-1"),
-                    dbc.Button('Download', id='btn-download-active', color="success"),
+                    dbc.Button([html.I(className="fas fa-download mr-1"), 'JSON-LD'], 
+                              id='btn-download-json', 
+                              color="primary", 
+                              className="mr-1"),
+                    dbc.Button([html.I(className="fas fa-download mr-1"), 'N-Triples'], 
+                              id='btn-download-nt', 
+                              color="info", 
+                              className="mr-1"),
                 ],
                 style={'display': 'none', 'gap': '10px'},
                 id='button-group',
@@ -323,7 +331,6 @@ app.layout = dbc.Container([
                     'display': 'none'
                 }
             ),
-            dcc.Download(id='download-active'),
             dcc.Download(id='download-nt'),
             html.Br(),
             dbc.Row([
@@ -1036,35 +1043,68 @@ def toggle_output_display(json_clicks, nt_clicks, xml_style, json_style):
     return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
 
 @app.callback(
-    Output('download-active', 'data'),
-    [Input('btn-download-active', 'n_clicks')],
+    Output('download-nt', 'data'),
+    [Input('btn-download-nt', 'n_clicks')],
     [State('full-json-store', 'data'),
      State('json-ld-output', 'children'),
      State('upload-data', 'filename')]
 )
-def download_active_content(n_clicks, full_json, json_content, filename):
-    if n_clicks is None or filename is None:
+def download_nt(n_clicks, full_json, displayed_json, filename):
+    if n_clicks is None:
         raise PreventUpdate
     
-    if json_content:
-        # Determine output filename
-        base_name = os.path.splitext(filename)[0]
-        download_filename = f"{base_name}_active_DDICDI.jsonld"
-        
-        # Use the full JSON if available, otherwise use the displayed JSON
-        # BUT - strip out any truncation message that might be present
-        json_data = full_json if full_json else json_content
-        
-        # Remove the truncation message if it exists
-        if isinstance(json_data, str) and "... Output truncated for display." in json_data:
-            truncation_msg_pos = json_data.find("\n\n... Output truncated for display.")
-            if truncation_msg_pos > 0:
-                json_data = json_data[:truncation_msg_pos]
-        
-        return dict(content=json_data, filename=download_filename)
+    if not n_clicks or (not full_json and not displayed_json):
+        return None
     
-    # If no content is available, prevent update
-    raise PreventUpdate
+    # Use the full JSON if available, otherwise use the displayed JSON
+    json_data = full_json if full_json else displayed_json
+    
+    # Remove the truncation message if it exists
+    if isinstance(json_data, str) and "... Output truncated for display." in json_data:
+        truncation_msg_pos = json_data.find("\n\n... Output truncated for display.")
+        if truncation_msg_pos > 0:
+            json_data = json_data[:truncation_msg_pos]
+    
+    # Create temporary files for the conversion process
+    with tempfile.NamedTemporaryFile(suffix='.jsonld', delete=False, mode='w', encoding='utf-8') as temp_jsonld_file:
+        temp_jsonld_file.write(json_data)
+        temp_jsonld_path = temp_jsonld_file.name
+    
+    try:
+        # Create a graph and parse the JSON-LD
+        g = Graph()
+        g.bind('sikt', 'https://sikt.no/cdi/RDF/')
+        g.parse(temp_jsonld_path, format="json-ld")
+        
+        # Create new graph with transformed URIs
+        new_g = Graph()
+        for s, p, o in g:
+            # Transform file:/// URIs to https://sikt.no/cdi/RDF/
+            if str(s).startswith('file:///'):
+                s = rdflib.URIRef('https://sikt.no/cdi/RDF/' + str(s).split('/')[-1])
+            if str(o).startswith('file:///'):
+                o = rdflib.URIRef('https://sikt.no/cdi/RDF/' + str(o).split('/')[-1])
+            new_g.add((s, p, o))
+        
+        # Serialize to N-Triples format
+        nt_data = new_g.serialize(format="nt", encoding="utf-8")
+        
+        # Create the download filename
+        if filename:
+            download_filename = f"{os.path.splitext(filename)[0]}_DDICDI.nt"
+        else:
+            download_filename = "output_DDICDI.nt"
+        
+        # Remove temporary files
+        os.unlink(temp_jsonld_path)
+        
+        return dict(content=nt_data.decode('utf-8'), filename=download_filename)
+    
+    except Exception as e:
+        # Ensure temporary files are removed in case of error
+        if 'temp_jsonld_path' in locals():
+            os.unlink(temp_jsonld_path)
+        return None
 
 # Add callback to show performance warning for large datasets
 @app.callback(
@@ -1251,8 +1291,7 @@ def update_processing_start_time(include_metadata, process_all_rows):
 
 # Update the highlight_download_button callback to indicate when data is truncated
 @app.callback(
-    [Output('btn-download-active', 'style'),
-     Output('btn-download-active', 'children'),
+    [Output('btn-download-json', 'style'),
      Output('btn-download-nt', 'style')],
     [Input('json-ld-output', 'children'),
      Input('full-json-store', 'data')]
@@ -1264,11 +1303,7 @@ def highlight_download_button(json_output, full_json):
         
         # Make the download button stand out
         button_style = {
-            'backgroundColor': '#28a745',
-            'color': 'white',
             'fontWeight': 'bold',
-            'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)',
-            'transform': 'scale(1.05)',
             'transition': 'all 0.3s ease'
         }
         
@@ -1278,79 +1313,10 @@ def highlight_download_button(json_output, full_json):
             'transition': 'all 0.3s ease'
         }
         
-        button_text = "Download Full Data" if was_truncated else "Download"
-        return button_style, button_text, nt_style
+        return button_style, nt_style
     
     # Default style
-    return {}, "Download", {}
-
-@app.callback(
-    Output('download-nt', 'data'),
-    [Input('btn-download-nt', 'n_clicks')],
-    [State('full-json-store', 'data'),
-     State('json-ld-output', 'children'),
-     State('upload-data', 'filename')]
-)
-def download_nt(n_clicks, full_json, displayed_json, filename):
-    if n_clicks is None:
-        raise PreventUpdate
-    
-    if not n_clicks or (not full_json and not displayed_json):
-        return None
-    
-    # Use the full JSON if available, otherwise use the displayed JSON
-    json_data = full_json if full_json else displayed_json
-    
-    # Remove the truncation message if it exists
-    if isinstance(json_data, str) and "... Output truncated for display." in json_data:
-        truncation_msg_pos = json_data.find("\n\n... Output truncated for display.")
-        if truncation_msg_pos > 0:
-            json_data = json_data[:truncation_msg_pos]
-    
-    # Create temporary files for the conversion process
-    with tempfile.NamedTemporaryFile(suffix='.jsonld', delete=False, mode='w', encoding='utf-8') as temp_jsonld_file:
-        temp_jsonld_file.write(json_data)
-        temp_jsonld_path = temp_jsonld_file.name
-    
-    try:
-        # Create a graph and parse the JSON-LD
-        g = Graph()
-        g.bind('sikt', 'https://sikt.no/cdi/RDF/')
-        g.parse(temp_jsonld_path, format="json-ld")
-        
-        # Create new graph with transformed URIs
-        new_g = Graph()
-        for s, p, o in g:
-            # Transform file:/// URIs to https://sikt.no/cdi/RDF/
-            if str(s).startswith('file:///'):
-                s = rdflib.URIRef('https://sikt.no/cdi/RDF/' + str(s).split('/')[-1])
-            if str(o).startswith('file:///'):
-                o = rdflib.URIRef('https://sikt.no/cdi/RDF/' + str(o).split('/')[-1])
-            new_g.add((s, p, o))
-        
-        # Create temporary file for the N-Triples output
-        with tempfile.NamedTemporaryFile(suffix='.nt', delete=False) as temp_nt_file:
-            temp_nt_path = temp_nt_file.name
-        
-        # Serialize to N-Triples
-        nt_data = new_g.serialize(format="nt", encoding="utf-8")
-        
-        # Create the download filename
-        if filename:
-            download_filename = f"{os.path.splitext(filename)[0]}_DDICDI.nt"
-        else:
-            download_filename = "output_DDICDI.nt"
-        
-        # Remove temporary files
-        os.unlink(temp_jsonld_path)
-        
-        return dict(content=nt_data.decode('utf-8'), filename=download_filename)
-    
-    except Exception as e:
-        # Ensure temporary files are removed in case of error
-        if 'temp_jsonld_path' in locals():
-            os.unlink(temp_jsonld_path)
-        return None
+    return {}, {}
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback
