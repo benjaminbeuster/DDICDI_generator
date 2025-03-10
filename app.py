@@ -285,11 +285,11 @@ app.layout = dbc.Container([
             # Group the buttons together in a ButtonGroup
             dbc.ButtonGroup(
                 [
-                    dbc.Button([html.I(className="fas fa-download mr-1"), 'JSON-LD'], 
+                    dbc.Button([html.I(className="fas fa-download mr-2"), 'JSON-LD'], 
                               id='btn-download-json', 
                               color="primary", 
                               className="mr-1"),
-                    dbc.Button([html.I(className="fas fa-download mr-1"), 'N-Triples'], 
+                    dbc.Button([html.I(className="fas fa-download mr-2"), 'N-Triples'], 
                               id='btn-download-nt', 
                               color="info", 
                               className="mr-1"),
@@ -331,6 +331,7 @@ app.layout = dbc.Container([
                     'display': 'none'
                 }
             ),
+            dcc.Download(id='download-json'),
             dcc.Download(id='download-nt'),
             html.Br(),
             dbc.Row([
@@ -432,7 +433,6 @@ app.layout = dbc.Container([
             # Add hidden divs for storing intermediate data
             dcc.Store(id='processing-start-time'),
             dcc.Store(id='processing-data', data={'status': 'idle'}),
-            dcc.Download(id='download-json'),
             dcc.Store(id='full-json-store'),
         ])
     ]),
@@ -1065,12 +1065,12 @@ def download_nt(n_clicks, full_json, displayed_json, filename):
         if truncation_msg_pos > 0:
             json_data = json_data[:truncation_msg_pos]
     
-    # Create temporary files for the conversion process
-    with tempfile.NamedTemporaryFile(suffix='.jsonld', delete=False, mode='w', encoding='utf-8') as temp_jsonld_file:
-        temp_jsonld_file.write(json_data)
-        temp_jsonld_path = temp_jsonld_file.name
-    
     try:
+        # Create temporary files for the conversion process
+        with tempfile.NamedTemporaryFile(suffix='.jsonld', delete=False, mode='w', encoding='utf-8') as temp_jsonld_file:
+            temp_jsonld_file.write(json_data)
+            temp_jsonld_path = temp_jsonld_file.name
+        
         # Create a graph and parse the JSON-LD
         g = Graph()
         g.bind('sikt', 'https://sikt.no/cdi/RDF/')
@@ -1101,6 +1101,7 @@ def download_nt(n_clicks, full_json, displayed_json, filename):
         return dict(content=nt_data.decode('utf-8'), filename=download_filename)
     
     except Exception as e:
+        print(f"Error converting to N-Triples: {str(e)}")
         # Ensure temporary files are removed in case of error
         if 'temp_jsonld_path' in locals():
             os.unlink(temp_jsonld_path)
