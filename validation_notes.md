@@ -65,6 +65,7 @@ bash
 
 shacl validate --data=validation/ESS11-subset.jsonld --shapes=validation/ddi-cdi.shacl.ttl
 
+shacl validate --data=validation/CRON3W2e01_unscrambled (2).jsonld --shapes=validation/ddi-cdi.shacl.ttl
 
 ## Additional Resources
 - [DDI-CDI Documentation](https://ddi-cdi.github.io/)

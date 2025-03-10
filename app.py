@@ -214,6 +214,7 @@ app.layout = dbc.Container([
                         children=[
                             # Insert the instruction text here
                             html.Div("Please select variable role. Identifiers are used for the PrimaryKey to uniquely identify the records.",
+                                     id="table2-instruction",
                                      style={
                                          'color': colors['secondary'],
                                          'fontSize': '15px',  # Increased from 14px
@@ -405,14 +406,22 @@ def style_data_conditional(df):
 
 # Define callbacks
 @app.callback(
-    Output('table1-instruction', 'style'),
+    [Output('table1-instruction', 'style'),
+     Output('table2-instruction', 'style')],
     [Input('table1', 'data')]
 )
 def update_instruction_text_style(data):
     if data:
-        return {'color': '#3498db', 'fontSize': '14px', 'marginBottom': '10px', 'display': 'block'}
+        instruction_style = {
+            'color': colors['secondary'], 
+            'fontSize': '14px', 
+            'marginBottom': '10px', 
+            'fontFamily': "'Inter', sans-serif",
+            'display': 'block'
+        }
+        return instruction_style, instruction_style
     else:
-        return {'display': 'none'}
+        return {'display': 'none'}, {'display': 'none'}
 
 @app.callback(
     [Output('table1', 'data'),
@@ -423,6 +432,7 @@ def update_instruction_text_style(data):
      Output('table2', 'style_data_conditional'),
      Output('button-group', 'style'),
      Output('table1-instruction', 'children'),
+     Output('table2-instruction', 'children'),
      Output('json-ld-output', 'children'),
      Output('table-switch-button', 'style'),
      Output('include-metadata', 'style'),
@@ -485,26 +495,29 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 if include_metadata:
                     data_subset = df
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                     elif len(df) > MAX_ROWS_TO_PROCESS:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
                 else:
                     data_subset = df.head(0)
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
             else:
                 # For other triggers, maintain the current state
                 data_subset = df if include_metadata else df.head(0)
                 if include_metadata:
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                     elif len(df) > MAX_ROWS_TO_PROCESS:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
                 else:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+            
+            # Create instruction text for table2 (column view)
+            instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
             
             return (
                 dash.no_update,  # table1 data
@@ -514,7 +527,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 dash.no_update,  # table2 columns
                 dash.no_update,  # table2 style
                 dash.no_update,  # button group style
-                instruction_text, # table1 instruction
+                instruction_text1, # table1 instruction
+                instruction_text2, # table2 instruction
                 json_ld_data,    # json output
                 dash.no_update,  # table switch button style
                 dash.no_update,  # include metadata style
@@ -588,13 +602,16 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
                 if include_metadata:
                     if process_all_rows:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                     elif len(df) > MAX_ROWS_TO_PROCESS:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                     else:
-                        instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
+                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
                 else:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+
+                # Create instruction text for table2 (column view)
+                instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
 
                 # Clean up temp file
                 os.unlink(tmp_filename)
@@ -607,7 +624,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     columns2,
                     conditional_styles2,
                     {'display': 'block'},
-                    instruction_text,
+                    instruction_text1,
+                    instruction_text2,
                     json_ld_data,
                     {'display': 'block'},
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
@@ -655,6 +673,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             dash.no_update,  # table2 style
             dash.no_update,  # button group style
             dash.no_update,  # table1 instruction
+            dash.no_update,  # table2 instruction
             json_ld_data,    # json output
             dash.no_update,  # table switch button style
             dash.no_update,  # include metadata style
@@ -662,7 +681,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         )
 
     if not contents:
-        return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update
+        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update
 
     try:
         print("Step 1: Starting file processing")
@@ -735,26 +754,29 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             if include_metadata:
                 data_subset = df
                 if process_all_rows:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                 elif len(df) > MAX_ROWS_TO_PROCESS:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                 else:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
             else:
                 data_subset = df.head(0)
-                instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+                instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
         else:
             # For other triggers, maintain the current state
             data_subset = df if include_metadata else df.head(0)
             if include_metadata:
                 if process_all_rows:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
                 elif len(df) > MAX_ROWS_TO_PROCESS:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
                 else:
-                    instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
             else:
-                instruction_text = f"The table below shows the first {PREVIEW_ROWS} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+                instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+
+        # Create instruction text for table2 (column view)
+        instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
 
         # Generate only JSON-LD with the conditional data selection
         json_ld_data = generate_complete_json_ld(
@@ -779,7 +801,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
                 table2_data, columns2, conditional_styles2, 
                 {'display': 'block'}, 
-                instruction_text, json_ld_data,
+                instruction_text1, instruction_text2, json_ld_data,
                 {'display': 'block'},
                 {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
                 None  # Clear the upload contents
@@ -787,7 +809,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None
+        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, None
 
     finally:
         if 'tmp_filename' in locals():
