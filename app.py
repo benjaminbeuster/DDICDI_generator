@@ -15,6 +15,7 @@ from DDICDI_converter_JSONLD_incremental import (
 )
 from spss_import import read_sav, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
+from dash.exceptions import PreventUpdate
 
 # Configuration parameters
 MAX_ROWS_TO_PROCESS = 5  # Maximum number of rows to process by default
@@ -421,6 +422,7 @@ app.layout = dbc.Container([
             dcc.Store(id='processing-start-time'),
             dcc.Store(id='processing-data', data={'status': 'idle'}),
             dcc.Download(id='download-json'),
+            dcc.Store(id='full-json-store'),
         ])
     ]),
     about_section  # <-- add this line to include the about_section
@@ -458,6 +460,26 @@ def update_instruction_text_style(data):
     else:
         return {'display': 'none'}, {'display': 'none'}
 
+# Modify the truncate_for_display function to ensure it doesn't affect the original JSON
+def truncate_for_display(json_str, max_length=100000):
+    """
+    Truncates JSON string for display if it's too large.
+    Returns the truncated string and a boolean indicating if truncation occurred.
+    """
+    if json_str and len(json_str) > max_length:
+        # Find the last complete JSON object or array that fits
+        truncated = json_str[:max_length]
+        # Try to find the last complete object
+        last_brace = max(truncated.rfind('}'), truncated.rfind(']'))
+        if last_brace > 0:
+            truncated = truncated[:last_brace+1]
+        
+        # Add indicator that content was truncated
+        message = "\n\n... Output truncated for display. Full data available via download button."
+        return truncated + message, True
+    return json_str, False
+
+# Modify the combined_callback to use truncation for display
 @app.callback(
     [Output('table1', 'data'),
      Output('table1', 'columns'),
@@ -471,7 +493,8 @@ def update_instruction_text_style(data):
      Output('json-ld-output', 'children'),
      Output('table-switch-button', 'style'),
      Output('include-metadata', 'style'),
-     Output('upload-data', 'contents')],
+     Output('upload-data', 'contents'),
+     Output('full-json-store', 'data')],  # Add this new output
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
      Input('include-metadata', 'value'),
@@ -567,28 +590,36 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             # Create instruction text for table2 (column view)
             instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
             
-            return (
-                dash.no_update,  # table1 data
-                dash.no_update,  # table1 columns
-                dash.no_update,  # table1 style
-                dash.no_update,  # table2 data
-                dash.no_update,  # table2 columns
-                dash.no_update,  # table2 style
-                dash.no_update,  # button group style
-                instruction_text1, # table1 instruction
-                instruction_text2, # table2 instruction
-                json_ld_data,    # json output
-                dash.no_update,  # table switch button style
-                dash.no_update,  # include metadata style
-                dash.no_update   # upload contents
-            )
+            # Before returning, store the full JSON and truncate for display
+            if json_ld_data and json_ld_data != "Error generating JSON-LD":
+                # Store the full JSON output for download BEFORE truncation
+                full_json = json_ld_data
+                # Truncate for display only
+                truncated_json, was_truncated = truncate_for_display(json_ld_data)
+                
+                return (
+                    dash.no_update,  # table1 data
+                    dash.no_update,  # table1 columns
+                    dash.no_update,  # table1 style
+                    dash.no_update,  # table2 data
+                    dash.no_update,  # table2 columns
+                    dash.no_update,  # table2 style
+                    dash.no_update,  # button group style
+                    instruction_text1, # table1 instruction
+                    instruction_text2, # table2 instruction
+                    truncated_json,    # json output for display
+                    dash.no_update,  # table switch button style
+                    dash.no_update,  # include metadata style
+                    dash.no_update,   # upload contents
+                    full_json  # full JSON for download
+                )
             
         except Exception as e:
             print(f"Callback error: {str(e)}")
             import traceback
             print(traceback.format_exc())
             # Return error state
-            return [dash.no_update] * 12
+            return [dash.no_update] * 14
 
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:
@@ -677,25 +708,33 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 # Clean up temp file
                 os.unlink(tmp_filename)
 
-                return (
-                    df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
-                    columns1,
-                    conditional_styles1,
-                    table2_data,
-                    columns2,
-                    conditional_styles2,
-                    {'display': 'block'},
-                    instruction_text1,
-                    instruction_text2,
-                    json_ld_data,
-                    {'display': 'block'},
-                    {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
-                    None  # Clear the upload contents
-                )
+                # Before returning, store the full JSON and truncate for display
+                if json_ld_data and json_ld_data != "Error generating JSON-LD":
+                    # Store the full JSON output for download BEFORE truncation
+                    full_json = json_ld_data
+                    # Truncate for display only
+                    truncated_json, was_truncated = truncate_for_display(json_ld_data)
+                    
+                    return (
+                        df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
+                        columns1,
+                        conditional_styles1,
+                        table2_data,
+                        columns2,
+                        conditional_styles2,
+                        {'display': 'block'},
+                        instruction_text1,
+                        instruction_text2,
+                        truncated_json,    # json output for display
+                        {'display': 'block'},
+                        {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                        None,  # Clear the upload contents
+                        full_json  # full JSON for download
+                    )
 
         except Exception as e:
             print(f"Error processing file: {str(e)}")
-            return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None
+            return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None, None
 
     # When table2 data changes (dropdown selections change)
     if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
@@ -751,11 +790,12 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             json_ld_data,    # json output
             dash.no_update,  # table switch button style
             dash.no_update,  # include metadata style
-            dash.no_update   # upload contents
+            dash.no_update,  # upload contents
+            None  # full JSON store
         )
 
     if not contents:
-        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update
+        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update, None
 
     try:
         print("Step 1: Starting file processing")
@@ -885,18 +925,26 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 f.write(f"Identifiers: {identifiers}\n")
                 f.write(f"Attributes: {attributes}\n")
 
-        return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
-                table2_data, columns2, conditional_styles2, 
-                {'display': 'block'}, 
-                instruction_text1, instruction_text2, json_ld_data,
-                {'display': 'block'},
-                {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
-                None  # Clear the upload contents
-            )
+        # Before returning, store the full JSON and truncate for display
+        if json_ld_data and json_ld_data != "Error generating JSON-LD":
+            # Store the full JSON output for download BEFORE truncation
+            full_json = json_ld_data
+            # Truncate for display only
+            truncated_json, was_truncated = truncate_for_display(json_ld_data)
+            
+            return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
+                    table2_data, columns2, conditional_styles2, 
+                    {'display': 'block'}, 
+                    instruction_text1, instruction_text2, truncated_json,
+                    {'display': 'block'},
+                    {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    None,  # Clear the upload contents
+                    full_json  # full JSON for download
+                )
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, None
+        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, None, None
 
     finally:
         if 'tmp_filename' in locals():
@@ -932,15 +980,33 @@ def switch_table(n_clicks, style1, style2):
 @app.callback(
     Output('download-json', 'data'),
     [Input('btn-download-json', 'n_clicks')],
-    [State('json-ld-output', 'children'),
+    [State('full-json-store', 'data'),
+     State('json-ld-output', 'children'),
      State('upload-data', 'filename')]
 )
-def download_json(n_clicks, json_data, filename):
-    if n_clicks is None or filename is None or json_data is None:
-        raise dash.exceptions.PreventUpdate
-
-    download_filename = os.path.splitext(filename)[0] + '.jsonld'
-    return dict(content=json_data, filename=download_filename, type='application/json')
+def download_json(n_clicks, full_json, displayed_json, filename):
+    if n_clicks is None:
+        raise PreventUpdate
+    
+    if not n_clicks or (not full_json and not displayed_json):
+        return None
+    
+    # Use the full JSON if available, otherwise use the displayed JSON
+    # BUT - strip out any truncation message that might be present
+    json_data = full_json if full_json else displayed_json
+    
+    # Remove the truncation message if it exists
+    if isinstance(json_data, str) and "... Output truncated for display." in json_data:
+        truncation_msg_pos = json_data.find("\n\n... Output truncated for display.")
+        if truncation_msg_pos > 0:
+            json_data = json_data[:truncation_msg_pos]
+    
+    if filename:
+        download_filename = f"{os.path.splitext(filename)[0]}_DDICDI.jsonld"
+    else:
+        download_filename = "output_DDICDI.jsonld"
+    
+    return dict(content=json_data, filename=download_filename)
 
 @app.callback(
     [Output('xml-ld-output', 'style'),
@@ -967,19 +1033,33 @@ def toggle_output_display(json_clicks, xml_style, json_style):
 @app.callback(
     Output('download-active', 'data'),
     [Input('btn-download-active', 'n_clicks')],
-    [State('json-ld-output', 'children'),
+    [State('full-json-store', 'data'),
+     State('json-ld-output', 'children'),
      State('upload-data', 'filename')]
 )
-def download_active_content(n_clicks, json_content, filename):
+def download_active_content(n_clicks, full_json, json_content, filename):
     if n_clicks is None or filename is None:
-        raise dash.exceptions.PreventUpdate
+        raise PreventUpdate
     
     if json_content:
-        download_filename = os.path.splitext(filename)[0] + '.jsonld'
-        return dict(content=json_content, filename=download_filename, type='application/json')
+        # Determine output filename
+        base_name = os.path.splitext(filename)[0]
+        download_filename = f"{base_name}_active_DDICDI.jsonld"
         
+        # Use the full JSON if available, otherwise use the displayed JSON
+        # BUT - strip out any truncation message that might be present
+        json_data = full_json if full_json else json_content
+        
+        # Remove the truncation message if it exists
+        if isinstance(json_data, str) and "... Output truncated for display." in json_data:
+            truncation_msg_pos = json_data.find("\n\n... Output truncated for display.")
+            if truncation_msg_pos > 0:
+                json_data = json_data[:truncation_msg_pos]
+        
+        return dict(content=json_data, filename=download_filename)
+    
     # If no content is available, prevent update
-    raise dash.exceptions.PreventUpdate
+    raise PreventUpdate
 
 # Add callback to show performance warning for large datasets
 @app.callback(
@@ -1164,23 +1244,30 @@ def update_processing_start_time(include_metadata, process_all_rows):
     
     return dash.no_update
 
-# Callback to highlight download button when processing is complete
+# Update the highlight_download_button callback to indicate when data is truncated
 @app.callback(
     [Output('btn-download-active', 'style'),
      Output('btn-download-active', 'children')],
-    [Input('json-ld-output', 'children')]
+    [Input('json-ld-output', 'children'),
+     Input('full-json-store', 'data')]
 )
-def highlight_download_button(json_output):
+def highlight_download_button(json_output, full_json):
     if json_output and json_output != "Error generating JSON-LD":
+        # Check if output was truncated
+        was_truncated = full_json and len(full_json) > len(json_output)
+        
         # Make the download button stand out
-        return {
+        button_style = {
             'backgroundColor': '#28a745',
             'color': 'white',
             'fontWeight': 'bold',
             'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)',
             'transform': 'scale(1.05)',
             'transition': 'all 0.3s ease'
-        }, "Download"
+        }
+        
+        button_text = "Download Full Data" if was_truncated else "Download"
+        return button_style, button_text
     
     # Default style
     return {}, "Download"
