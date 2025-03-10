@@ -18,6 +18,7 @@ from app_content import markdown_text, colors, style_dict, table_style, header_d
 # Configuration parameters
 MAX_ROWS_TO_PROCESS = 5  # Maximum number of rows to process by default
 PREVIEW_ROWS = 5  # Number of rows to show in the data preview table
+CHUNK_SIZE = 500  # Size of chunks to process when handling larger datasets
 
 # Define the namespaces, DDI
 nsmap = {
@@ -287,7 +288,7 @@ app.layout = dbc.Container([
             # Add switch using dbc.Switch
             dbc.Switch(
                 id="include-metadata",
-                label=f"Include data rows (limited to {MAX_ROWS_TO_PROCESS} rows for large datasets)",
+                label=f"Include data rows (limited to {MAX_ROWS_TO_PROCESS} rows by default)",
                 value=False,
                 style={
                     'display': 'inline-block',
@@ -298,7 +299,7 @@ app.layout = dbc.Container([
             # Add a switch for processing all rows
             dbc.Switch(
                 id="process-all-rows",
-                label="Process ALL rows (may be slow for large datasets)",
+                label=f"Process ALL rows in chunks of {CHUNK_SIZE} (may be slow for large datasets)",
                 value=False,
                 style={
                     'display': 'inline-block',
@@ -386,6 +387,22 @@ app.layout = dbc.Container([
                 ], width=6)
 
             ]),
+            # Add a div for progress information
+            html.Div(
+                id="progress-info",
+                style={
+                    'display': 'none',
+                    'color': colors['primary'],
+                    'fontFamily': "'Inter', sans-serif",
+                    'fontSize': '14px',
+                    'margin': '10px 0',
+                    'fontWeight': '500',
+                    'padding': '8px',
+                    'borderRadius': '4px',
+                    'backgroundColor': '#e8f4f8',
+                    'textAlign': 'center'
+                }
+            ),
         ])
     ]),
     about_section  # <-- add this line to include the about_section
@@ -479,7 +496,9 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     data_subset, 
                     df_meta,
                     spssfile=filename,
-                    process_all_rows=process_all_rows
+                    chunk_size=CHUNK_SIZE,
+                    process_all_rows=process_all_rows,
+                    max_rows=MAX_ROWS_TO_PROCESS
                 )
                 print("JSON-LD generation successful")
             except Exception as e:
@@ -597,7 +616,9 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     data_subset, 
                     df_meta,
                     spssfile=filename,
-                    process_all_rows=process_all_rows
+                    chunk_size=CHUNK_SIZE,
+                    process_all_rows=process_all_rows,
+                    max_rows=MAX_ROWS_TO_PROCESS
                 )
 
                 if include_metadata:
@@ -660,7 +681,9 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             data_subset, 
             df_meta,
             spssfile=filename,
-            process_all_rows=process_all_rows
+            chunk_size=CHUNK_SIZE,
+            process_all_rows=process_all_rows,
+            max_rows=MAX_ROWS_TO_PROCESS
         )
         
         # Return all outputs with updated JSON
@@ -783,7 +806,9 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             data_subset, 
             df_meta,
             spssfile=filename,
-            process_all_rows=process_all_rows
+            chunk_size=CHUNK_SIZE,
+            process_all_rows=process_all_rows,
+            max_rows=MAX_ROWS_TO_PROCESS
         )
 
         # Add debug logging for variable types
@@ -907,7 +932,7 @@ def show_performance_warning(data, include_metadata, process_all_rows):
     if data and include_metadata and 'df' in globals():
         if len(df) > MAX_ROWS_TO_PROCESS:
             if process_all_rows:
-                warning_text = f"Warning: Processing all {len(df)} rows may take significantly longer. The generated JSON-LD will include all rows."
+                warning_text = f"Warning: Processing all {len(df)} rows in chunks of {CHUNK_SIZE}. This may take significantly longer. The generated JSON-LD will include all rows."
             else:
                 warning_text = f"Warning: For performance reasons, only the first {MAX_ROWS_TO_PROCESS} rows will be included in the JSON-LD output."
             
@@ -935,7 +960,7 @@ def show_performance_warning(data, include_metadata, process_all_rows):
 )
 def toggle_process_all_rows(include_metadata, data):
     # Only show this option if include_metadata is True and we have data
-    if include_metadata and data and len(data) > MAX_ROWS_TO_PROCESS:
+    if include_metadata and data and 'df' in globals() and len(df) > MAX_ROWS_TO_PROCESS:
         return {
             'display': 'inline-block',
             'marginLeft': '15px',
@@ -943,6 +968,60 @@ def toggle_process_all_rows(include_metadata, data):
         }
     else:
         return {'display': 'none'}
+
+# Add callback to update the process-all-rows label with row count
+@app.callback(
+    Output('process-all-rows', 'label'),
+    [Input('table1', 'data')]
+)
+def update_process_all_rows_label(data):
+    if 'df' in globals() and len(df) > 0:
+        return f"Process ALL {len(df)} rows in chunks of {CHUNK_SIZE} (may be slow for large datasets)"
+    else:
+        return f"Process ALL rows in chunks of {CHUNK_SIZE} (may be slow for large datasets)"
+
+# Add callback for displaying processing status
+@app.callback(
+    [Output('progress-info', 'children'),
+     Output('progress-info', 'style')],
+    [Input('include-metadata', 'value'),
+     Input('process-all-rows', 'value'),
+     Input('table1', 'data'),
+     Input('json-ld-output', 'children')]
+)
+def update_progress_info(include_metadata, process_all_rows, data, json_output):
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
+    
+    base_style = {
+        'display': 'block',
+        'color': colors['primary'],
+        'fontFamily': "'Inter', sans-serif",
+        'fontSize': '14px',
+        'margin': '10px 0',
+        'fontWeight': '500',
+        'padding': '8px',
+        'borderRadius': '4px',
+        'backgroundColor': '#e8f4f8',
+        'textAlign': 'center'
+    }
+    
+    # Only show progress message when metadata is being included
+    if not include_metadata or not data or 'df' not in globals():
+        return "", {'display': 'none'}
+    
+    # If JSON output is already generated, show completion message
+    if json_output and trigger == 'json-ld-output':
+        base_style['backgroundColor'] = '#d4edda'  # Green background for success
+        base_style['color'] = '#155724'  # Dark green text
+        return "✅ Processing complete!", base_style
+    
+    # If process_all_rows is True and we have a lot of data, show detailed message
+    if process_all_rows and 'df' in globals() and len(df) > MAX_ROWS_TO_PROCESS:
+        return f"⏳ Processing {len(df)} rows in chunks of {CHUNK_SIZE}. This may take a while...", base_style
+    
+    # Default processing message
+    return "⏳ Generating JSON-LD...", base_style
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback

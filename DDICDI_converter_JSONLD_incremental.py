@@ -4,6 +4,7 @@ import json
 import numpy as np
 import pandas as pd
 import datetime
+import time
 
 # Core functions
 def generate_PhysicalDataSetStructure(df_meta):
@@ -315,22 +316,30 @@ def generate_SubstantiveConceptScheme(df_meta):
 
     return json_ld_data
 
-def generate_ValueMapping(df, df_meta):
-    json_ld_data = []
-    for variable in df_meta.column_names:
-        elements = {
+def generate_ValueMapping(df, df_meta, process_all_rows=False, chunk_size=5):
+    # Determine how many rows to process
+    if process_all_rows:
+        max_rows = len(df)
+    else:
+        max_rows = min(len(df), chunk_size)
+    
+    # Pre-generate the format lists for all variables to avoid redundant operations
+    if len(df) > 0:
+        formats_list = [f"#dataPoint-{i}-{variable}" for variable in df_meta.column_names for i in range(max_rows)]
+    
+    # Generate all value mappings at once
+    variable_count = len(df_meta.column_names)
+    formats_per_variable = max_rows if len(df) > 0 else 0
+    
+    return [
+        {
             "@id": f"#valueMapping-{variable}",
             "@type": "ValueMapping",
             "defaultValue": "",
-            "formats": []
+            "formats": formats_list[i * formats_per_variable:(i + 1) * formats_per_variable] if len(df) > 0 else []
         }
-        
-        # Add DataPoint references if the dataframe has rows
-        if len(df) > 0:
-            elements["formats"] = [f"#dataPoint-{i}-{variable}" for i in range(len(df[variable]))]
-        
-        json_ld_data.append(elements)
-    return json_ld_data
+        for i, variable in enumerate(df_meta.column_names)
+    ]
 
 def generate_ValueMappingPosition(df_meta):
     json_ld_data = []
@@ -344,15 +353,19 @@ def generate_ValueMappingPosition(df_meta):
         json_ld_data.append(elements)
     return json_ld_data
 
-def generate_DataPoint(df, df_meta):
+def generate_DataPoint(df, df_meta, process_all_rows=False, chunk_size=5):
     json_ld_data = []
-    # Use a maximum number of rows to process
-    max_rows = min(len(df), 5)  # Limit to 5 rows max
     
-    # Process in batches for better performance
+    # Determine how many rows to process
+    if process_all_rows:
+        max_rows = len(df)
+    else:
+        max_rows = min(len(df), chunk_size)
+    
+    # Process variables and indices in a more optimized way
     for variable in df_meta.column_names:
-        # Use list comprehension for better performance
-        batch_elements = [
+        # This one-liner generates all the DataPoints for a variable
+        json_ld_data.extend([
             {
                 "@id": f"#dataPoint-{idx}-{variable}",
                 "@type": "DataPoint",
@@ -360,19 +373,22 @@ def generate_DataPoint(df, df_meta):
                 "has_DataPoint_OF_DataSet": "#wideDataSet"
             }
             for idx in range(max_rows)
-        ]
-        json_ld_data.extend(batch_elements)
+        ])
+    
     return json_ld_data
 
-def generate_DataPointPosition(df, df_meta):
+def generate_DataPointPosition(df, df_meta, process_all_rows=False, chunk_size=5):
     json_ld_data = []
-    # Use a maximum number of rows to process
-    max_rows = min(len(df), 5)  # Limit to 5 rows max
     
-    # Process in batches for better performance
+    # Determine how many rows to process
+    if process_all_rows:
+        max_rows = len(df)
+    else:
+        max_rows = min(len(df), chunk_size)
+    
+    # Process in a more optimized way - generate all positions at once
     for variable in df_meta.column_names:
-        # Use list comprehension for better performance
-        batch_elements = [
+        json_ld_data.extend([
             {
                 "@id": f"#dataPointPosition-{idx}-{variable}",
                 "@type": "DataPointPosition",
@@ -380,27 +396,46 @@ def generate_DataPointPosition(df, df_meta):
                 "indexes": f"#dataPoint-{idx}-{variable}"
             }
             for idx in range(max_rows)
-        ]
-        json_ld_data.extend(batch_elements)
+        ])
+    
     return json_ld_data
 
-def generate_InstanceValue(df, df_meta):
+def generate_InstanceValue(df, df_meta, process_all_rows=False, chunk_size=5):
     json_ld_data = []
-    # Use a maximum number of rows to process
-    max_rows = min(len(df), 5)  # Limit to 5 rows max
     
-    # If df has more than max_rows, take a sample
-    if len(df) > max_rows:
+    # Determine how many rows to process
+    if process_all_rows:
+        max_rows = len(df)
+    else:
+        max_rows = min(len(df), chunk_size)
+    
+    # If df has more than max_rows and we're not processing all rows, take a sample
+    if len(df) > max_rows and not process_all_rows:
         df_sample = df.head(max_rows)
     else:
-        df_sample = df
+        df_sample = df.iloc[:max_rows]
+    
+    # Pre-compute value domain references for each variable
+    value_domain_refs = {}
+    for variable in df_meta.column_names:
+        if variable in df_meta.missing_ranges:
+            value_domain_refs[variable] = {
+                'has_missing': True,
+                'ranges': df_meta.missing_ranges[variable]
+            }
+        else:
+            value_domain_refs[variable] = {
+                'has_missing': False
+            }
     
     # Process each variable
     for variable in df_meta.column_names:
-        # Pre-check if variable is in missing_ranges to avoid repeated checks
-        has_missing_ranges = variable in df_meta.missing_ranges
+        # Get variable-specific information
+        var_info = value_domain_refs[variable]
+        has_missing_ranges = var_info['has_missing']
         
-        # Process each row for this variable
+        # Process each row for this variable in a batch
+        batch_elements = []
         for idx, value in enumerate(df_sample[variable]):
             # Create the base element
             element = {
@@ -417,7 +452,7 @@ def generate_InstanceValue(df, df_meta):
             if has_missing_ranges:
                 # Check if value is in any missing range
                 in_missing_range = False
-                for range_dict in df_meta.missing_ranges[variable]:
+                for range_dict in var_info['ranges']:
                     if value is not None and isinstance(range_dict['lo'], float):
                         try:
                             value_float = float(value)
@@ -433,7 +468,10 @@ def generate_InstanceValue(df, df_meta):
             else:
                 element["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
             
-            json_ld_data.append(element)
+            batch_elements.append(element)
+        
+        # Add all elements for this variable at once
+        json_ld_data.extend(batch_elements)
     
     return json_ld_data
 
@@ -669,7 +707,7 @@ def wrap_in_graph(*args):
         "skos_components": skos_components if skos_components else None
     }
 
-def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, process_all_rows=False):
+def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, process_all_rows=False, max_rows=5):
     """
     Generate complete JSON-LD representation of the dataset.
     
@@ -685,29 +723,63 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
         Size of chunks to process at once (default: 5)
     process_all_rows : bool
         Whether to process all rows (True) or limit to first chunk (False)
+    max_rows : int
+        Maximum number of rows to process when process_all_rows is False
     """
+    start_time = time.time()
+    
     # Check if we need to process all rows or just a sample
     if process_all_rows and len(df) > chunk_size:
         print(f"Processing complete dataset with {len(df)} rows in chunks of {chunk_size}...")
         
-        # Process the dataset in chunks to avoid memory issues
+        # For large datasets, we'll process in chunks for InstanceValue which is more intensive
+        # But we'll generate DataPoint and DataPointPosition for all rows upfront
+        
+        # First generate all DataPoints and DataPointPositions at once - this is fast
+        print("Generating DataPoints and DataPointPositions...")
+        all_data_points = generate_DataPoint(df, df_meta, process_all_rows, chunk_size)
+        all_data_point_positions = generate_DataPointPosition(df, df_meta, process_all_rows, chunk_size)
+        value_mappings = generate_ValueMapping(df, df_meta, process_all_rows, chunk_size)
+        
+        # Process InstanceValues in chunks - this is the intensive part
+        print("Processing InstanceValues in chunks...")
         all_instance_values = []
         
+        # Calculate total chunks for progress reporting
+        total_chunks = (len(df) + chunk_size - 1) // chunk_size
+        
         # Process each chunk
-        for start_idx in range(0, len(df), chunk_size):
+        for chunk_idx, start_idx in enumerate(range(0, len(df), chunk_size)):
+            chunk_start_time = time.time()
             end_idx = min(start_idx + chunk_size, len(df))
-            print(f"Processing rows {start_idx} to {end_idx}...")
+            print(f"Processing chunk {chunk_idx+1}/{total_chunks}: rows {start_idx} to {end_idx}...")
             
             # Get the current chunk
             df_chunk = df.iloc[start_idx:end_idx].reset_index(drop=True)
             
-            # Generate instance values for this chunk with adjusted indices
-            chunk_instance_values = []
+            # Pre-compute value domain references for each variable
+            value_domain_refs = {}
             for variable in df_meta.column_names:
-                # Pre-check if variable is in missing_ranges to avoid repeated checks
-                has_missing_ranges = variable in df_meta.missing_ranges
+                if variable in df_meta.missing_ranges:
+                    value_domain_refs[variable] = {
+                        'has_missing': True,
+                        'ranges': df_meta.missing_ranges[variable]
+                    }
+                else:
+                    value_domain_refs[variable] = {
+                        'has_missing': False
+                    }
+            
+            # Generate instance values for this chunk with adjusted indices - optimize with batch processing
+            chunk_instance_values = []
+            
+            for variable in df_meta.column_names:
+                # Get variable-specific information
+                var_info = value_domain_refs[variable]
+                has_missing_ranges = var_info['has_missing']
                 
-                # Process each row for this variable
+                # Process all rows for this variable in one batch
+                variable_elements = []
                 for idx, value in enumerate(df_chunk[variable]):
                     # Create the base element with global index
                     global_idx = start_idx + idx
@@ -725,7 +797,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
                     if has_missing_ranges:
                         # Check if value is in any missing range
                         in_missing_range = False
-                        for range_dict in df_meta.missing_ranges[variable]:
+                        for range_dict in var_info['ranges']:
                             if value is not None and isinstance(range_dict['lo'], float):
                                 try:
                                     value_float = float(value)
@@ -741,61 +813,46 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
                     else:
                         element["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{variable}"
                     
-                    chunk_instance_values.append(element)
+                    variable_elements.append(element)
+                
+                # Add all elements for this variable at once
+                chunk_instance_values.extend(variable_elements)
             
             # Add this chunk's instance values to the complete list
             all_instance_values.extend(chunk_instance_values)
-        
-        # Now generate DataPoint and DataPointPosition for all rows
-        all_data_points = []
-        all_data_point_positions = []
-        
-        for variable in df_meta.column_names:
-            for idx in range(len(df)):
-                # DataPoint
-                all_data_points.append({
-                    "@id": f"#dataPoint-{idx}-{variable}",
-                    "@type": "DataPoint",
-                    "isDescribedBy": f"#instanceVariable-{variable}",
-                    "has_DataPoint_OF_DataSet": "#wideDataSet"
-                })
-                
-                # DataPointPosition
-                all_data_point_positions.append({
-                    "@id": f"#dataPointPosition-{idx}-{variable}",
-                    "@type": "DataPointPosition",
-                    "value": idx,
-                    "indexes": f"#dataPoint-{idx}-{variable}"
-                })
-        
-        # Generate ValueMapping with references to all DataPoints
-        value_mappings = []
-        for variable in df_meta.column_names:
-            elements = {
-                "@id": f"#valueMapping-{variable}",
-                "@type": "ValueMapping",
-                "defaultValue": "",
-                "formats": [f"#dataPoint-{i}-{variable}" for i in range(len(df))]
-            }
-            value_mappings.append(elements)
+            
+            chunk_end_time = time.time()
+            print(f"Chunk {chunk_idx+1} processed in {(chunk_end_time - chunk_start_time):.2f} seconds")
         
         # Use the complete dataset for the rest of the components
         df_limited = df
         
     else:
         # Use the standard approach with a limited number of rows
-        if len(df) > chunk_size and not process_all_rows:
-            print(f"Warning: Dataset has {len(df)} rows. Limiting to {chunk_size} rows for performance.")
+        if len(df) > max_rows and not process_all_rows:
+            print(f"Warning: Dataset has {len(df)} rows. Limiting to {max_rows} rows for performance.")
             print(f"Set process_all_rows=True to process all rows (may be slow for large datasets).")
-            df_limited = df.head(chunk_size)
+            df_limited = df.head(max_rows)
         else:
             df_limited = df
         
         # Generate components for the limited dataset
-        all_instance_values = generate_InstanceValue(df_limited, df_meta)
-        all_data_points = generate_DataPoint(df_limited, df_meta)
-        all_data_point_positions = generate_DataPointPosition(df_limited, df_meta)
-        value_mappings = generate_ValueMapping(df_limited, df_meta)
+        print("Generating components for limited dataset...")
+        component_start_time = time.time()
+        all_instance_values = generate_InstanceValue(df_limited, df_meta, process_all_rows, max_rows)
+        print(f"InstanceValues generated in {(time.time() - component_start_time):.2f} seconds")
+        
+        component_start_time = time.time()
+        all_data_points = generate_DataPoint(df_limited, df_meta, process_all_rows, max_rows)
+        print(f"DataPoints generated in {(time.time() - component_start_time):.2f} seconds")
+        
+        component_start_time = time.time()
+        all_data_point_positions = generate_DataPointPosition(df_limited, df_meta, process_all_rows, max_rows)
+        print(f"DataPointPositions generated in {(time.time() - component_start_time):.2f} seconds")
+        
+        component_start_time = time.time()
+        value_mappings = generate_ValueMapping(df_limited, df_meta, process_all_rows, max_rows)
+        print(f"ValueMappings generated in {(time.time() - component_start_time):.2f} seconds")
     
     # Generate base components that are always included
     components = [
@@ -849,10 +906,34 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
         ],
         "DDICDIModels": components_dict["ddi_components"]
     }
-
+    
     # Add @included only if there are SKOS components
     if components_dict["skos_components"]:
         json_ld_doc["@included"] = components_dict["skos_components"]
+    
+    # Report execution time and statistics
+    end_time = time.time()
+    total_seconds = end_time - start_time
+    minutes = int(total_seconds // 60)
+    seconds = total_seconds % 60
+    
+    # Print summary statistics
+    if minutes > 0:
+        print(f"Total processing time: {minutes} minutes and {seconds:.2f} seconds")
+    else:
+        print(f"Total processing time: {seconds:.2f} seconds")
+        
+    num_rows = len(df)
+    num_variables = len(df_meta.column_names)
+    data_points_count = len(all_data_points) if 'all_data_points' in locals() else 0
+    
+    print(f"Dataset: {num_rows} rows x {num_variables} variables")
+    print(f"Generated: {data_points_count} DataPoints")
+    
+    if process_all_rows and num_rows > chunk_size:
+        print(f"Processing strategy: Chunked processing with {(num_rows + chunk_size - 1) // chunk_size} chunks of size {chunk_size}")
+    else:
+        print(f"Processing strategy: Limited to {max_rows} rows" if not process_all_rows and num_rows > max_rows else "Full dataset")
 
     def default_encode(obj):
         if isinstance(obj, np.int64):
