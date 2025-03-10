@@ -116,24 +116,37 @@ def generate_WideDataStructure(df_meta):
         "has_DataStructureComponent": []
     }
     
+    # Track which variables have already been added to avoid duplicates
+    added_variables = set()
+    
     # Add identifier components first
     if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
         elements["has_PrimaryKey"] = "#primaryKey"
         for variable in df_meta.identifier_vars:
             if variable in df_meta.column_names:
                 elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
+                added_variables.add(variable)
     
     # Add attribute components second
     if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars:
         for variable in df_meta.attribute_vars:
-            if variable in df_meta.column_names:
+            if variable in df_meta.column_names and variable not in added_variables:
                 elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
+                added_variables.add(variable)
     
-    # Add measure components last
+    # Add measure components - either from explicit measure_vars or all remaining columns by default
     if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
+        # Use explicit measure_vars if provided
         for variable in df_meta.measure_vars:
-            if variable in df_meta.column_names:
+            if variable in df_meta.column_names and variable not in added_variables:
                 elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+                added_variables.add(variable)
+    else:
+        # Default: Add all remaining columns as measure components
+        for variable in df_meta.column_names:
+            if variable not in added_variables:
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+                # No need to add to added_variables here since this is the last step
 
     json_ld_data.append(elements)
     return json_ld_data
