@@ -387,22 +387,39 @@ app.layout = dbc.Container([
                 ], width=6)
 
             ]),
-            # Add a div for progress information
-            html.Div(
-                id="progress-info",
-                style={
-                    'display': 'none',
-                    'color': colors['primary'],
-                    'fontFamily': "'Inter', sans-serif",
-                    'fontSize': '14px',
-                    'margin': '10px 0',
-                    'fontWeight': '500',
-                    'padding': '8px',
-                    'borderRadius': '4px',
-                    'backgroundColor': '#e8f4f8',
-                    'textAlign': 'center'
-                }
-            ),
+            # Add a div for progress information with loading spinner
+            html.Div([
+                html.Div(
+                    id="progress-spinner",
+                    className="spinner-border text-primary",
+                    style={
+                        'display': 'none',
+                        'width': '2rem', 
+                        'height': '2rem',
+                        'marginRight': '10px'
+                    }
+                ),
+                html.Div(
+                    id="progress-info",
+                    style={
+                        'display': 'none',
+                        'color': colors['primary'],
+                        'fontFamily': "'Inter', sans-serif",
+                        'fontSize': '14px',
+                        'margin': '10px 0',
+                        'fontWeight': '500',
+                        'padding': '8px',
+                        'borderRadius': '4px',
+                        'backgroundColor': '#e8f4f8',
+                        'textAlign': 'center',
+                        'flex': '1'
+                    }
+                )
+            ], style={'display': 'flex', 'alignItems': 'center', 'justifyContent': 'center', 'width': '100%'}),
+            # Add hidden divs for storing intermediate data
+            dcc.Store(id='processing-start-time'),
+            dcc.Store(id='processing-data', data={'status': 'idle'}),
+            dcc.Download(id='download-json'),
         ])
     ]),
     about_section  # <-- add this line to include the about_section
@@ -987,9 +1004,10 @@ def update_process_all_rows_label(data):
     [Input('include-metadata', 'value'),
      Input('process-all-rows', 'value'),
      Input('table1', 'data'),
-     Input('json-ld-output', 'children')]
+     Input('json-ld-output', 'children')],
+    [State('processing-start-time', 'data')]
 )
-def update_progress_info(include_metadata, process_all_rows, data, json_output):
+def update_progress_info(include_metadata, process_all_rows, data, json_output, start_time):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
     
@@ -1011,17 +1029,110 @@ def update_progress_info(include_metadata, process_all_rows, data, json_output):
         return "", {'display': 'none'}
     
     # If JSON output is already generated, show completion message
-    if json_output and trigger == 'json-ld-output':
+    if json_output and json_output != "Error generating JSON-LD":
         base_style['backgroundColor'] = '#d4edda'  # Green background for success
         base_style['color'] = '#155724'  # Dark green text
-        return "✅ Processing complete!", base_style
+        base_style['fontSize'] = '16px'  # Larger font
+        base_style['fontWeight'] = '600'  # Bolder text
+        base_style['boxShadow'] = '0 2px 5px rgba(0,0,0,0.1)'  # Add shadow for emphasis
+        
+        # Calculate processing time if we have a start time
+        time_info = ""
+        if start_time:
+            import time
+            end_time = time.time()
+            processing_time = end_time - start_time
+            if processing_time > 60:
+                minutes = int(processing_time // 60)
+                seconds = int(processing_time % 60)
+                time_info = f" (completed in {minutes}m {seconds}s)"
+            else:
+                time_info = f" (completed in {processing_time:.1f}s)"
+        
+        # Add completion time to the message
+        if 'df' in globals():
+            row_count = len(df)
+            if process_all_rows and row_count > MAX_ROWS_TO_PROCESS:
+                return f"✅ COMPLETED: All {row_count} rows processed successfully!{time_info} JSON-LD is ready for download.", base_style
+            elif include_metadata:
+                rows_processed = min(row_count, MAX_ROWS_TO_PROCESS)
+                return f"✅ COMPLETED: {rows_processed} rows processed successfully!{time_info} JSON-LD is ready for download.", base_style
+        
+        return f"✅ COMPLETED: Processing finished!{time_info} JSON-LD is ready for download.", base_style
+    
+    # If there was an error, show error message
+    if json_output == "Error generating JSON-LD":
+        base_style['backgroundColor'] = '#f8d7da'  # Red background for error
+        base_style['color'] = '#721c24'  # Dark red text
+        return "❌ Error: Processing failed. Please try again or check the logs.", base_style
     
     # If process_all_rows is True and we have a lot of data, show detailed message
     if process_all_rows and 'df' in globals() and len(df) > MAX_ROWS_TO_PROCESS:
-        return f"⏳ Processing {len(df)} rows in chunks of {CHUNK_SIZE}. This may take a while...", base_style
+        total_chunks = (len(df) + CHUNK_SIZE - 1) // CHUNK_SIZE
+        return f"⏳ Processing {len(df)} rows in {total_chunks} chunks of {CHUNK_SIZE}. Please wait...", base_style
     
     # Default processing message
-    return "⏳ Generating JSON-LD...", base_style
+    return "⏳ Generating JSON-LD... Please wait...", base_style
+
+# Add callback to control the loading spinner
+@app.callback(
+    Output('progress-spinner', 'style'),
+    [Input('include-metadata', 'value'),
+     Input('process-all-rows', 'value'),
+     Input('json-ld-output', 'children')]
+)
+def update_spinner(include_metadata, process_all_rows, json_output):
+    spinner_style = {
+        'width': '2rem', 
+        'height': '2rem',
+        'marginRight': '10px'
+    }
+    
+    # Only show spinner when metadata is being included and processing is not complete
+    if include_metadata and (json_output is None or json_output == "" or json_output == "Error generating JSON-LD"):
+        spinner_style['display'] = 'inline-block'
+    else:
+        spinner_style['display'] = 'none'
+    
+    return spinner_style
+
+# Callback to update the processing start time
+@app.callback(
+    Output('processing-start-time', 'data'),
+    [Input('include-metadata', 'value'),
+     Input('process-all-rows', 'value')]
+)
+def update_processing_start_time(include_metadata, process_all_rows):
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0] if ctx.triggered else None
+    
+    # Only update timestamp when one of these toggles is activated
+    if trigger in ['include-metadata', 'process-all-rows'] and include_metadata:
+        import time
+        return time.time()
+    
+    return dash.no_update
+
+# Callback to highlight download button when processing is complete
+@app.callback(
+    [Output('btn-download-active', 'style'),
+     Output('btn-download-active', 'children')],
+    [Input('json-ld-output', 'children')]
+)
+def highlight_download_button(json_output):
+    if json_output and json_output != "Error generating JSON-LD":
+        # Make the download button stand out
+        return {
+            'backgroundColor': '#28a745',
+            'color': 'white',
+            'fontWeight': 'bold',
+            'boxShadow': '0 4px 6px rgba(0, 0, 0, 0.1)',
+            'transform': 'scale(1.05)',
+            'transition': 'all 0.3s ease'
+        }, "Download"
+    
+    # Default style
+    return {}, "Download"
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback
