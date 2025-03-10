@@ -9,9 +9,6 @@ import dash
 from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
-from DDICDI_converter_xml_incremental import (
-    generate_complete_xml_with_keys
-)
 from DDICDI_converter_JSONLD_incremental import (
     generate_complete_json_ld
 )
@@ -279,7 +276,6 @@ app.layout = dbc.Container([
             # Group the buttons together in a ButtonGroup
             dbc.ButtonGroup(
                 [
-                    dbc.Button('Generate XML', id='btn-download', color="secondary", className="mr-1"),
                     dbc.Button('JSON-LD', id='btn-download-json', color="primary", className="mr-1"),
                     dbc.Button('Download', id='btn-download-active', color="success"),
                 ],
@@ -825,19 +821,6 @@ def switch_table(n_clicks, style1, style2):
         return {'display': 'none'}, {'display': 'block'}
 
 @app.callback(
-    Output('download-xml', 'data'),
-    [Input('btn-download', 'n_clicks')],
-    [State('xml-ld-output', 'children'),
-     State('upload-data', 'filename')]
-)
-def download_xml(n_clicks, xml_data, filename):
-    if n_clicks is None or filename is None or xml_data is None:
-        raise dash.exceptions.PreventUpdate
-
-    download_filename = os.path.splitext(filename)[0] + '.xml'
-    return dict(content=xml_data, filename=download_filename, type='text/xml')
-
-@app.callback(
     Output('download-json', 'data'),
     [Input('btn-download-json', 'n_clicks')],
     [State('json-ld-output', 'children'),
@@ -853,14 +836,11 @@ def download_json(n_clicks, json_data, filename):
 @app.callback(
     [Output('xml-ld-output', 'style'),
      Output('json-ld-output', 'style')],
-    [Input('btn-download', 'n_clicks'),
-     Input('btn-download-json', 'n_clicks')],
+    [Input('btn-download-json', 'n_clicks')],
     [State('xml-ld-output', 'style'),
      State('json-ld-output', 'style')]
 )
-def toggle_output_display(xml_clicks, json_clicks, xml_style, json_style):
-    ctx = dash.callback_context
-    
+def toggle_output_display(json_clicks, xml_style, json_style):
     base_style = {
         'whiteSpace': 'pre',
         'wordBreak': 'break-all',
@@ -872,47 +852,25 @@ def toggle_output_display(xml_clicks, json_clicks, xml_style, json_style):
         'fontSize': '14px',
     }
     
-    if not ctx.triggered:
-        # Default state: hide XML, show JSON (reversed from original)
-        return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
-    
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    
-    if button_id == 'btn-download':
-        return {**base_style, 'display': 'block'}, {**base_style, 'display': 'none'}
-    elif button_id == 'btn-download-json':
-        return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
-    
-    # Fallback to default state (now JSON-LD is default)
+    # Always hide XML, show JSON
     return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
 
-# Add new callback for the download button
 @app.callback(
     Output('download-active', 'data'),
     [Input('btn-download-active', 'n_clicks')],
-    [State('xml-ld-output', 'style'),
-     State('xml-ld-output', 'children'),
-     State('json-ld-output', 'children'),
+    [State('json-ld-output', 'children'),
      State('upload-data', 'filename')]
 )
-def download_active_content(n_clicks, xml_style, xml_content, json_content, filename):
+def download_active_content(n_clicks, json_content, filename):
     if n_clicks is None or filename is None:
         raise dash.exceptions.PreventUpdate
     
-    # Check which content is currently visible by checking XML's display style
-    # (since we know one is always visible and they're mutually exclusive)
-    is_xml_visible = xml_style.get('display') == 'block'
-    
-    if is_xml_visible:
-        # If XML content is empty, it means the XML button was clicked but 
-        # generate_xml_on_demand hasn't been triggered yet, so we skip
-        if not xml_content:
-            return dash.no_update
-        download_filename = os.path.splitext(filename)[0] + '.xml'
-        return dict(content=xml_content, filename=download_filename, type='text/xml')
-    else:
+    if json_content:
         download_filename = os.path.splitext(filename)[0] + '.jsonld'
         return dict(content=json_content, filename=download_filename, type='application/json')
+        
+    # If no content is available, prevent update
+    raise dash.exceptions.PreventUpdate
 
 # Add callback to show performance warning for large datasets
 @app.callback(
@@ -954,7 +912,8 @@ def show_performance_warning(data, include_metadata, process_all_rows):
      Input('table1', 'data')]
 )
 def toggle_process_all_rows(include_metadata, data):
-    if include_metadata and data and 'df' in globals() and len(df) > MAX_ROWS_TO_PROCESS:
+    # Only show this option if include_metadata is True and we have data
+    if include_metadata and data and len(data) > MAX_ROWS_TO_PROCESS:
         return {
             'display': 'inline-block',
             'marginLeft': '15px',
@@ -962,59 +921,6 @@ def toggle_process_all_rows(include_metadata, data):
         }
     else:
         return {'display': 'none'}
-
-@app.callback(
-    Output('xml-ld-output', 'children'),
-    [Input('btn-download', 'n_clicks')],
-    [State('upload-data', 'filename'),
-     State('table2', 'data'),
-     State('table2', 'selected_rows'),
-     State('include-metadata', 'value'),
-     State('process-all-rows', 'value')]
-)
-def generate_xml_on_demand(n_clicks, filename, table2_data, selected_rows, include_metadata, process_all_rows):
-    # Only generate XML when button is clicked
-    if n_clicks is None:
-        return ""
-    
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        raise dash.exceptions.PreventUpdate
-    
-    # Check if we have the necessary data
-    if 'df' not in globals() or 'df_meta' not in globals():
-        return "Please upload a file first."
-    
-    try:
-        # Get selected variables
-        vars = []
-        if selected_rows and table2_data:
-            vars = [table2_data[row_index]["name"] for row_index in selected_rows]
-            
-        # Update classifications based on dropdown selections in table2_data
-        if table2_data:
-            measures = [row['name'] for row in table2_data if row.get('var_type') == 'measure']
-            identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier']
-            attributes = [row['name'] for row in table2_data if row.get('var_type') == 'attribute']
-            
-            df_meta.measure_vars = measures
-            df_meta.identifier_vars = identifiers
-            df_meta.attribute_vars = attributes
-            
-        # Generate XML with the conditional data selection
-        data_subset = df if include_metadata else df.head(0)
-        xml_data = generate_complete_xml_with_keys(
-            data_subset, 
-            df_meta, 
-            vars=vars,
-            spssfile=filename,
-            process_all_rows=process_all_rows
-        )
-        
-        return xml_data
-    except Exception as e:
-        print(f"Error generating XML: {str(e)}")
-        return f"Error generating XML: {str(e)}"
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback

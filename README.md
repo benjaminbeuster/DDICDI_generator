@@ -1,10 +1,14 @@
 # DDI-CDI Converter (Prototype): Wide Table Generation for STATA & SPSS
 
-The DDI-CDI Converter Prototype is a Python-based web application developed to convert proprietary statistical files from Stata and SPSS into [DDI-CDI](https://ddialliance.org/Specification/DDI-CDI/) XML files. This prototype meets the growing demand for interoperability and data sharing by transforming proprietary data formats into an open, standardized, and machine-readable format.
+The DDI-CDI Converter Prototype is a Python-based web application developed to convert proprietary statistical files from Stata and SPSS into [DDI-CDI](https://ddialliance.org/Specification/DDI-CDI/) JSON-LD files. This prototype meets the growing demand for interoperability and data sharing by transforming proprietary data formats into an open, standardized, and machine-readable format.
 
 ## Example Application
 
 An [example application](https://ddi-cdi-converter-app.azurewebsites.net/) is available to demonstrate the capabilities of this prototype. This prototype was developed by Sikt as part of the [Worldfair Project](https://worldfair-project.eu/) and supported by the DDI-CDI-Working Group.
+
+## Output Format
+
+As of the latest update, the application now exclusively supports JSON-LD output format. XML output has been removed to simplify the codebase and focus on modern, web-friendly data formats.
 
 ## Disclaimer
 
