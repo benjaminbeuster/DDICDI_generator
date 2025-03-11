@@ -242,19 +242,42 @@ app.layout = dbc.Container([
                                 style_cell=style_dict,
                                 columns=[
                                     {
-                                        "name": "role",
-                                        "id": "var_type",
+                                        "name": "Roles",
+                                        "id": "roles",
                                         "presentation": "dropdown",
                                         "editable": True
                                     },
-                                    # ... other columns ...
+                                    {
+                                        "name": "name",
+                                        "id": "name",
+                                        "editable": False
+                                    },
+                                    {
+                                        "name": "label",
+                                        "id": "label",
+                                        "editable": False
+                                    },
+                                    {
+                                        "name": "format",
+                                        "id": "format",
+                                        "editable": False
+                                    },
+                                    {
+                                        "name": "measure",
+                                        "id": "measure",
+                                        "editable": False
+                                    }
                                 ],
                                 dropdown={
-                                    'var_type': {
+                                    'roles': {
                                         'options': [
                                             {'label': 'Measure', 'value': 'measure'},
+                                            {'label': 'Identifier', 'value': 'identifier'},
                                             {'label': 'Attribute', 'value': 'attribute'},
-                                            {'label': 'Identifier', 'value': 'identifier'}
+                                            {'label': 'Measure, Identifier', 'value': 'measure,identifier'},
+                                            {'label': 'Measure, Attribute', 'value': 'measure,attribute'},
+                                            {'label': 'Identifier, Attribute', 'value': 'identifier,attribute'},
+                                            {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'}
                                         ],
                                         'clearable': False
                                     }
@@ -265,14 +288,12 @@ app.layout = dbc.Container([
                                     'rule': 'display: block !important'
                                 }],
                                 style_cell_conditional=[{
-                                    'if': {'column_id': 'var_type'},
-                                    'textAlign': 'left',
-                                    'minWidth': '150px',
-                                    'width': '150px',
-                                    'maxWidth': '150px',
+                                    'if': {'column_id': ['roles']},
+                                    'textAlign': 'center',
+                                    'minWidth': '100px',
                                 }],
                                 style_data_conditional=[{
-                                    'if': {'column_id': 'var_type'},
+                                    'if': {'column_id': ['roles']},
                                     'cursor': 'pointer'
                                 }]
                             ),
@@ -528,7 +549,19 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             print(f"Process all rows: {process_all_rows}")
             
             # Get and log identifiers
-            identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier'] if table2_data else []
+            measures = []
+            identifiers = []
+            attributes = []
+            
+            # Process the comma-separated roles for each variable
+            for row in table2_data:
+                roles = row.get('roles', '').split(',') if row.get('roles') else []
+                if 'measure' in roles:
+                    measures.append(row['name'])
+                if 'identifier' in roles:
+                    identifiers.append(row['name'])
+                if 'attribute' in roles:
+                    attributes.append(row['name'])
             print(f"Identifiers: {identifiers}")
             
             # Get and log data subset
@@ -668,17 +701,38 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 columns1 = [{"name": i, "id": i} for i in df.columns]
                 columns2 = [
                     {
-                        "name": "role",
-                        "id": "var_type",
-                        "presentation": "dropdown"
+                        "name": "Roles",
+                        "id": "roles",
+                        "presentation": "dropdown",
+                        "editable": True
+                    },
+                    {
+                        "name": "name",
+                        "id": "name",
+                        "editable": False
+                    },
+                    {
+                        "name": "label",
+                        "id": "label",
+                        "editable": False
+                    },
+                    {
+                        "name": "format",
+                        "id": "format",
+                        "editable": False
+                    },
+                    {
+                        "name": "measure",
+                        "id": "measure",
+                        "editable": False
                     }
                 ] + [{"name": i, "id": i} for i in df2.columns]
                 
                 conditional_styles1 = style_data_conditional(df)
                 conditional_styles2 = style_data_conditional(df2)
 
-                # Add the var_type column to df2 with default value
-                df2['var_type'] = 'measure'
+                # Add the roles column to df2 with default values (measure)
+                df2['roles'] = 'measure'
                 table2_data = df2.to_dict('records')
 
                 # Generate only JSON-LD initially
@@ -749,10 +803,20 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
     # When table2 data changes (dropdown selections change)
     if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
-        # Update classifications based on dropdown selections
-        measures = [row['name'] for row in table2_data if row.get('var_type') == 'measure']
-        identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier']
-        attributes = [row['name'] for row in table2_data if row.get('var_type') == 'attribute']
+        # Update classifications based on multi-role selections
+        measures = []
+        identifiers = []
+        attributes = []
+        
+        # Process the comma-separated roles for each variable
+        for row in table2_data:
+            roles = row.get('roles', '').split(',') if row.get('roles') else []
+            if 'measure' in roles:
+                measures.append(row['name'])
+            if 'identifier' in roles:
+                identifiers.append(row['name'])
+            if 'attribute' in roles:
+                attributes.append(row['name'])
         
         if 'df_meta' in globals():
             df_meta.measure_vars = measures
@@ -855,16 +919,37 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         columns1 = [{"name": i, "id": i} for i in df.columns]
         columns2 = [
             {
-                "name": "role",
-                "id": "var_type",
-                "presentation": "dropdown"
+                "name": "Roles",
+                "id": "roles",
+                "presentation": "dropdown",
+                "editable": True
+            },
+            {
+                "name": "name",
+                "id": "name",
+                "editable": False
+            },
+            {
+                "name": "label",
+                "id": "label",
+                "editable": False
+            },
+            {
+                "name": "format",
+                "id": "format",
+                "editable": False
+            },
+            {
+                "name": "measure",
+                "id": "measure",
+                "editable": False
             }
         ] + [{"name": i, "id": i} for i in df2.columns]
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        # Add the var_type column to df2 with default value
-        df2['var_type'] = 'measure'
+        # Add the roles column to df2 with default values (measure)
+        df2['roles'] = 'measure'
         
         # Convert df2 to records for the table
         table2_data = df2.to_dict('records')
@@ -926,9 +1011,9 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
         # Add debug logging for variable types
         if table2_data:
-            measures = [row['name'] for row in table2_data if row.get('var_type') == 'measure']
-            identifiers = [row['name'] for row in table2_data if row.get('var_type') == 'identifier']
-            attributes = [row['name'] for row in table2_data if row.get('var_type') == 'attribute']
+            measures = [row['name'] for row in table2_data if row.get('role_measure') == True]
+            identifiers = [row['name'] for row in table2_data if row.get('role_identifier') == True]
+            attributes = [row['name'] for row in table2_data if row.get('role_attribute') == True]
             
             # Save to lists.txt
             with open('lists.txt', 'w') as f:

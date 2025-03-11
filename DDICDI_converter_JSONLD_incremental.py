@@ -117,46 +117,49 @@ def generate_WideDataStructure(df_meta):
         "has_DataStructureComponent": []
     }
     
-    # Track which variables have already been added to avoid duplicates
-    added_variables = set()
-    
-    # Add identifier components first
+    # Set up for primary key if identifiers exist
     if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
         elements["has_PrimaryKey"] = "#primaryKey"
-        for variable in df_meta.identifier_vars:
-            if variable in df_meta.column_names:
-                elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
-                added_variables.add(variable)
     
-    # Add attribute components second
-    if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars:
-        for variable in df_meta.attribute_vars:
-            if variable in df_meta.column_names and variable not in added_variables:
-                elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
-                added_variables.add(variable)
-    
-    # Add measure components - either from explicit measure_vars or all remaining columns by default
-    if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
-        # Use explicit measure_vars if provided
-        for variable in df_meta.measure_vars:
-            if variable in df_meta.column_names and variable not in added_variables:
-                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
-                added_variables.add(variable)
-    else:
-        # Default: Add all remaining columns as measure components
-        for variable in df_meta.column_names:
-            if variable not in added_variables:
-                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
-                # No need to add to added_variables here since this is the last step
+    # Process all variables for all possible roles
+    for variable in df_meta.column_names:
+        # Add as identifier component
+        if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars and variable in df_meta.identifier_vars:
+            elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
+        
+        # Add as attribute component
+        if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars and variable in df_meta.attribute_vars:
+            elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
+        
+        # Add as measure component
+        if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars and variable in df_meta.measure_vars:
+            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+        # If no roles are assigned, default to measure
+        elif (not hasattr(df_meta, 'identifier_vars') or variable not in df_meta.identifier_vars) and \
+             (not hasattr(df_meta, 'attribute_vars') or variable not in df_meta.attribute_vars) and \
+             (not hasattr(df_meta, 'measure_vars') or variable not in df_meta.measure_vars):
+            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
 
 def generate_MeasureComponent(df_meta):
     json_ld_data = []
+    # Process all variables that are assigned as measures
     if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
         for variable in df_meta.measure_vars:
             if variable in df_meta.column_names:  # Verify variable exists in dataset
+                elements = {
+                    "@id": f"#measureComponent-{variable}",
+                    "@type": "MeasureComponent",
+                    "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                }
+                json_ld_data.append(elements)
+    # Also handle any variables not explicitly assigned roles (default to measure)
+    else:
+        for variable in df_meta.column_names:
+            if (not hasattr(df_meta, 'identifier_vars') or variable not in df_meta.identifier_vars) and \
+               (not hasattr(df_meta, 'attribute_vars') or variable not in df_meta.attribute_vars):
                 elements = {
                     "@id": f"#measureComponent-{variable}",
                     "@type": "MeasureComponent",
@@ -932,8 +935,8 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
                                 },
                                 "isStoredIn": stored_in_template.format(global_idx),
                                 "hasValueFrom_ValueDomain": (f"#sentinelValueDomain-{variable}" 
-                                                          if is_missing else 
-                                                           f"#substantiveValueDomain-{variable}")
+                                                              if is_missing else 
+                                                               f"#substantiveValueDomain-{variable}")
                             }
                             chunk_instance_values.append(element)
                     else:
