@@ -1405,9 +1405,10 @@ def highlight_download_button(json_output, full_json):
     return {}, {}
 
 if __name__ == '__main__':
-    # Get the PORT from environment variables and use 8000 as fallback
-    port = int(os.getenv('PORT', 8000))
-    # Run the server
-    server.run(host='0.0.0.0', port=port)
+    import os
+    # Get port from environment variable or use 8000 as default
+    port = int(os.environ.get('PORT', 8000))
+    # Bind to 0.0.0.0 to make the app accessible outside the container
+    app.run_server(debug=False, host='0.0.0.0', port=port)
 
     # test

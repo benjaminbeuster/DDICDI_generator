@@ -1,0 +1,11 @@
+# Azure configuration
+name: ddi-cdi-converter-app
+runtime: python
+services:
+  - name: ddi-cdi-converter-app
+    project: .
+    host: appservice
+    language: python
+    env:
+      - name: PORT
+        value: 8000 

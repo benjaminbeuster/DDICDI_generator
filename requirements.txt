@@ -164,6 +164,9 @@ frozendict==2.4.6 ; python_version >= "3.12" and python_version < "4.0" \
     --hash=sha256:f4c789fd70879ccb6289a603cdebdc4953e7e5dea047d30c1b180529b28257b5 \
     --hash=sha256:f5b94d5b07c00986f9e37a38dd83c13f5fe3bf3f1ccc8e88edea8fe15d6cd88c \
     --hash=sha256:fc67cbb3c96af7a798fab53d52589752c1673027e516b702ab355510ddf6bdff
+gunicorn==21.2.0 ; python_version >= "3.12" and python_version < "4.0" \
+    --hash=sha256:3213aa5e8c24949e792bcacfc176fef362e7aac80b76c56f6b5122bf350722f0 \
+    --hash=sha256:88ec8bff1d634f98e61b9f65bc4bf3cd918a90806c6f5c48bc5603849ec81033
 idna==3.10 ; python_version >= "3.12" and python_version < "4.0" \
     --hash=sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9 \
     --hash=sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3
