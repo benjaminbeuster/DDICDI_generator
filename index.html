@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DDI-CDI Converter App</title>
+    <meta http-equiv="refresh" content="0;url=/"/>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 40px;
+            max-width: 800px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .info {
+            background-color: #f8f9fa;
+            border-left: 4px solid #5bc0de;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>DDI-CDI Converter App</h1>
+    <div class="info">
+        <p>This is a health check page for the DDI-CDI Converter Application.</p>
+        <p>If you're seeing this page, your application is running but you should be redirected to the main application shortly.</p>
+        <p>If you're not redirected automatically, <a href="/">click here</a> to go to the application.</p>
+    </div>
+    <p>Server time: <span id="server-time"></span></p>
+    
+    <script>
+        document.getElementById('server-time').textContent = new Date().toString();
+    </script>
+</body>
+</html> 

@@ -1,6 +1,16 @@
 # Azure configuration
 name: ddi-cdi-converter-app
 runtime: python
+app:
+  path: .
+  start: ./app_service_startup.sh
+language:
+  name: python
+  version: "3.12"
+variables:
+  WEBSITE_RUN_FROM_PACKAGE: "0"
+  PYTHON_VERSION: "3.12"
+  PORT: "8000"
 services:
   - name: ddi-cdi-converter-app
     project: .
