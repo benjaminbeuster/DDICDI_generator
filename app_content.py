@@ -41,7 +41,7 @@ colors = {
     'background': '#ffffff',    # Pure white
     'surface': '#f8f9fa',      # Light gray for cards/sections
     'text': '#2c3e50',         # Dark blue-gray for text
-    'primary': '#3498db',      # Bright blue
+    'primary': '#2196f3',      # Standard link blue (matching the class links)
     'secondary': '#6c757d',    # Medium gray
     'border': '#e9ecef',       # Light gray for borders
     'hover': '#f1f3f5'         # Slightly darker than surface for hover states

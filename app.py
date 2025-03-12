@@ -296,8 +296,8 @@ app.layout = dbc.Container([
                                     'if': {'column_id': ['roles']},
                                     'textAlign': 'center',
                                     'minWidth': '100px',
-                                    'backgroundColor': colors['primary'],
-                                    'color': 'white',
+                                    'backgroundColor': 'rgba(33, 150, 243, 0.15)',  # Same as #2196f3 but with 15% opacity
+                                    'color': colors['primary'],
                                     'fontWeight': '500'
                                 }],
                                 style_data_conditional=[{
