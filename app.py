@@ -247,7 +247,7 @@ app.layout = dbc.Container([
                                 style_cell=style_dict,
                                 columns=[
                                     {
-                                        "name": "Roles",
+                                        "name": "Select role",
                                         "id": "roles",
                                         "presentation": "dropdown",
                                         "editable": True
@@ -296,10 +296,16 @@ app.layout = dbc.Container([
                                     'if': {'column_id': ['roles']},
                                     'textAlign': 'center',
                                     'minWidth': '100px',
+                                    'backgroundColor': colors['primary'],
+                                    'color': 'white',
+                                    'fontWeight': '500'
                                 }],
                                 style_data_conditional=[{
                                     'if': {'column_id': ['roles']},
-                                    'cursor': 'pointer'
+                                    'cursor': 'pointer',
+                                    'backgroundColor': 'white',
+                                    'border': f'1px solid {colors["primary"]}',
+                                    'color': colors['primary']
                                 }]
                             ),
                         ]
@@ -706,7 +712,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 columns1 = [{"name": i, "id": i} for i in df.columns]
                 columns2 = [
                     {
-                        "name": "Roles",
+                        "name": "Select role",
                         "id": "roles",
                         "presentation": "dropdown",
                         "editable": True
@@ -924,7 +930,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         columns1 = [{"name": i, "id": i} for i in df.columns]
         columns2 = [
             {
-                "name": "Roles",
+                "name": "Select role",
                 "id": "roles",
                 "presentation": "dropdown",
                 "editable": True
