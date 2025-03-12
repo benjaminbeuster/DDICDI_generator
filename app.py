@@ -40,6 +40,11 @@ app = dash.Dash(__name__, server=server, external_stylesheets=[
     "https://use.fontawesome.com/releases/v5.15.4/css/all.css"
 ])
 
+# Define a helper function to always hide the N-Triples button in the UI
+def get_button_group_style(visible=False):
+    """Helper function to get the button group style while ensuring N-Triples button is always hidden"""
+    return {'display': 'block' if visible else 'none', 'gap': '10px', 'flexDirection': 'row'}
+
 # add title
 app.title = app_title
 
@@ -310,12 +315,14 @@ app.layout = dbc.Container([
                               id='btn-download-json', 
                               color="primary", 
                               className="mr-1"),
+                    # N-Triples button hidden but still in the DOM for callback functionality
                     dbc.Button([html.I(className="fas fa-download mr-2"), 'N-Triples'], 
                               id='btn-download-nt', 
                               color="info", 
-                              className="mr-1"),
+                              className="mr-1",
+                              style={'display': 'none'}),
                 ],
-                style={'display': 'none', 'gap': '10px'},
+                style=get_button_group_style(visible=False),  # Use helper function
                 id='button-group',
                 className="shadow-sm"
             ),
@@ -645,13 +652,13 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     dash.no_update,  # table2 data
                     dash.no_update,  # table2 columns
                     dash.no_update,  # table2 style
-                    dash.no_update,  # button group style
+                    get_button_group_style(visible=True),  # Use helper function
                     instruction_text1, # table1 instruction
                     instruction_text2, # table2 instruction
                     truncated_json,    # json output for display
-                    dash.no_update,  # table switch button style
-                    dash.no_update,  # include metadata style
-                    dash.no_update,   # upload contents
+                    {'display': 'block'},
+                    {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    None,  # Clear the upload contents
                     full_json  # full JSON for download
                 )
             
@@ -784,7 +791,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                         table2_data,
                         columns2,
                         conditional_styles2,
-                        {'display': 'block'},
+                        get_button_group_style(visible=True),  # Use helper function
                         instruction_text1,
                         instruction_text2,
                         truncated_json,    # json output for display
@@ -796,7 +803,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
         except Exception as e:
             print(f"Error processing file: {str(e)}")
-            return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None, None
+            return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, None, None
 
     # When table2 data changes (dropdown selections change)
     if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
@@ -856,18 +863,18 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             table2_data,     # table2 data
             dash.no_update,  # table2 columns
             dash.no_update,  # table2 style
-            dash.no_update,  # button group style
+            get_button_group_style(visible=True),  # Use helper function
             dash.no_update,  # table1 instruction
             dash.no_update,  # table2 instruction
             json_ld_data,    # json output
-            dash.no_update,  # table switch button style
-            dash.no_update,  # include metadata style
+            {'display': 'block'},  # table switch button style
+            {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},  # include metadata style
             dash.no_update,  # upload contents
             None  # full JSON store
         )
 
     if not contents:
-        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update, None
 
     try:
         print("Step 1: Starting file processing")
@@ -1027,7 +1034,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             
             return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
                     table2_data, columns2, conditional_styles2, 
-                    {'display': 'block'}, 
+                    get_button_group_style(visible=True),  # Use helper function
                     instruction_text1, instruction_text2, truncated_json,
                     {'display': 'block'},
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
@@ -1037,7 +1044,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, None, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, None, None
 
     finally:
         if 'tmp_filename' in locals():
@@ -1383,16 +1390,17 @@ def highlight_download_button(json_output, full_json):
             'transition': 'all 0.3s ease'
         }
         
-        # Style for N-Triples button
+        # Style for N-Triples button - always keep it hidden
         nt_style = {
             'fontWeight': 'bold',
-            'transition': 'all 0.3s ease'
+            'transition': 'all 0.3s ease',
+            'display': 'none'  # Always keep N-Triples button hidden
         }
         
         return button_style, nt_style
     
-    # Default style
-    return {}, {}
+    # Default style - always keep N-Triples button hidden
+    return {}, {'display': 'none'}
 
 if __name__ == '__main__':
     # Get the PORT from environment variables and use 8000 as fallback
