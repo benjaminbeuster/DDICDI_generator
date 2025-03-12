@@ -497,12 +497,13 @@ def update_instruction_text_style(data):
         return {'display': 'none'}, {'display': 'none'}
 
 # Modify the truncate_for_display function to ensure it doesn't affect the original JSON
-def truncate_for_display(json_str, max_length=100000):
+def truncate_for_display(json_str, max_length=100000, include_metadata=False):
     """
-    Truncates JSON string for display if it's too large.
+    Truncates JSON string for display if it's too large and include_metadata is True.
     Returns the truncated string and a boolean indicating if truncation occurred.
     """
-    if json_str and len(json_str) > max_length:
+    # Only truncate if include_metadata is True
+    if include_metadata and json_str and len(json_str) > max_length:
         # Find the last complete JSON object or array that fits
         truncated = json_str[:max_length]
         # Try to find the last complete object
@@ -642,8 +643,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             if json_ld_data and json_ld_data != "Error generating JSON-LD":
                 # Store the full JSON output for download BEFORE truncation
                 full_json = json_ld_data
-                # Truncate for display only
-                truncated_json, was_truncated = truncate_for_display(json_ld_data)
+                # Truncate for display only if include_metadata is true
+                truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
                 
                 return (
                     dash.no_update,  # table1 data
@@ -781,8 +782,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 if json_ld_data and json_ld_data != "Error generating JSON-LD":
                     # Store the full JSON output for download BEFORE truncation
                     full_json = json_ld_data
-                    # Truncate for display only
-                    truncated_json, was_truncated = truncate_for_display(json_ld_data)
+                    # Truncate for display only if include_metadata is true
+                    truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
                     
                     return (
                         df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
@@ -1029,8 +1030,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         if json_ld_data and json_ld_data != "Error generating JSON-LD":
             # Store the full JSON output for download BEFORE truncation
             full_json = json_ld_data
-            # Truncate for display only
-            truncated_json, was_truncated = truncate_for_display(json_ld_data)
+            # Truncate for display only if include_metadata is true
+            truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
             
             return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
                     table2_data, columns2, conditional_styles2, 
