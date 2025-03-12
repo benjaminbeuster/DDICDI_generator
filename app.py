@@ -497,7 +497,7 @@ def update_instruction_text_style(data):
         return {'display': 'none'}, {'display': 'none'}
 
 # Modify the truncate_for_display function to ensure it doesn't affect the original JSON
-def truncate_for_display(json_str, max_length=100000, include_metadata=False):
+def truncate_for_display(json_str, max_length=500000, include_metadata=False):
     """
     Truncates JSON string for display if it's too large and include_metadata is True.
     Returns the truncated string and a boolean indicating if truncation occurred.
