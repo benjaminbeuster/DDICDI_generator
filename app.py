@@ -90,7 +90,9 @@ navbar = dbc.NavbarSimple(
 
 about_section = dbc.Card([
     dbc.CardBody([
-        dcc.Markdown(about_text, className="card-text"),
+        dcc.Markdown(about_text, 
+            link_target="_blank",
+            className="card-text"),
         html.Div([
             html.Img(
                 src=app.get_asset_url('petals_logos.2.0-01.webp'),
