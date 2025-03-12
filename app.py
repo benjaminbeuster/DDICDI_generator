@@ -330,16 +330,13 @@ app.layout = dbc.Container([
                     'color': colors['secondary']
                 }
             ),
-            # Add a switch for processing all rows
+            # Add a switch for processing all rows (permanently hidden but still functional)
             dbc.Switch(
                 id="process-all-rows",
                 label=f"Process ALL rows in chunks of {CHUNK_SIZE} (may be slow for large datasets)",
                 value=False,
                 style={
-                    'display': 'inline-block',
-                    'marginLeft': '15px',
-                    'color': colors['secondary'],
-                    'display': 'none'  # Initially hidden, shown only when include-metadata is true
+                    'display': 'none'  # Permanently hidden
                 }
             ),
             # Add a warning message about large datasets
@@ -1232,15 +1229,8 @@ def show_performance_warning(data, include_metadata, process_all_rows):
      Input('table1', 'data')]
 )
 def toggle_process_all_rows(include_metadata, data):
-    # Only show this option if include_metadata is True and we have data
-    if include_metadata and data and 'df' in globals() and len(df) > MAX_ROWS_TO_PROCESS:
-        return {
-            'display': 'inline-block',
-            'marginLeft': '15px',
-            'color': colors['secondary']
-        }
-    else:
-        return {'display': 'none'}
+    # Always keep the process-all-rows switch hidden
+    return {'display': 'none'}
 
 # Add callback to update the process-all-rows label with row count
 @app.callback(
