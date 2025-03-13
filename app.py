@@ -13,7 +13,7 @@ from DDICDI_converter_JSONLD_incremental import (
     generate_complete_json_ld,
     MemoryManager
 )
-from spss_import import read_sav, create_variable_view, create_variable_view2
+from spss_import import read_sav, read_csv, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 from dash.exceptions import PreventUpdate
 import rdflib
@@ -175,7 +175,7 @@ app.layout = dbc.Container([
                     'height': '100%',
                 },
                 multiple=False,
-                accept=".sav,.dta"
+                accept=".sav,.dta,.csv"
             ),
             html.Br(),
 
@@ -704,111 +704,118 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             if '.dta' in tmp_filename or '.sav' in tmp_filename:
                 df, df_meta, file_name, n_rows = read_sav(tmp_filename)
                 df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
+            elif '.csv' in tmp_filename:
+                print("Reading file using read_csv")
+                # For now, assume US date format (MM/DD/YYYY), but could expose this as a UI option in the future
+                df, df_meta, file_name, n_rows = read_csv(tmp_filename, dayfirst=False)
+                df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
+            else:
+                raise ValueError(f"Unsupported file type. File must be .sav, .dta, or .csv, got: {tmp_filename}")
                 
-                # Initialize with empty classifications
-                df_meta.measure_vars = []
-                df_meta.identifier_vars = []
-                df_meta.attribute_vars = []
+            # Initialize with empty classifications
+            df_meta.measure_vars = []
+            df_meta.identifier_vars = []
+            df_meta.attribute_vars = []
 
-                # Prepare table data
-                columns1 = [{"name": i, "id": i} for i in df.columns]
-                columns2 = [
-                    {
-                        "name": "Select role",
-                        "id": "roles",
-                        "presentation": "dropdown",
-                        "editable": True
-                    },
-                    {
-                        "name": "name",
-                        "id": "name",
-                        "editable": False
-                    },
-                    {
-                        "name": "label",
-                        "id": "label",
-                        "editable": False
-                    },
-                    {
-                        "name": "format",
-                        "id": "format",
-                        "editable": False
-                    },
-                    {
-                        "name": "measure",
-                        "id": "measure",
-                        "editable": False
-                    }
-                ] + [{"name": i, "id": i} for i in df2.columns]
-                
-                conditional_styles1 = style_data_conditional(df)
-                conditional_styles2 = style_data_conditional(df2)
+            # Prepare table data
+            columns1 = [{"name": i, "id": i} for i in df.columns]
+            columns2 = [
+                {
+                    "name": "Select role",
+                    "id": "roles",
+                    "presentation": "dropdown",
+                    "editable": True
+                },
+                {
+                    "name": "name",
+                    "id": "name",
+                    "editable": False
+                },
+                {
+                    "name": "label",
+                    "id": "label",
+                    "editable": False
+                },
+                {
+                    "name": "format",
+                    "id": "format",
+                    "editable": False
+                },
+                {
+                    "name": "measure",
+                    "id": "measure",
+                    "editable": False
+                }
+            ] + [{"name": i, "id": i} for i in df2.columns]
+            
+            conditional_styles1 = style_data_conditional(df)
+            conditional_styles2 = style_data_conditional(df2)
 
-                # Add the roles column to df2 with default values (measure)
-                df2['roles'] = 'measure'
-                table2_data = df2.to_dict('records')
+            # Add the roles column to df2 with default values (measure)
+            df2['roles'] = 'measure'
+            table2_data = df2.to_dict('records')
 
-                # Generate only JSON-LD initially
-                # Determine optimal chunk size for large datasets
-                dynamic_chunk_size = CHUNK_SIZE
-                if process_all_rows and len(df) > CHUNK_SIZE:
-                    try:
-                        # Try to optimize chunk size based on available memory
-                        dynamic_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
-                        print(f"Optimized chunk size: {dynamic_chunk_size} rows (based on available memory)")
-                    except Exception as e:
-                        print(f"Warning: Could not optimize chunk size, using default: {e}")
-                        dynamic_chunk_size = CHUNK_SIZE
-                        
-                data_subset = df if include_metadata else df.head(0)
-                json_ld_data = generate_complete_json_ld(
-                    data_subset, 
-                    df_meta,
-                    spssfile=filename,
-                    chunk_size=dynamic_chunk_size,
-                    process_all_rows=process_all_rows,
-                    max_rows=MAX_ROWS_TO_PROCESS
-                )
-
-                if include_metadata:
-                    if process_all_rows:
-                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
-                    elif len(df) > MAX_ROWS_TO_PROCESS:
-                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
-                    else:
-                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
-                else:
-                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
-
-                # Create instruction text for table2 (column view)
-                instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
-
-                # Clean up temp file
-                os.unlink(tmp_filename)
-
-                # Before returning, store the full JSON and truncate for display
-                if json_ld_data and json_ld_data != "Error generating JSON-LD":
-                    # Store the full JSON output for download BEFORE truncation
-                    full_json = json_ld_data
-                    # Truncate for display only if include_metadata is true
-                    truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
+            # Generate only JSON-LD initially
+            # Determine optimal chunk size for large datasets
+            dynamic_chunk_size = CHUNK_SIZE
+            if process_all_rows and len(df) > CHUNK_SIZE:
+                try:
+                    # Try to optimize chunk size based on available memory
+                    dynamic_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
+                    print(f"Optimized chunk size: {dynamic_chunk_size} rows (based on available memory)")
+                except Exception as e:
+                    print(f"Warning: Could not optimize chunk size, using default: {e}")
+                    dynamic_chunk_size = CHUNK_SIZE
                     
-                    return (
-                        df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
-                        columns1,
-                        conditional_styles1,
-                        table2_data,
-                        columns2,
-                        conditional_styles2,
-                        get_button_group_style(visible=True),  # Use helper function
-                        instruction_text1,
-                        instruction_text2,
-                        truncated_json,    # json output for display
-                        {'display': 'block'},
-                        {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
-                        None,  # Clear the upload contents
-                        full_json  # full JSON for download
-                    )
+            data_subset = df if include_metadata else df.head(0)
+            json_ld_data = generate_complete_json_ld(
+                data_subset, 
+                df_meta,
+                spssfile=filename,
+                chunk_size=dynamic_chunk_size,
+                process_all_rows=process_all_rows,
+                max_rows=MAX_ROWS_TO_PROCESS
+            )
+
+            if include_metadata:
+                if process_all_rows:
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
+                elif len(df) > MAX_ROWS_TO_PROCESS:
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                else:
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
+            else:
+                instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+
+            # Create instruction text for table2 (column view)
+            instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
+
+            # Clean up temp file
+            os.unlink(tmp_filename)
+
+            # Before returning, store the full JSON and truncate for display
+            if json_ld_data and json_ld_data != "Error generating JSON-LD":
+                # Store the full JSON output for download BEFORE truncation
+                full_json = json_ld_data
+                # Truncate for display only if include_metadata is true
+                truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
+                
+                return (
+                    df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
+                    columns1,
+                    conditional_styles1,
+                    table2_data,
+                    columns2,
+                    conditional_styles2,
+                    get_button_group_style(visible=True),  # Use helper function
+                    instruction_text1,
+                    instruction_text2,
+                    truncated_json,    # json output for display
+                    {'display': 'block'},
+                    {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    None,  # Clear the upload contents
+                    full_json  # full JSON for download
+                )
 
         except Exception as e:
             print(f"Error processing file: {str(e)}")
@@ -902,12 +909,17 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         if '.dta' in tmp_filename or '.sav' in tmp_filename:
             print("Reading file using read_sav") 
             df, df_meta, file_name, n_rows = read_sav(tmp_filename)
+            df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
+        elif '.csv' in tmp_filename:
+            print("Reading file using read_csv")
+            # For now, assume US date format (MM/DD/YYYY), but could expose this as a UI option in the future
+            df, df_meta, file_name, n_rows = read_csv(tmp_filename, dayfirst=False)
+            df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
         else:
-            raise ValueError(f"Unsupported file type. File must be .sav or .dta, got: {tmp_filename}")
+            raise ValueError(f"Unsupported file type. File must be .sav, .dta, or .csv, got: {tmp_filename}")
 
         print("Step 5: File read complete")
         print(f"df_meta exists: {df_meta is not None}")
-        df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
         
         # Initialize the classification attributes
         df_meta.measure_vars = df_meta.column_names  # Default all to measures
