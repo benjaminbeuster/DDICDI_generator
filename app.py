@@ -725,28 +725,14 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     "id": "roles",
                     "presentation": "dropdown",
                     "editable": True
-                },
-                {
-                    "name": "name",
-                    "id": "name",
-                    "editable": False
-                },
-                {
-                    "name": "label",
-                    "id": "label",
-                    "editable": False
-                },
-                {
-                    "name": "format",
-                    "id": "format",
-                    "editable": False
-                },
-                {
-                    "name": "measure",
-                    "id": "measure",
-                    "editable": False
                 }
-            ] + [{"name": i, "id": i} for i in df2.columns]
+            ]
+            
+            # Only add columns that aren't already in df2
+            predefined_columns = {'roles'}
+            for col in df2.columns:
+                if col not in predefined_columns:
+                    columns2.append({"name": col, "id": col, "editable": False})
             
             conditional_styles1 = style_data_conditional(df)
             conditional_styles2 = style_data_conditional(df2)
@@ -948,28 +934,15 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 "id": "roles",
                 "presentation": "dropdown",
                 "editable": True
-            },
-            {
-                "name": "name",
-                "id": "name",
-                "editable": False
-            },
-            {
-                "name": "label",
-                "id": "label",
-                "editable": False
-            },
-            {
-                "name": "format",
-                "id": "format",
-                "editable": False
-            },
-            {
-                "name": "measure",
-                "id": "measure",
-                "editable": False
             }
-        ] + [{"name": i, "id": i} for i in df2.columns]
+        ]
+        
+        # Only add columns that aren't already in df2
+        predefined_columns = {'roles'}
+        for col in df2.columns:
+            if col not in predefined_columns:
+                columns2.append({"name": col, "id": col, "editable": False})
+        
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
