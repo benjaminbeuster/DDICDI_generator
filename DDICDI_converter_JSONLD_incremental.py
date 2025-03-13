@@ -84,12 +84,21 @@ def generate_DataStore(df_meta):
 
 def generate_LogicalRecord(df_meta):
     json_ld_data = []
+    
+    # Check if this is a CSV file
+    is_csv = hasattr(df_meta, 'file_format') and df_meta.file_format == 'csv'
+    
     elements = {
         "@id": "#logicalRecord",
         "@type": "LogicalRecord",
         "organizes": "#wideDataSet",
         "has_InstanceVariable": []
     }
+    
+    # For CSV files, add additional metadata to make the LogicalRecord more visible
+    if is_csv:
+        elements["rdfs:label"] = "Logical Record" 
+        elements["rdfs:comment"] = "The logical structure of the CSV data file"
     
     # Add InstanceVariable references with consistent ID naming
     for variable in df_meta.column_names:

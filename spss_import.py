@@ -147,6 +147,7 @@ def read_csv(filename: Path, delimiter=',', header=0, encoding=None, infer_types
             self.measure_vars = measure_vars
             self.identifier_vars = identifier_vars
             self.attribute_vars = attribute_vars
+            self.file_format = 'csv'  # Add a flag to identify this as a CSV file
     
     # Infer data types if requested
     if infer_types:
