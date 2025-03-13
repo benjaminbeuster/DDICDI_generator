@@ -259,3 +259,9 @@ The current implementation of the DDI-CDI Converter demonstrates the potential f
 - **Extension Mechanism**: Design a plugin system to allow community-developed extensions without modifying core code
 
 By implementing these enhancements, the DDI-CDI Converter can evolve into a more versatile tool that remains true to its lightweight design principles while offering increased functionality through API access.
+
+## Acknowledgments
+
+Parts of this user guide, particularly the technical specifications and customization sections, were created with the assistance of AI technology. The AI analyzed the codebase to extract accurate information about configuration parameters, memory management approaches, and customization options. Additionally, AI was used for language improvements throughout the document and for verifying the accuracy and completeness of the user guide.
+
+The core functionality descriptions, workflow guidance, and best practices sections were developed based on extensive testing and user experience design principles to provide practical, actionable guidance for users of all technical levels.
