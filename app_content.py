@@ -33,7 +33,7 @@ about_text = f'''
 This prototype was initially developed by Sikt as part of the [WorldFAIR Project](https://worldfair-project.eu/) and further developed under [FAIR Impact](https://www.fair-impact.eu/). It is designed to facilitate the implementation of [DDI-CDI](https://ddialliance.org/Specification/DDI-CDI/) and to support training activities within the DDI community. For further information, please contact [Benjamin Beuster](mailto:benjamin.beuster@sikt.no). Last updated on: {current_date}
 '''
 
-app_title = 'DDI-CDI Converter (Prototype): Wide Table Generation for STATA & SPSS'
+app_title = 'DDI-CDI Converter (Prototype): Wide Table Generation for STATA, SPSS and CSV'
 app_description = ''
 
 # Modern bright color scheme
