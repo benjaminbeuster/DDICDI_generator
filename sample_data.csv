@@ -1,0 +1,11 @@
+id;name;age;income;education;date_of_birth;is_employed
+1;John Smith;34;58000;Bachelor;1989-05-12;true
+2;Emma Johnson;29;62500;Master;1994-08-23;true
+3;Michael Brown;45;71200;PhD;1978-11-07;true
+4;Sarah Davis;38;49800;High School;1985-03-30;false
+5;Robert Wilson;52;82400;Bachelor;1971-07-15;true
+6;Jennifer Lee;31;55000;Master;1992-01-18;false
+7;David Martinez;41;68300;Bachelor;1982-09-04;true
+8;Lisa Anderson;27;45200;High School;1996-12-21;true
+9;Thomas Taylor;36;59800;Associate;1987-06-10;true
+10;Michelle Garcia;33;51400;Bachelor;1990-04-28;false 

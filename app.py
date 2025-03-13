@@ -706,8 +706,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
             elif '.csv' in tmp_filename:
                 print("Reading file using read_csv")
-                # For now, assume US date format (MM/DD/YYYY), but could expose this as a UI option in the future
-                df, df_meta, file_name, n_rows = read_csv(tmp_filename, dayfirst=False)
+                # Use automatic delimiter detection and handle date formats
+                df, df_meta, file_name, n_rows = read_csv(tmp_filename, delimiter=None, dayfirst=False)
                 df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
             else:
                 raise ValueError(f"Unsupported file type. File must be .sav, .dta, or .csv, got: {tmp_filename}")
@@ -898,8 +898,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
         elif '.csv' in tmp_filename:
             print("Reading file using read_csv")
-            # For now, assume US date format (MM/DD/YYYY), but could expose this as a UI option in the future
-            df, df_meta, file_name, n_rows = read_csv(tmp_filename, dayfirst=False)
+            # Use automatic delimiter detection and handle date formats
+            df, df_meta, file_name, n_rows = read_csv(tmp_filename, delimiter=None, dayfirst=False)
             df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
         else:
             raise ValueError(f"Unsupported file type. File must be .sav, .dta, or .csv, got: {tmp_filename}")

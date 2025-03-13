@@ -67,7 +67,12 @@ def generate_PhysicalSegmentLayout(df_meta):
     if hasattr(df_meta, 'file_format') and df_meta.file_format == 'csv':
         elements["isDelimited"] = "true"
         elements["isFixedWidth"] = False
-        elements["delimiter"] = ","
+        
+        # Get the delimiter from metadata if available, otherwise default to comma
+        if hasattr(df_meta, 'delimiter'):
+            elements["delimiter"] = df_meta.delimiter
+        else:
+            elements["delimiter"] = ","
     
     # Add both ValueMapping and ValueMappingPosition references for each variable
     for variable in df_meta.column_names:

@@ -79,7 +79,59 @@ def read_sav(filename: Path, missings=True, disable_datetime_conversion=True):
     return df, meta, str(filename), meta.number_rows
 
 
-def read_csv(filename: Path, delimiter=',', header=0, encoding=None, infer_types=True, date_format=None, dayfirst=False, **kwargs):
+def detect_delimiter(filename, sample_size=5):
+    """
+    Detect the delimiter used in a CSV file by analyzing the first few lines.
+    
+    Parameters:
+    -----------
+    filename : Path
+        Path to the CSV file
+    sample_size : int, default 5
+        Number of lines to sample from the beginning of the file
+        
+    Returns:
+    --------
+    str : The detected delimiter character, defaults to ',' if detection fails
+    """
+    # Common delimiters to check in order of likelihood
+    common_delimiters = [',', ';', '\t', '|', ':']
+    
+    # Read a small sample of the file
+    try:
+        with open(filename, 'r', errors='replace') as f:
+            sample_lines = []
+            for _ in range(sample_size):
+                line = f.readline().strip()
+                if line:  # Skip empty lines
+                    sample_lines.append(line)
+                if not line:  # Break if we reach end of file
+                    break
+    except Exception as e:
+        print(f"Error reading file for delimiter detection: {e}")
+        return ','  # Default to comma if there's an error
+    
+    if not sample_lines:
+        return ','  # Default to comma if no lines read
+    
+    # Count occurrences of each delimiter in sample lines
+    delimiter_counts = {}
+    for delimiter in common_delimiters:
+        delimiter_counts[delimiter] = sum(line.count(delimiter) for line in sample_lines) / len(sample_lines)
+    
+    # Find the delimiter with highest average count
+    max_count = 0
+    detected_delimiter = ','  # Default
+    
+    for delimiter, count in delimiter_counts.items():
+        if count > max_count:
+            max_count = count
+            detected_delimiter = delimiter
+    
+    return detected_delimiter
+
+
+def read_csv(filename: Path, delimiter=None, header=0, encoding=None, infer_types=True, date_format=None, dayfirst=False, **kwargs):
     """
     Read CSV file and create a metadata structure compatible with what pyreadstat returns
     
@@ -87,8 +139,8 @@ def read_csv(filename: Path, delimiter=',', header=0, encoding=None, infer_types
     -----------
     filename : Path
         Path to the CSV file
-    delimiter : str, default ','
-        Character or regex pattern to separate fields
+    delimiter : str, default None
+        Character or regex pattern to separate fields. If None, delimiter will be auto-detected.
     header : int, default 0
         Row number to use as column names
     encoding : str, default None
@@ -107,6 +159,11 @@ def read_csv(filename: Path, delimiter=',', header=0, encoding=None, infer_types
     tuple : (DataFrame, metadata, filename, number_rows)
     """
     filename = Path(filename)  # Ensure filename is a Path object
+    
+    # Auto-detect delimiter if not specified
+    if delimiter is None:
+        delimiter = detect_delimiter(filename)
+        print(f"Detected delimiter: '{delimiter}'")
     
     # Try reading the file with different encodings if not specified
     if encoding:
@@ -148,6 +205,7 @@ def read_csv(filename: Path, delimiter=',', header=0, encoding=None, infer_types
             self.identifier_vars = identifier_vars
             self.attribute_vars = attribute_vars
             self.file_format = 'csv'  # Add a flag to identify this as a CSV file
+            self.delimiter = ','      # Default delimiter - will be updated when file is read
     
     # Infer data types if requested
     if infer_types:
@@ -292,6 +350,9 @@ def read_csv(filename: Path, delimiter=',', header=0, encoding=None, infer_types
         identifier_vars=[],         # Start with empty list of identifiers
         attribute_vars=[]           # Start with empty list of attributes
     )
+    
+    # Update delimiter in metadata to match what was used to read the file
+    meta.delimiter = delimiter
     
     return df, meta, str(filename), meta.number_rows
 
