@@ -63,6 +63,12 @@ def generate_PhysicalSegmentLayout(df_meta):
         "has_ValueMappingPosition": []
     }
     
+    # Check if this is a CSV file
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'csv':
+        elements["isDelimited"] = "true"
+        elements["isFixedWidth"] = False
+        elements["delimiter"] = ","
+    
     # Add both ValueMapping and ValueMappingPosition references for each variable
     for variable in df_meta.column_names:
         elements["has_ValueMappingPosition"].append(f"#valueMappingPosition-{variable}")
