@@ -95,11 +95,6 @@ def generate_LogicalRecord(df_meta):
         "has_InstanceVariable": []
     }
     
-    # For CSV files, add additional metadata to make the LogicalRecord more visible
-    if is_csv:
-        elements["rdfs:label"] = "Logical Record" 
-        elements["rdfs:comment"] = "The logical structure of the CSV data file"
-    
     # Add InstanceVariable references with consistent ID naming
     for variable in df_meta.column_names:
         elements["has_InstanceVariable"].append(f"#instanceVariable-{variable}")
