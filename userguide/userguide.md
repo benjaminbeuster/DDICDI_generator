@@ -2,17 +2,18 @@
 
 ## Upload a Data File
 
-The DDI-CDI Converter tool allows you to easily convert your STATA or SPSS data files into DDI-CDI format. Here's how to get started by uploading your data file:
+The DDI-CDI Converter tool allows you to easily convert your STATA, SPSS, or CSV data files into DDI-CDI format. Here's how to get started by uploading your data file:
 
 ### Supported File Formats 
-The tool accepts two common statistical data formats:
+The tool accepts three common statistical data formats:
 - STATA data files (`.dta`)
 - SPSS data files (`.sav`)
+- CSV files (`.csv`) - Note that CSV files have limited built-in metadata compared to SPSS/Stata files
 
 ### Upload Your File
 In the main interface, you'll see a dashed box with the text "Drag and Drop or Select a File". You have two options for uploading:
 
-- **Drag and drop method**: Simply drag your `.dta` or `.sav` file from your file explorer and drop it into the dashed box.
+- **Drag and drop method**: Simply drag your `.dta`, `.sav`, or `.csv` file from your file explorer and drop it into the dashed box.
 - **File selection method**: Click on the "Select a File" link, which will open your computer's file browser. Navigate to your data file, select it, and click "Open".
 
 ### Processing
