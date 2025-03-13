@@ -133,38 +133,45 @@ The DDI-CDI Converter has been designed to handle typical statistical datasets, 
 
 ### Memory Processing Limitations
 
-1. **In-Memory Processing Model**: The current implementation processes data files entirely in memory, which places limitations on the size of files that can be efficiently processed.
-
-2. **Default Row Limitation**: To ensure reliable performance across various hardware configurations, the tool is configured to process only the first 5 rows of data by default when including data values in the output.
-
-3. **Chunked Processing**: For larger datasets, the tool implements a chunking mechanism that processes data in segments of 500 rows at a time to manage memory usage, but this approach still has limitations with very large datasets.
-
-4. **Dynamic Memory Management**: The tool includes a `MemoryManager` component that attempts to optimize chunk sizes based on available system memory, but cannot overcome fundamental limitations of the in-memory processing model.
+- **In-Memory Processing Model**: The current implementation processes data files entirely in memory, which places limitations on the size of files that can be efficiently processed.
+- **Default Row Limitation**: To ensure reliable performance across various hardware configurations, the tool is configured to process only the first 5 rows of data by default when including data values in the output.
+- **Chunked Processing**: For larger datasets, the tool implements a chunking mechanism that processes data in segments of 500 rows at a time to manage memory usage, but this approach still has limitations with very large datasets.
+- **Dynamic Memory Management**: The tool includes a MemoryManager component that attempts to optimize chunk sizes based on available system memory, but cannot overcome fundamental limitations of the in-memory processing model.
 
 ### DDI-CDI Data Model Complexity
 
-The DDI-CDI specification requires a high level of descriptive detail for each data point, which results in significant output size expansion:
+The DDI-CDI specification requires a high level of descriptive detail for each cell in the data table, which results in significant output size expansion:
 
-1. **Triple Element Representation**: In the DDI-CDI model, each cell in your data matrix requires three distinct elements to be fully represented:
-   - **InstanceValue**: Describes the actual value
-   - **DataPoint**: Defines the data point's properties and relationships 
-   - **DataPointPosition**: Specifies the position within the data structure
+- **Triple Element Representation**: In the DDI-CDI model, each cell in your data matrix requires three distinct elements to be fully represented:
+  - *InstanceValue*: Describes the actual value
+  - *DataPoint*: Defines the data point's properties and relationships
+  - *DataPointPosition*: Specifies the position within the data structure
 
-2. **Output Size Expansion**: This triple representation means that a dataset with relatively modest dimensions will generate a much larger DDI-CDI representation. For example:
-   - A dataset with 9,950 rows and just 22 columns would require 656,700 elements (9,950 × 22 × 3) to represent all data cells
-   - The resulting JSON-LD file could contain over 5 million lines of code when including all structural metadata
+- **Output Size Expansion**: This triple representation means that a dataset with relatively modest dimensions will generate a much larger DDI-CDI representation. For example:
+  - A dataset with 9,950 rows and just 22 columns would require 656,700 elements (9,950 × 22 × 3) to represent all data cells
+  - The resulting JSON-LD file could contain over 5 million lines of code when including all structural metadata
 
-3. **Visualization Limitations**: The preview functionality in the tool is designed to handle up to approximately 100,000 characters, beyond which the display is truncated (though the full content remains available for download).
-
-4. **Memory Consumption**: Processing very large datasets can require significant memory resources, particularly when generating the complete DDI-CDI representation. The tool implements safeguards to prevent browser crashes, but these also limit the size of datasets that can be fully processed.
+- **Visualization Limitations**: The preview functionality in the tool is designed to handle up to approximately 100,000 characters, beyond which the display is truncated (though the full content remains available for download).
+- **Memory Consumption**: Processing very large datasets can require significant memory resources, particularly when generating the complete DDI-CDI representation. The tool implements safeguards to prevent browser crashes, but these also limit the size of datasets that can be fully processed.
 
 ### Browser-Based Constraints
 
-1. **Client-Side Processing**: As a web application, the tool relies on client-side (browser) resources for data processing, which imposes additional constraints compared to dedicated desktop applications.
+- **Client-Side Processing**: As a web application, the tool relies on client-side (browser) resources for data processing, which imposes additional constraints compared to dedicated desktop applications.
+- **Download Size Limitations**: While the tool supports downloading files of any size that can be generated, browser memory limitations may impact the ability to process extremely large output files.
+- **Processing Time**: Large datasets may require significant processing time, during which the interface will display a progress indicator but may appear less responsive.
 
-2. **Download Size Limitations**: While the tool supports downloading files of any size that can be generated, browser memory limitations may impact the ability to process extremely large output files.
+### Open Source and Local Setup Options
 
-3. **Processing Time**: Large datasets may require significant processing time, during which the interface will display a progress indicator but may appear less responsive.
+The DDI-CDI Converter is open source and available at [GitHub: benjaminbeuster/DDICDI_generator](https://github.com/benjaminbeuster/DDICDI_generator). Users can benefit from several advantages by setting up the tool locally:
+
+- **Customizable Row Limits**: Users can modify the source code to increase the default row limit beyond 5 rows based on their local machine's capabilities.
+- **Performance Optimization**: Local installation allows users to allocate more memory and processing power for handling larger datasets.
+- **Privacy and Security**: Processing data locally eliminates the need to upload sensitive data to external servers.
+- **Custom Extensions**: Advanced users can extend the tool's functionality to meet specific requirements.
+
+To set up the tool locally:
+1. Clone the repository from GitHub
+2. Follow the installation instructions in the repository's README
 
 ## Ideas for Next Steps
 
@@ -172,54 +179,18 @@ The current implementation of the DDI-CDI Converter demonstrates the potential f
 
 ### Backend Architecture Improvements
 
-1. **Server-Side Processing**: Transitioning to a server-side processing model would overcome many of the current memory limitations:
-   - Implementing a streaming architecture that processes data in manageable chunks
-   - Using database intermediaries to handle large datasets without loading everything into memory
-   - Leveraging background processing to allow users to submit conversion jobs and receive results when complete
+- **Server-Side Processing**: Transitioning to a server-side processing model would overcome many of the current memory limitations:
+  - Implementing a streaming architecture that processes data in manageable chunks
+  - Using database intermediaries to handle large datasets without loading everything into memory
+  - Leveraging background processing to allow users to submit conversion jobs and receive results when complete
 
-2. **Distributed Processing**: For very large datasets, implementing a distributed processing system could divide conversion tasks across multiple computing resources.
-
-3. **File Size Optimization**: Developing compression and optimization techniques specific to DDI-CDI representation could significantly reduce output file sizes while maintaining full compliance with the specification.
+- **Distributed Processing**: For very large datasets, implementing a distributed processing system could divide conversion tasks across multiple computing resources.
+- **File Size Optimization**: Developing compression and optimization techniques specific to DDI-CDI representation could significantly reduce output file sizes while maintaining full compliance with the specification.
 
 ### API Development
 
-1. **RESTful API**: Creating a comprehensive API would enable:
-   - Programmatic access to conversion functionality
-   - Integration with other data management systems
-   - Batch processing of multiple files
-   - Remote conversion without browser constraints
-
-2. **Language-Specific Libraries**: Developing libraries in languages commonly used for data analysis (Python, R, etc.) would allow researchers to incorporate DDI-CDI conversion directly into their workflows.
-
-3. **Webhook Notifications**: Implementing webhook notifications for completion of long-running conversion tasks would improve integration with other systems.
-
-### Local Processing Tools
-
-1. **Standalone Application**: Developing a desktop version of the converter would overcome browser limitations and provide:
-   - Direct access to local system resources
-   - Improved performance for large datasets
-   - Offline conversion capabilities
-
-2. **Command-Line Interface**: Creating a CLI tool would facilitate:
-   - Batch processing through scripts
-   - Integration with data pipelines
-   - Server automation
-
-3. **Integration with Statistical Software**: Developing plugins for SPSS, STATA, and other statistical packages would allow users to export directly to DDI-CDI format from their primary analytical tools.
-
-### Additional Features
-
-1. **Support for Additional Formats**: Expanding beyond SPSS and STATA to support:
-   - R data files
-   - Excel spreadsheets
-   - CSV with metadata
-   - Other statistical packages (SAS, etc.)
-
-2. **Advanced Validation**: Implementing comprehensive validation tools to:
-   - Verify DDI-CDI compliance
-   - Identify potential issues in the output
-   - Suggest optimizations for complex datasets
-
-3. **Visualization Components**: Adding visualizations of the DDI-CDI structure to help users understand the relationships between elements in their data.
-
-By implementing these enhancements, the DDI-CDI Converter could evolve into a more robust, scalable solution capable of handling datasets of any size while providing greater flexibility for integration with existing research workflows and data management systems.
+- **RESTful API**: Creating a comprehensive API would enable:
+  - Programmatic access to conversion functionality
+  - Integration with other data management systems
+  - Batch processing of multiple files
+  - Remote conversion without browser constraints
