@@ -583,32 +583,75 @@ def generate_InstanceValue(df, df_meta, process_all_rows=False, chunk_size=5):
 
 def map_to_xsd_type(original_type):
     """Map original data types to XSD data types with full URLs"""
+    # Convert original_type to lowercase string for comparison
+    type_str = str(original_type).lower()
+    
     type_mapping = {
         # Numeric types
         'int8': 'https://www.w3.org/TR/xmlschema-2/#byte',
         'int16': 'https://www.w3.org/TR/xmlschema-2/#short',
         'int32': 'https://www.w3.org/TR/xmlschema-2/#int',
         'int64': 'https://www.w3.org/TR/xmlschema-2/#long',
+        'int': 'https://www.w3.org/TR/xmlschema-2/#int',
+        'integer': 'https://www.w3.org/TR/xmlschema-2/#integer',
+        'uint8': 'https://www.w3.org/TR/xmlschema-2/#unsignedByte',
+        'uint16': 'https://www.w3.org/TR/xmlschema-2/#unsignedShort',
+        'uint32': 'https://www.w3.org/TR/xmlschema-2/#unsignedInt',
+        'uint64': 'https://www.w3.org/TR/xmlschema-2/#unsignedLong',
         'float': 'https://www.w3.org/TR/xmlschema-2/#float',
+        'float32': 'https://www.w3.org/TR/xmlschema-2/#float',
+        'float64': 'https://www.w3.org/TR/xmlschema-2/#double',
         'double': 'https://www.w3.org/TR/xmlschema-2/#double',
         'decimal': 'https://www.w3.org/TR/xmlschema-2/#decimal',
+        'numeric': 'https://www.w3.org/TR/xmlschema-2/#decimal',
+        'number': 'https://www.w3.org/TR/xmlschema-2/#decimal',
+        'complex': 'https://www.w3.org/TR/xmlschema-2/#string',
         
         # String types
         'string': 'https://www.w3.org/TR/xmlschema-2/#string',
         'str': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'object': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'text': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'varchar': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'character': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'char': 'https://www.w3.org/TR/xmlschema-2/#string',
         
         # Date/Time types
         'datetime': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
+        'datetime64': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
+        'datetime64[ns]': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
+        'timestamp': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
         'date': 'https://www.w3.org/TR/xmlschema-2/#date',
         'time': 'https://www.w3.org/TR/xmlschema-2/#time',
+        'timedelta': 'https://www.w3.org/TR/xmlschema-2/#duration',
+        'duration': 'https://www.w3.org/TR/xmlschema-2/#duration',
         
         # Boolean
         'bool': 'https://www.w3.org/TR/xmlschema-2/#boolean',
+        'boolean': 'https://www.w3.org/TR/xmlschema-2/#boolean',
+        
+        # Other specialized types
+        'category': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'factor': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'array': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'list': 'https://www.w3.org/TR/xmlschema-2/#string',
         
         # Default fallback
         'unknown': 'https://www.w3.org/TR/xmlschema-2/#string'
     }
-    return type_mapping.get(original_type.lower(), 'https://www.w3.org/TR/xmlschema-2/#string')
+    
+    # Check for pandas-specific type strings
+    if 'int' in type_str:
+        return 'https://www.w3.org/TR/xmlschema-2/#int'
+    elif 'float' in type_str:
+        return 'https://www.w3.org/TR/xmlschema-2/#double'
+    elif 'date' in type_str:
+        return 'https://www.w3.org/TR/xmlschema-2/#dateTime'
+    elif 'bool' in type_str:
+        return 'https://www.w3.org/TR/xmlschema-2/#boolean'
+    
+    # Try direct mapping first
+    return type_mapping.get(type_str, 'https://www.w3.org/TR/xmlschema-2/#string')
 
 def generate_SubstantiveValueDomain(df_meta):
     json_ld_data = []
