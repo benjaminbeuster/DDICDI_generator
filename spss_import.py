@@ -430,23 +430,85 @@ def read_json(filename: Path, encoding=None, **kwargs):
 
 
 def _read_flat_json(json_data, filename):
-    """Handle simple flat key-value JSON format"""
-    # Convert flat key-value pairs to DataFrame with "key" and "value" columns
+    """Handle simple flat key-value JSON format with optional key decomposition"""
+    # Convert flat key-value pairs to DataFrame
     keys = list(json_data.keys())
     values = list(json_data.values())
     
-    df_data = {
-        'key': keys,
-        'value': values
-    }
+    # Check if keys contain hierarchical structure (separator "/")
+    separator = "/"
+    has_hierarchical_keys = any(separator in key for key in keys)
     
-    df = pd.DataFrame(df_data)
-    
-    # Create simple metadata structure
-    column_names = ['key', 'value']
-    column_labels = {'key': 'Key', 'value': 'Value'}
-    variable_types = {'key': 'string', 'value': 'numeric'}  # Default to numeric for values
-    measure_types = {'key': 'nominal', 'value': 'scale'}
+    if has_hierarchical_keys:
+        print(f"Detected hierarchical keys with '{separator}' separator - decomposing into separate columns...")
+        
+        # Find maximum number of components across all keys
+        max_components = max(len(key.split(separator)) for key in keys)
+        print(f"Creating {max_components} key columns (key-1 to key-{max_components}) plus value column")
+        
+        # Create decomposed DataFrame structure
+        df_data = {}
+        column_names = []
+        
+        # Create key-1, key-2, ..., key-N columns
+        for i in range(max_components):
+            col_name = f'key-{i+1}'
+            column_names.append(col_name)
+            df_data[col_name] = []
+        
+        # Add value column
+        column_names.append('value')
+        df_data['value'] = values
+        
+        # Split each key into components and populate columns
+        for key in keys:
+            components = key.split(separator)
+            # Pad shorter keys with None for consistent column count
+            components.extend([None] * (max_components - len(components)))
+            
+            for i, component in enumerate(components):
+                col_name = f'key-{i+1}'
+                df_data[col_name].append(component if component else None)
+        
+        # Create DataFrame with decomposed structure
+        df = pd.DataFrame(df_data)
+        
+        # Create metadata for decomposed columns
+        column_labels = {}
+        variable_types = {}
+        measure_types = {}
+        
+        # Set up key columns as identifiers
+        identifier_vars = []
+        for i in range(max_components):
+            col_name = f'key-{i+1}'
+            column_labels[col_name] = f'Key Level {i+1}'
+            variable_types[col_name] = 'string'
+            measure_types[col_name] = 'nominal'
+            identifier_vars.append(col_name)
+        
+        # Set up value column as measure
+        column_labels['value'] = 'Value'
+        variable_types['value'] = 'numeric'  # Default, will be checked below
+        measure_types['value'] = 'scale'
+        measure_vars = ['value']
+        
+    else:
+        # Use simple key-value structure (original behavior)
+        df_data = {
+            'key': keys,
+            'value': values
+        }
+        
+        df = pd.DataFrame(df_data)
+        
+        # Create simple metadata structure
+        column_names = ['key', 'value']
+        column_labels = {'key': 'Key', 'value': 'Value'}
+        variable_types = {'key': 'string', 'value': 'numeric'}  # Default to numeric for values
+        measure_types = {'key': 'nominal', 'value': 'scale'}
+        identifier_vars = ['key']
+        measure_vars = ['value']
     
     # Check if values are actually numeric
     try:
@@ -506,9 +568,9 @@ def _read_flat_json(json_data, filename):
         number_rows=len(df),
         datafile=filename,
         missing_user_values={},
-        measure_vars=['value'],     # Value column is measure
-        identifier_vars=['key'],    # Key column is identifier
-        attribute_vars=[]           # No attributes for simple format
+        measure_vars=measure_vars,       # Value column(s) are measures
+        identifier_vars=identifier_vars, # Key column(s) are identifiers
+        attribute_vars=[]                # No attributes for flat format
     )
     
     return df, meta, str(filename), meta.number_rows
