@@ -6,13 +6,42 @@ import pandas as pd
 import datetime
 import time
 
+# Helper functions for conditional references based on file format
+def _get_dataset_reference(df_meta):
+    """Get the appropriate dataset reference based on file format"""
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return "#keyValueDataStore"
+    else:
+        return "#wideDataSet"
+
+def _get_structure_reference(df_meta):
+    """Get the appropriate structure reference based on file format"""
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return "#keyValueStructure"
+    else:
+        return "#wideDataStructure"
+
+def _get_dataset_type(df_meta):
+    """Get the appropriate dataset type based on file format"""
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return "KeyValueDataStore"
+    else:
+        return "WideDataSet"
+
+def _get_structure_type(df_meta):
+    """Get the appropriate structure type based on file format"""
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return "KeyValueStructure"
+    else:
+        return "WideDataStructure"
+
 # Core functions
 def generate_PhysicalDataSetStructure(df_meta):
     json_ld_data = []
     elements = {
         "@id": "#physicalDataSetStructure",
         "@type": "PhysicalDataSetStructure",
-        "correspondsTo_DataStructure": "#wideDataStructure",
+        "correspondsTo_DataStructure": _get_structure_reference(df_meta),
         "structures": "#physicalDataSet"
     }
     json_ld_data.append(elements)
@@ -21,11 +50,11 @@ def generate_PhysicalDataSetStructure(df_meta):
 def generate_PhysicalDataset(df_meta, spssfile):
     json_ld_data = []
     elements = {
-        "@id": f"#physicalDataSet",
+        "@id": "#physicalDataSet",
         "@type": "PhysicalDataSet",
         "allowsDuplicates": False,
         "physicalFileName": spssfile,
-        "correspondsTo_DataSet": "#wideDataSet",
+        "correspondsTo_DataSet": _get_dataset_reference(df_meta),
         "formats": "#dataStore",
         "has_PhysicalRecordSegment": ["#physicalRecordSegment"]
     }
@@ -96,13 +125,10 @@ def generate_DataStore(df_meta):
 def generate_LogicalRecord(df_meta):
     json_ld_data = []
     
-    # Check if this is a CSV file
-    is_csv = hasattr(df_meta, 'file_format') and df_meta.file_format == 'csv'
-    
     elements = {
         "@id": "#logicalRecord",
         "@type": "LogicalRecord",
-        "organizes": "#wideDataSet",
+        "organizes": _get_dataset_reference(df_meta),
         "has_InstanceVariable": []
     }
     
@@ -116,9 +142,9 @@ def generate_LogicalRecord(df_meta):
 def generate_WideDataSet(df_meta):
     json_ld_data = []
     elements = {
-        "@id": "#wideDataSet",
-        "@type": "WideDataSet",
-        "isStructuredBy": "#wideDataStructure"
+        "@id": _get_dataset_reference(df_meta),
+        "@type": _get_dataset_type(df_meta),
+        "isStructuredBy": _get_structure_reference(df_meta)
     }
     
     json_ld_data.append(elements)
@@ -127,8 +153,8 @@ def generate_WideDataSet(df_meta):
 def generate_WideDataStructure(df_meta):
     json_ld_data = []
     elements = {
-        "@id": "#wideDataStructure",
-        "@type": "WideDataStructure",
+        "@id": _get_structure_reference(df_meta),
+        "@type": _get_structure_type(df_meta),
         "has_DataStructureComponent": []
     }
     
@@ -402,7 +428,7 @@ def generate_DataPoint(df, df_meta, process_all_rows=False, chunk_size=5):
     # Using a list comprehension to generate all data points at once is more efficient
     # Pre-calculate the common values
     datapoint_type = "DataPoint"
-    dataset_reference = "#wideDataSet"
+    dataset_reference = _get_dataset_reference(df_meta)
     
     result = []
     # Generate data points in a single operation to avoid repeated function calls
