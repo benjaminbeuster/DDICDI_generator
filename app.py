@@ -179,6 +179,20 @@ app.layout = dbc.Container([
             ),
             html.Br(),
 
+            # Add switch for key decomposition (JSON files only) - positioned prominently after file upload
+            dbc.Switch(
+                id="decompose-keys",
+                label="Decompose hierarchical keys into separate columns (JSON files)",
+                value=True,  # Default to enabled
+                style={
+                    'display': 'none',  # Hidden by default, shown for JSON files
+                    'marginLeft': '15px',
+                    'color': colors['secondary']
+                }
+            ),
+
+            html.Br(),
+
             # Add style and id to the Switch View button
             dbc.Button(
                 "Switch View", 
@@ -538,16 +552,18 @@ def truncate_for_display(json_str, max_length=500000, include_metadata=False):
      Output('json-ld-output', 'children'),
      Output('table-switch-button', 'style'),
      Output('include-metadata', 'style'),
+     Output('decompose-keys', 'style'),
      Output('upload-data', 'contents'),
      Output('full-json-store', 'data')],  # Add this new output
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
      Input('include-metadata', 'value'),
+     Input('decompose-keys', 'value'),
      Input('table2', 'data'),
      Input('process-all-rows', 'value')],
     [State('upload-data', 'filename')]
 )
-def combined_callback(contents, selected_rows, include_metadata, table2_data, process_all_rows, filename):
+def combined_callback(contents, selected_rows, include_metadata, decompose_keys, table2_data, process_all_rows, filename):
     global df, df_meta
     
     ctx = dash.callback_context
@@ -667,6 +683,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     truncated_json,    # json output for display
                     {'display': 'block'},
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    {'display': 'none'},  # decompose-keys style (hidden for non-JSON)
                     None,  # Clear the upload contents
                     full_json  # full JSON for download
                 )
@@ -676,7 +693,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             import traceback
             print(traceback.format_exc())
             # Return error state
-            return [dash.no_update] * 14
+            return [dash.no_update] * 15
 
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:
@@ -711,7 +728,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
             elif '.json' in tmp_filename:
                 print("Reading file using read_json")
-                df, df_meta, file_name, n_rows = read_json(tmp_filename)
+                df, df_meta, file_name, n_rows = read_json(tmp_filename, decompose_keys=decompose_keys)
                 df2 = create_variable_view(df_meta)  # Use standard variable view for JSON
             else:
                 raise ValueError(f"Unsupported file type. File must be .sav, .dta, .csv, or .json, got: {tmp_filename}")
@@ -790,6 +807,13 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 # Truncate for display only if include_metadata is true
                 truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
                 
+                # Determine if we should show the decompose-keys switch
+                if '.json' in filename and hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+                    # Show the switch for all JSON files
+                    decompose_switch_style = {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']}
+                else:
+                    decompose_switch_style = {'display': 'none'}
+                
                 return (
                     df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
                     columns1,
@@ -803,13 +827,14 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     truncated_json,    # json output for display
                     {'display': 'block'},
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    decompose_switch_style,  # decompose-keys style (shown for JSON with hierarchical keys)
                     None,  # Clear the upload contents
                     full_json  # full JSON for download
                 )
 
         except Exception as e:
             print(f"Error processing file: {str(e)}")
-            return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, None, None
+            return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None
 
     # When table2 data changes (dropdown selections change)
     if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
@@ -875,12 +900,13 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             json_ld_data,    # json output
             {'display': 'block'},  # table switch button style
             {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},  # include metadata style
+            dash.no_update,  # decompose-keys style
             dash.no_update,  # upload contents
             None  # full JSON store
         )
 
     if not contents:
-        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, dash.no_update, None
 
     try:
         print("Step 1: Starting file processing")
@@ -907,7 +933,7 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
         elif '.json' in tmp_filename:
             print("Reading file using read_json")
-            df, df_meta, file_name, n_rows = read_json(tmp_filename)
+            df, df_meta, file_name, n_rows = read_json(tmp_filename, decompose_keys=decompose_keys)
             df2 = create_variable_view(df_meta)  # Use standard variable view for JSON
         else:
             raise ValueError(f"Unsupported file type. File must be .sav, .dta, .csv, or .json, got: {tmp_filename}")
@@ -1034,19 +1060,27 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             # Truncate for display only if include_metadata is true
             truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
             
+            # Determine if we should show the decompose-keys switch
+            if '.json' in filename and hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+                # Show the switch for all JSON files
+                decompose_switch_style = {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']}
+            else:
+                decompose_switch_style = {'display': 'none'}
+            
             return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
                     table2_data, columns2, conditional_styles2, 
                     get_button_group_style(visible=True),  # Use helper function
                     instruction_text1, instruction_text2, truncated_json,
                     {'display': 'block'},
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    decompose_switch_style,  # decompose-keys style
                     None,  # Clear the upload contents
                     full_json  # full JSON for download
                 )
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, None, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None
 
     finally:
         if 'tmp_filename' in locals():

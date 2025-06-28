@@ -356,7 +356,7 @@ def read_csv(filename: Path, delimiter=None, header=0, encoding=None, infer_type
     return df, meta, str(filename), meta.number_rows
 
 
-def read_json(filename: Path, encoding=None, **kwargs):
+def read_json(filename: Path, encoding=None, decompose_keys=True, **kwargs):
     """
     Read JSON key-value file and create a metadata structure compatible with what pyreadstat returns
     
@@ -387,6 +387,8 @@ def read_json(filename: Path, encoding=None, **kwargs):
         Path to the JSON file
     encoding : str, default None
         File encoding (will try multiple encodings if None)
+    decompose_keys : bool, default True
+        Whether to decompose hierarchical keys (with '/') into separate columns
     **kwargs : dict
         Additional arguments (for compatibility)
         
@@ -426,20 +428,20 @@ def read_json(filename: Path, encoding=None, **kwargs):
         # Simple flat key-value format
         if not json_data:
             raise ValueError("JSON file must contain at least one key-value pair")
-        return _read_flat_json(json_data, filename)
+        return _read_flat_json(json_data, filename, decompose_keys)
 
 
-def _read_flat_json(json_data, filename):
+def _read_flat_json(json_data, filename, decompose_keys=True):
     """Handle simple flat key-value JSON format with optional key decomposition"""
     # Convert flat key-value pairs to DataFrame
     keys = list(json_data.keys())
     values = list(json_data.values())
     
-    # Check if keys contain hierarchical structure (separator "/")
+    # Check if keys contain hierarchical structure (separator "/") AND user wants decomposition
     separator = "/"
     has_hierarchical_keys = any(separator in key for key in keys)
     
-    if has_hierarchical_keys:
+    if has_hierarchical_keys and decompose_keys:
         print(f"Detected hierarchical keys with '{separator}' separator - decomposing into separate columns...")
         
         # Find maximum number of components across all keys
