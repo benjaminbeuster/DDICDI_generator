@@ -1,10 +1,9 @@
 from __future__ import annotations
-import typing as t
 from pathlib import Path
 import pandas as pd
 import numpy as np
 import pyreadstat as pyr
-from collections import namedtuple
+import json
 
 # Set pandas options
 pd.set_option('display.max_rows', 2500)
@@ -353,6 +352,301 @@ def read_csv(filename: Path, delimiter=None, header=0, encoding=None, infer_type
     
     # Update delimiter in metadata to match what was used to read the file
     meta.delimiter = delimiter
+    
+    return df, meta, str(filename), meta.number_rows
+
+
+def read_json(filename: Path, encoding=None, **kwargs):
+    """
+    Read JSON key-value file and create a metadata structure compatible with what pyreadstat returns
+    
+    Supports two formats:
+    1. Structured format:
+    {
+      "dataset_name": "Dataset Name",
+      "variables": {
+        "var1": {
+          "type": "identifier|measure|attribute",
+          "description": "Variable description", 
+          "values": [data_array],
+          "value_labels": {"value": "label"}
+        }
+      }
+    }
+    
+    2. Simple flat key-value format:
+    {
+      "key1": value1,
+      "key2": value2,
+      ...
+    }
+    
+    Parameters:
+    -----------
+    filename : Path
+        Path to the JSON file
+    encoding : str, default None
+        File encoding (will try multiple encodings if None)
+    **kwargs : dict
+        Additional arguments (for compatibility)
+        
+    Returns:
+    --------
+    tuple : (DataFrame, metadata, filename, number_rows)
+    """
+    filename = Path(filename)  # Ensure filename is a Path object
+    
+    # Try reading the file with different encodings if not specified
+    if encoding:
+        encodings = [encoding]
+    else:
+        encodings = ENCODINGS
+    
+    json_data = None
+    for enc in encodings:
+        try:
+            with open(filename, 'r', encoding=enc) as f:
+                json_data = json.load(f)
+            break
+        except Exception as e:
+            print(f"Failed to read file with encoding {enc}: {e}")
+            continue
+    
+    if json_data is None:
+        raise ValueError("Could not read JSON file with any encoding!")
+    
+    # Check if this is a structured format (has 'variables' key) or simple flat key-value format
+    if 'variables' in json_data:
+        # Structured format
+        variables = json_data['variables']
+        if not variables:
+            raise ValueError("JSON file must contain at least one variable in the 'variables' section")
+        return _read_structured_json(json_data, filename)
+    else:
+        # Simple flat key-value format
+        if not json_data:
+            raise ValueError("JSON file must contain at least one key-value pair")
+        return _read_flat_json(json_data, filename)
+
+
+def _read_flat_json(json_data, filename):
+    """Handle simple flat key-value JSON format"""
+    # Convert flat key-value pairs to DataFrame with "key" and "value" columns
+    keys = list(json_data.keys())
+    values = list(json_data.values())
+    
+    df_data = {
+        'key': keys,
+        'value': values
+    }
+    
+    df = pd.DataFrame(df_data)
+    
+    # Create simple metadata structure
+    column_names = ['key', 'value']
+    column_labels = {'key': 'Key', 'value': 'Value'}
+    variable_types = {'key': 'string', 'value': 'numeric'}  # Default to numeric for values
+    measure_types = {'key': 'nominal', 'value': 'scale'}
+    
+    # Check if values are actually numeric
+    try:
+        # Try to convert values to numeric
+        pd.to_numeric(values)
+        variable_types['value'] = 'numeric'
+        measure_types['value'] = 'scale'
+    except (ValueError, TypeError):
+        # If conversion fails, treat as string
+        variable_types['value'] = 'string'
+        measure_types['value'] = 'nominal'
+    
+    # Process data types
+    for col in df.columns:
+        if df[col].dtype.kind in 'biufc':
+            df[col].fillna(pd.NA, inplace=True)
+            try:
+                if all(df[col].dropna().astype(float).map(float.is_integer)):
+                    df[col] = df[col].astype('Int64')
+            except (ValueError, TypeError):
+                pass  # Keep as is if conversion fails
+        else:
+            df[col].fillna(np.nan, inplace=True)
+    
+    # Replace NaN with None
+    df.replace({np.nan: None, pd.NA: None}, inplace=True)
+    
+    # Create metadata class
+    class JSONMetadata:
+        """Mutable metadata class for JSON files, compatible with pyreadstat's metadata structure"""
+        def __init__(self, column_names, column_names_to_labels, original_variable_types,
+                    variable_value_labels, missing_ranges, variable_measure, number_rows,
+                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars):
+            self.column_names = column_names
+            self.column_names_to_labels = column_names_to_labels
+            self.column_labels = column_names_to_labels
+            self.original_variable_types = original_variable_types
+            self.readstat_variable_types = original_variable_types
+            self.variable_value_labels = variable_value_labels
+            self.missing_ranges = missing_ranges
+            self.variable_measure = variable_measure
+            self.number_rows = number_rows
+            self.datafile = datafile
+            self.missing_user_values = missing_user_values
+            self.measure_vars = measure_vars
+            self.identifier_vars = identifier_vars
+            self.attribute_vars = attribute_vars
+            self.file_format = 'json'
+    
+    meta = JSONMetadata(
+        column_names=column_names,
+        column_names_to_labels=column_labels,
+        original_variable_types=variable_types,
+        variable_value_labels={},  # No value labels for flat format
+        missing_ranges={},  # No missing ranges for flat format
+        variable_measure=measure_types,
+        number_rows=len(df),
+        datafile=filename,
+        missing_user_values={},
+        measure_vars=['value'],     # Value column is measure
+        identifier_vars=['key'],    # Key column is identifier
+        attribute_vars=[]           # No attributes for simple format
+    )
+    
+    return df, meta, str(filename), meta.number_rows
+
+
+def _read_structured_json(json_data, filename):
+    """Handle structured JSON format with 'variables' key"""
+    variables = json_data['variables']
+    # Create DataFrame from variables
+    df_data = {}
+    column_names = []
+    variable_types = {}
+    measure_types = {}
+    value_labels = {}
+    missing_ranges = {}
+    column_labels = {}
+    
+    # Process variables
+    measures = []
+    identifiers = []
+    attributes = []
+    
+    for var_name, var_info in variables.items():
+        column_names.append(var_name)
+        
+        # Get values
+        if 'values' not in var_info:
+            raise ValueError(f"Variable '{var_name}' must have a 'values' key")
+        
+        values = var_info['values']
+        df_data[var_name] = values
+        
+        # Set column label from description or use variable name
+        description = var_info.get('description', var_name)
+        column_labels[var_name] = description
+        
+        # Determine variable type and measure
+        var_type = var_info.get('type', 'measure')
+        
+        # Classify variables by type
+        if 'identifier' in var_type:
+            identifiers.append(var_name)
+        if 'measure' in var_type:
+            measures.append(var_name)
+        if 'attribute' in var_type:
+            attributes.append(var_name)
+        
+        # Infer data type from values
+        if values:
+            sample_value = next((v for v in values if v is not None), None)
+            if sample_value is not None:
+                if isinstance(sample_value, (int, float)):
+                    variable_types[var_name] = 'numeric'
+                    measure_types[var_name] = 'scale'
+                elif isinstance(sample_value, str):
+                    variable_types[var_name] = 'string'
+                    measure_types[var_name] = 'nominal'
+                else:
+                    variable_types[var_name] = 'string'
+                    measure_types[var_name] = 'nominal'
+            else:
+                variable_types[var_name] = 'string'
+                measure_types[var_name] = 'nominal'
+        
+        # Handle value labels
+        if 'value_labels' in var_info:
+            value_labels[var_name] = var_info['value_labels']
+        
+        # Handle missing values
+        if 'missing_values' in var_info:
+            missing_values = var_info['missing_values']
+            missing_ranges[var_name] = []
+            for mv in missing_values:
+                missing_ranges[var_name].append({"lo": mv, "hi": mv})
+    
+    # Create DataFrame
+    df = pd.DataFrame(df_data)
+    
+    # Process data types and missing values
+    for col in df.columns:
+        if df[col].dtype.kind in 'biufc':
+            df[col].fillna(pd.NA, inplace=True)
+            # Only convert to Int64 if all values are integers
+            try:
+                if all(df[col].dropna().astype(float).map(float.is_integer)):
+                    df[col] = df[col].astype('Int64')
+            except (ValueError, TypeError):
+                pass  # Keep as is if conversion fails
+        else:
+            df[col].fillna(np.nan, inplace=True)
+    
+    # Handle string variables
+    for var in df.columns:
+        if df[var].dtype == 'string' or df[var].dtype == 'object':
+            df[[var]].replace({'': pd.NA}, inplace=True)
+    
+    # Replace NaN with None
+    df.replace({np.nan: None, pd.NA: None}, inplace=True)
+    
+    # Create metadata using the same class as flat format
+    class JSONMetadata:
+        """Mutable metadata class for JSON files, compatible with pyreadstat's metadata structure"""
+        def __init__(self, column_names, column_names_to_labels, original_variable_types,
+                    variable_value_labels, missing_ranges, variable_measure, number_rows,
+                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars):
+            self.column_names = column_names
+            self.column_names_to_labels = column_names_to_labels
+            self.column_labels = column_names_to_labels
+            self.original_variable_types = original_variable_types
+            self.readstat_variable_types = original_variable_types
+            self.variable_value_labels = variable_value_labels
+            self.missing_ranges = missing_ranges
+            self.variable_measure = variable_measure
+            self.number_rows = number_rows
+            self.datafile = datafile
+            self.missing_user_values = missing_user_values
+            self.measure_vars = measure_vars
+            self.identifier_vars = identifier_vars
+            self.attribute_vars = attribute_vars
+            self.file_format = 'json'
+    
+    # Create metadata
+    missing_user_values = {}
+    
+    meta = JSONMetadata(
+        column_names=column_names,
+        column_names_to_labels=column_labels,
+        original_variable_types=variable_types,
+        variable_value_labels=value_labels,
+        missing_ranges=missing_ranges,
+        variable_measure=measure_types,
+        number_rows=len(df),
+        datafile=filename,
+        missing_user_values=missing_user_values,
+        measure_vars=measures,
+        identifier_vars=identifiers,
+        attribute_vars=attributes
+    )
     
     return df, meta, str(filename), meta.number_rows
 

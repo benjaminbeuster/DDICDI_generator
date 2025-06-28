@@ -13,7 +13,7 @@ from DDICDI_converter_JSONLD_incremental import (
     generate_complete_json_ld,
     MemoryManager
 )
-from spss_import import read_sav, read_csv, create_variable_view, create_variable_view2
+from spss_import import read_sav, read_csv, read_json, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 from dash.exceptions import PreventUpdate
 import rdflib
@@ -175,7 +175,7 @@ app.layout = dbc.Container([
                     'height': '100%',
                 },
                 multiple=False,
-                accept=".sav,.dta,.csv"
+                accept=".sav,.dta,.csv,.json"
             ),
             html.Br(),
 
@@ -709,8 +709,12 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 # Use automatic delimiter detection and handle date formats
                 df, df_meta, file_name, n_rows = read_csv(tmp_filename, delimiter=None, dayfirst=False)
                 df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
+            elif '.json' in tmp_filename:
+                print("Reading file using read_json")
+                df, df_meta, file_name, n_rows = read_json(tmp_filename)
+                df2 = create_variable_view(df_meta)  # Use standard variable view for JSON
             else:
-                raise ValueError(f"Unsupported file type. File must be .sav, .dta, or .csv, got: {tmp_filename}")
+                raise ValueError(f"Unsupported file type. File must be .sav, .dta, .csv, or .json, got: {tmp_filename}")
                 
             # Initialize with empty classifications
             df_meta.measure_vars = []
@@ -901,8 +905,12 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             # Use automatic delimiter detection and handle date formats
             df, df_meta, file_name, n_rows = read_csv(tmp_filename, delimiter=None, dayfirst=False)
             df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
+        elif '.json' in tmp_filename:
+            print("Reading file using read_json")
+            df, df_meta, file_name, n_rows = read_json(tmp_filename)
+            df2 = create_variable_view(df_meta)  # Use standard variable view for JSON
         else:
-            raise ValueError(f"Unsupported file type. File must be .sav, .dta, or .csv, got: {tmp_filename}")
+            raise ValueError(f"Unsupported file type. File must be .sav, .dta, .csv, or .json, got: {tmp_filename}")
 
         print("Step 5: File read complete")
         print(f"df_meta exists: {df_meta is not None}")
