@@ -295,9 +295,14 @@ app.layout = dbc.Container([
                                             {'label': 'Measure', 'value': 'measure'},
                                             {'label': 'Identifier', 'value': 'identifier'},
                                             {'label': 'Attribute', 'value': 'attribute'},
+                                            {'label': 'Contextual (JSON only)', 'value': 'contextual'},
+                                            {'label': 'SyntheticId (JSON only)', 'value': 'synthetic'},
                                             {'label': 'Measure, Identifier', 'value': 'measure,identifier'},
                                             {'label': 'Measure, Attribute', 'value': 'measure,attribute'},
+                                            {'label': 'Measure, Contextual', 'value': 'measure,contextual'},
                                             {'label': 'Identifier, Attribute', 'value': 'identifier,attribute'},
+                                            {'label': 'Identifier, Contextual', 'value': 'identifier,contextual'},
+                                            {'label': 'Attribute, Contextual', 'value': 'attribute,contextual'},
                                             {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'}
                                         ],
                                         'clearable': False
@@ -737,6 +742,8 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             df_meta.measure_vars = []
             df_meta.identifier_vars = []
             df_meta.attribute_vars = []
+            df_meta.contextual_vars = []
+            df_meta.synthetic_id_vars = []
 
             # Prepare table data
             columns1 = [{"name": i, "id": i} for i in df.columns]
@@ -842,6 +849,8 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
         measures = []
         identifiers = []
         attributes = []
+        contextuals = []
+        synthetics = []
         
         # Process the comma-separated roles for each variable
         for row in table2_data:
@@ -852,17 +861,25 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                 identifiers.append(row['name'])
             if 'attribute' in roles:
                 attributes.append(row['name'])
+            if 'contextual' in roles:
+                contextuals.append(row['name'])
+            if 'synthetic' in roles:
+                synthetics.append(row['name'])
         
         if 'df_meta' in globals():
             df_meta.measure_vars = measures
             df_meta.identifier_vars = identifiers
             df_meta.attribute_vars = attributes
+            df_meta.contextual_vars = contextuals
+            df_meta.synthetic_id_vars = synthetics
             
         # Update lists.txt with new classifications
         with open('lists.txt', 'w') as f:
             f.write(f"Measures: {measures}\n")
             f.write(f"Identifiers: {identifiers}\n")
             f.write(f"Attributes: {attributes}\n")
+            f.write(f"Contextuals: {contextuals}\n")
+            f.write(f"Synthetics: {synthetics}\n")
         
         # Determine optimal chunk size for large datasets
         dynamic_chunk_size = CHUNK_SIZE
@@ -1046,12 +1063,16 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             measures = [row['name'] for row in table2_data if row.get('role_measure') == True]
             identifiers = [row['name'] for row in table2_data if row.get('role_identifier') == True]
             attributes = [row['name'] for row in table2_data if row.get('role_attribute') == True]
+            contextuals = [row['name'] for row in table2_data if row.get('role_contextual') == True]
+            synthetics = [row['name'] for row in table2_data if row.get('role_synthetic') == True]
             
             # Save to lists.txt
             with open('lists.txt', 'w') as f:
                 f.write(f"Measures: {measures}\n")
                 f.write(f"Identifiers: {identifiers}\n")
                 f.write(f"Attributes: {attributes}\n")
+                f.write(f"Contextuals: {contextuals}\n")
+                f.write(f"Synthetics: {synthetics}\n")
 
         # Before returning, store the full JSON and truncate for display
         if json_ld_data and json_ld_data != "Error generating JSON-LD":

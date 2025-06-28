@@ -543,7 +543,8 @@ def _read_flat_json(json_data, filename, decompose_keys=True):
         """Mutable metadata class for JSON files, compatible with pyreadstat's metadata structure"""
         def __init__(self, column_names, column_names_to_labels, original_variable_types,
                     variable_value_labels, missing_ranges, variable_measure, number_rows,
-                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars):
+                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars,
+                    contextual_vars=None, synthetic_id_vars=None):
             self.column_names = column_names
             self.column_names_to_labels = column_names_to_labels
             self.column_labels = column_names_to_labels
@@ -558,6 +559,8 @@ def _read_flat_json(json_data, filename, decompose_keys=True):
             self.measure_vars = measure_vars
             self.identifier_vars = identifier_vars
             self.attribute_vars = attribute_vars
+            self.contextual_vars = contextual_vars or []
+            self.synthetic_id_vars = synthetic_id_vars or []
             self.file_format = 'json'
     
     meta = JSONMetadata(
@@ -572,7 +575,9 @@ def _read_flat_json(json_data, filename, decompose_keys=True):
         missing_user_values={},
         measure_vars=measure_vars,       # Value column(s) are measures
         identifier_vars=identifier_vars, # Key column(s) are identifiers
-        attribute_vars=[]                # No attributes for flat format
+        attribute_vars=[],               # No attributes for flat format
+        contextual_vars=[],              # No contextual vars for flat format initially
+        synthetic_id_vars=[]             # No synthetic id vars for flat format initially
     )
     
     return df, meta, str(filename), meta.number_rows
@@ -677,7 +682,8 @@ def _read_structured_json(json_data, filename):
         """Mutable metadata class for JSON files, compatible with pyreadstat's metadata structure"""
         def __init__(self, column_names, column_names_to_labels, original_variable_types,
                     variable_value_labels, missing_ranges, variable_measure, number_rows,
-                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars):
+                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars,
+                    contextual_vars=None, synthetic_id_vars=None):
             self.column_names = column_names
             self.column_names_to_labels = column_names_to_labels
             self.column_labels = column_names_to_labels
@@ -692,6 +698,8 @@ def _read_structured_json(json_data, filename):
             self.measure_vars = measure_vars
             self.identifier_vars = identifier_vars
             self.attribute_vars = attribute_vars
+            self.contextual_vars = contextual_vars or []
+            self.synthetic_id_vars = synthetic_id_vars or []
             self.file_format = 'json'
     
     # Create metadata
@@ -709,7 +717,9 @@ def _read_structured_json(json_data, filename):
         missing_user_values=missing_user_values,
         measure_vars=measures,
         identifier_vars=identifiers,
-        attribute_vars=attributes
+        attribute_vars=attributes,
+        contextual_vars=[],              # No contextual vars for structured format initially
+        synthetic_id_vars=[]             # No synthetic id vars for structured format initially
     )
     
     return df, meta, str(filename), meta.number_rows

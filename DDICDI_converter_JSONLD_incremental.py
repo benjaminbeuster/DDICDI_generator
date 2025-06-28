@@ -235,6 +235,38 @@ def generate_AttributeComponent(df_meta):
                 json_ld_data.append(elements)
     return json_ld_data
 
+def generate_ContextualComponent(df_meta):
+    """Generate ContextualComponent entries for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars:
+            for variable in df_meta.contextual_vars:
+                if variable in df_meta.column_names:  # Verify variable exists in dataset
+                    elements = {
+                        "@id": f"#contextualComponent-{variable}",
+                        "@type": "ContextualComponent",
+                        "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                    }
+                    json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_SyntheticIdComponent(df_meta):
+    """Generate SyntheticIdComponent entries for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars:
+            for variable in df_meta.synthetic_id_vars:
+                if variable in df_meta.column_names:  # Verify variable exists in dataset
+                    elements = {
+                        "@id": f"#syntheticIdComponent-{variable}",
+                        "@type": "SyntheticIdComponent",
+                        "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                    }
+                    json_ld_data.append(elements)
+    return json_ld_data
+
 def generate_PrimaryKey(df_meta):
     json_ld_data = []
     if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
@@ -1186,6 +1218,14 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
     # Add attribute components if attribute_vars is not empty
     if df_meta.attribute_vars:
         components.append(generate_AttributeComponent(df_meta))
+    
+    # Add contextual components if contextual_vars is not empty (JSON files only)
+    if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars:
+        components.append(generate_ContextualComponent(df_meta))
+    
+    # Add synthetic ID components if synthetic_id_vars is not empty (JSON files only)
+    if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars:
+        components.append(generate_SyntheticIdComponent(df_meta))
     
     # Get the separated components
     components_dict = wrap_in_graph(*components)
