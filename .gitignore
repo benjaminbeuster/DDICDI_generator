@@ -29,4 +29,4 @@ validation/
 DDICDI_converter_JSONLD_incremental_v1.py
 keyvalue.json
 
-
+*.json

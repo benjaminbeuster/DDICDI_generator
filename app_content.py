@@ -5,9 +5,9 @@ prefix = "https://docs.ddialliance.org/DDI-CDI/1.0/model/FieldLevelDocumentation
 markdown_text = r"""
 ## DDI-CDI Subset
 
-This profile utilizes 26 classes from the DDI-CDI model (25.01.2025).
+This profile utilizes 30 classes from the DDI-CDI model (25.01.2025).
 
-|  DDI-CDI Classes  |  DDI-CDI Classes  | SKOS Mapping in JSON-LD |
+|  DDI-CDI Classes  |  DDI-CDI Classes  | SKOS Classes |
 |------------------|------------------|------------------|
 | [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) | |
 | [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) | |
@@ -18,10 +18,12 @@ This profile utilizes 26 classes from the DDI-CDI model (25.01.2025).
 | [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) | |
 | [InstanceValue]({0}/DataDescription/InstanceValue.html) | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) | |
 | [DataStore]({0}/FormatDescription/DataStore.html) | [EnumerationDomain]({0}/Representations/EnumerationDomain.html) | |
-| [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) | [Codelist]({0}/Representations/CodeList.html#super-class-hierarchy-generalization) | [`skos:ConceptScheme`](https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme) |
-| [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | [Code]({0}/Representations/Code.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
-| [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) | [Category]({0}/Conceptual/Category.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
-| [InstanceVariable]({0}/Conceptual/InstanceVariable.html) | [Notation]({0}/DataDescription/Notation.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
+| [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) | [KeyValueDataStore]({0}/DataDescription/KeyValue/KeyValueDataStore.html) | [`skos:ConceptScheme`](https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme) |
+| [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | [KeyValueStructure]({0}/DataDescription/KeyValue/KeyValueStructure.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
+| [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) | [MainKeyMember]({0}/DataDescription/KeyValue/MainKeyMember.html) | |
+| [InstanceVariable]({0}/Conceptual/InstanceVariable.html) | [VariableValueComponent]({0}/DataDescription/Components/VariableValueComponent.html) | |
+| [VariableDescriptorComponent]({0}/DataDescription/Components/VariableDescriptorComponent.html) | [ContextualComponent]({0}/DataDescription/Components/ContextualComponent.html) | |
+| [SyntheticIdComponent]({0}/DataDescription/Components/SyntheticIdComponent.html) | [DimensionComponent]({0}/DataDescription/Components/DimensionComponent.html) | |
 """.format(prefix)
 
 from datetime import datetime
@@ -33,7 +35,7 @@ about_text = f'''
 This prototype was initially developed by Sikt as part of the [WorldFAIR Project](https://worldfair-project.eu/) and further developed under [FAIR Impact](https://www.fair-impact.eu/). It is designed to facilitate the implementation of [DDI-CDI](https://ddialliance.org/Specification/DDI-CDI/) and to support training activities within the DDI community. For further information, please contact [Benjamin Beuster](mailto:benjamin.beuster@sikt.no). Last updated on: {current_date}
 '''
 
-app_title = 'DDI-CDI Converter (Prototype): Wide Table Generation for STATA, SPSS and CSV'
+app_title = 'DDI-CDI Converter for STATA, SPSS, CSV and JSON (Prototype)'
 app_description = ''
 
 # Modern bright color scheme
