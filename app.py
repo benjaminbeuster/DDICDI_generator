@@ -512,10 +512,11 @@ def get_default_roles_for_variables(df_meta, filename):
     Determine appropriate default roles for variables based on file type and metadata.
     
     For JSON files:
-    - Variables in identifier_vars → "identifier" 
-    - Variables in measure_vars → "variablevalue"
+    - Variables in measure_vars (like 'value' column) → "variablevalue" (highest priority)
     - Variables in contextual_vars → "contextual"
     - Variables in synthetic_id_vars → "synthetic"
+    - Variables in identifier_vars → "identifier" 
+    - Other variables → "identifier" (default)
     
     For non-JSON files (CSV, SPSS, Stata):
     - All variables → "measure"
@@ -535,25 +536,40 @@ def get_default_roles_for_variables(df_meta, filename):
     default_roles = {}
     
     if is_json and hasattr(df_meta, 'column_names'):
+        # Debug logging
+        print(f"DEBUG: Processing JSON file with {len(df_meta.column_names)} columns")
+        if hasattr(df_meta, 'measure_vars'):
+            print(f"DEBUG: measure_vars = {getattr(df_meta, 'measure_vars', [])}")
+        if hasattr(df_meta, 'identifier_vars'):
+            print(f"DEBUG: identifier_vars = {getattr(df_meta, 'identifier_vars', [])}")
+        
         # For JSON files, assign roles based on metadata classification
+        # Priority order: measure_vars (value) > contextual > synthetic > identifier > default
         for var_name in df_meta.column_names:
-            if hasattr(df_meta, 'identifier_vars') and var_name in getattr(df_meta, 'identifier_vars', []):
-                default_roles[var_name] = 'identifier'
+            # Highest priority: variables in measure_vars should get 'variablevalue' role
+            if hasattr(df_meta, 'measure_vars') and var_name in getattr(df_meta, 'measure_vars', []):
+                default_roles[var_name] = 'variablevalue'
+                print(f"DEBUG: Assigned '{var_name}' -> 'variablevalue' (from measure_vars)")
             elif hasattr(df_meta, 'contextual_vars') and var_name in getattr(df_meta, 'contextual_vars', []):
                 default_roles[var_name] = 'contextual'
+                print(f"DEBUG: Assigned '{var_name}' -> 'contextual'")
             elif hasattr(df_meta, 'synthetic_id_vars') and var_name in getattr(df_meta, 'synthetic_id_vars', []):
                 default_roles[var_name] = 'synthetic'
-            elif hasattr(df_meta, 'measure_vars') and var_name in getattr(df_meta, 'measure_vars', []):
-                default_roles[var_name] = 'variablevalue'
+                print(f"DEBUG: Assigned '{var_name}' -> 'synthetic'")
+            elif hasattr(df_meta, 'identifier_vars') and var_name in getattr(df_meta, 'identifier_vars', []):
+                default_roles[var_name] = 'identifier'
+                print(f"DEBUG: Assigned '{var_name}' -> 'identifier' (from identifier_vars)")
             else:
                 # Default for unclassified JSON variables
                 default_roles[var_name] = 'identifier'
+                print(f"DEBUG: Assigned '{var_name}' -> 'identifier' (default)")
     else:
         # For non-JSON files, default all variables to measure
         if hasattr(df_meta, 'column_names'):
             for var_name in df_meta.column_names:
                 default_roles[var_name] = 'measure'
     
+    print(f"DEBUG: Final default_roles = {default_roles}")
     return default_roles
 
 # Define callbacks
@@ -830,6 +846,46 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             default_roles = get_default_roles_for_variables(df_meta, filename)
             df2['roles'] = df2['name'].map(default_roles).fillna('measure')
             table2_data = df2.to_dict('records')
+            
+            # IMPORTANT: Apply the default roles to df_meta immediately so the initial JSON-LD generation uses them
+            measures = []
+            identifiers = []
+            attributes = []
+            contextuals = []
+            synthetics = []
+            variable_values = []
+            
+            # Process the default roles and apply them to df_meta
+            for row in table2_data:
+                roles = row.get('roles', '').split(',') if row.get('roles') else []
+                if 'measure' in roles:
+                    measures.append(row['name'])
+                if 'identifier' in roles:
+                    identifiers.append(row['name'])
+                if 'attribute' in roles:
+                    attributes.append(row['name'])
+                if 'contextual' in roles:
+                    contextuals.append(row['name'])
+                if 'synthetic' in roles:
+                    synthetics.append(row['name'])
+                if 'variablevalue' in roles:
+                    variable_values.append(row['name'])
+            
+            # Update df_meta with the default role assignments
+            df_meta.measure_vars = measures
+            df_meta.identifier_vars = identifiers
+            df_meta.attribute_vars = attributes
+            df_meta.contextual_vars = contextuals
+            df_meta.synthetic_id_vars = synthetics
+            df_meta.variable_value_vars = variable_values
+            
+            print(f"DEBUG: Applied default roles to df_meta during initial file upload:")
+            print(f"  - measures: {measures}")
+            print(f"  - identifiers: {identifiers}")
+            print(f"  - attributes: {attributes}")
+            print(f"  - contextuals: {contextuals}")
+            print(f"  - synthetics: {synthetics}")
+            print(f"  - variable_values: {variable_values}")
 
             # Generate only JSON-LD initially
             # Determine optimal chunk size for large datasets
@@ -1074,6 +1130,46 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
         
         # Convert df2 to records for the table
         table2_data = df2.to_dict('records')
+        
+        # IMPORTANT: Apply the default roles to df_meta immediately so the initial JSON-LD generation uses them
+        measures = []
+        identifiers = []
+        attributes = []
+        contextuals = []
+        synthetics = []
+        variable_values = []
+        
+        # Process the default roles and apply them to df_meta
+        for row in table2_data:
+            roles = row.get('roles', '').split(',') if row.get('roles') else []
+            if 'measure' in roles:
+                measures.append(row['name'])
+            if 'identifier' in roles:
+                identifiers.append(row['name'])
+            if 'attribute' in roles:
+                attributes.append(row['name'])
+            if 'contextual' in roles:
+                contextuals.append(row['name'])
+            if 'synthetic' in roles:
+                synthetics.append(row['name'])
+            if 'variablevalue' in roles:
+                variable_values.append(row['name'])
+        
+        # Update df_meta with the default role assignments
+        df_meta.measure_vars = measures
+        df_meta.identifier_vars = identifiers
+        df_meta.attribute_vars = attributes
+        df_meta.contextual_vars = contextuals
+        df_meta.synthetic_id_vars = synthetics
+        df_meta.variable_value_vars = variable_values
+        
+        print(f"DEBUG: Applied default roles to df_meta during fallback file processing:")
+        print(f"  - measures: {measures}")
+        print(f"  - identifiers: {identifiers}")
+        print(f"  - attributes: {attributes}")
+        print(f"  - contextuals: {contextuals}")
+        print(f"  - synthetics: {synthetics}")
+        print(f"  - variable_values: {variable_values}")
 
         # Get selected variables
         vars = []
