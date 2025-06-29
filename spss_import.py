@@ -417,7 +417,7 @@ def read_json(filename: Path, encoding=None, decompose_keys=True, **kwargs):
     if json_data is None:
         raise ValueError("Could not read JSON file with any encoding!")
     
-    # Check if this is a structured format (has 'variables' key) or simple flat key-value format
+    # Check format type: structured (has 'variables' key), nested objects, or simple flat key-value format
     if 'variables' in json_data:
         # Structured format
         variables = json_data['variables']
@@ -425,10 +425,19 @@ def read_json(filename: Path, encoding=None, decompose_keys=True, **kwargs):
             raise ValueError("JSON file must contain at least one variable in the 'variables' section")
         return _read_structured_json(json_data, filename)
     else:
-        # Simple flat key-value format
         if not json_data:
             raise ValueError("JSON file must contain at least one key-value pair")
-        return _read_flat_json(json_data, filename, decompose_keys)
+        
+        # Check if values are nested objects (dictionaries)
+        sample_values = list(json_data.values())[:5]  # Check first 5 values for efficiency
+        has_nested_objects = any(isinstance(val, dict) for val in sample_values)
+        
+        if has_nested_objects:
+            # Nested object format - flatten objects into separate columns
+            return _read_nested_json(json_data, filename)
+        else:
+            # Simple flat key-value format
+            return _read_flat_json(json_data, filename, decompose_keys)
 
 
 def _read_flat_json(json_data, filename, decompose_keys=True):
@@ -580,6 +589,141 @@ def _read_flat_json(json_data, filename, decompose_keys=True):
         contextual_vars=[],              # No contextual vars for flat format initially
         synthetic_id_vars=[],            # No synthetic id vars for flat format initially
         variable_value_vars=[]           # No variable value vars for flat format initially
+    )
+    
+    return df, meta, str(filename), meta.number_rows
+
+
+def _read_nested_json(json_data, filename):
+    """Handle nested object JSON format where values are dictionaries"""
+    import pandas as pd
+    import numpy as np
+    
+    # Extract all keys and their corresponding object values
+    record_keys = list(json_data.keys())
+    record_objects = list(json_data.values())
+    
+    # Find all unique property names across all objects
+    all_properties = set()
+    for obj in record_objects:
+        if isinstance(obj, dict):
+            all_properties.update(obj.keys())
+    
+    # Sort properties for consistent column ordering
+    property_columns = sorted(list(all_properties))
+    
+    # Create DataFrame structure
+    df_data = {}
+    
+    # Add record identifier column
+    df_data['record_id'] = record_keys
+    
+    # Add columns for each property found in the nested objects
+    for prop in property_columns:
+        df_data[prop] = [obj.get(prop) if isinstance(obj, dict) else None for obj in record_objects]
+    
+    # Create DataFrame
+    df = pd.DataFrame(df_data)
+    
+    # Process data types for each column
+    column_names = ['record_id'] + property_columns
+    column_labels = {'record_id': 'Record Identifier'}
+    variable_types = {'record_id': 'string'}
+    measure_types = {'record_id': 'nominal'}
+    
+    # Analyze each property column for appropriate data type
+    for prop in property_columns:
+        column_labels[prop] = prop.replace('_', ' ').title()
+        
+        # Check if column contains numeric data
+        try:
+            numeric_data = pd.to_numeric(df[prop], errors='coerce')
+            if not numeric_data.isna().all():  # If any values are numeric
+                variable_types[prop] = 'numeric'
+                measure_types[prop] = 'scale'
+                df[prop] = numeric_data
+            else:
+                variable_types[prop] = 'string'
+                measure_types[prop] = 'nominal'
+        except (ValueError, TypeError):
+            variable_types[prop] = 'string'
+            measure_types[prop] = 'nominal'
+    
+    # Handle data type processing similar to flat JSON
+    for col in df.columns:
+        if df[col].dtype.kind in 'biufc':
+            df[col].fillna(pd.NA, inplace=True)
+            try:
+                if all(df[col].dropna().astype(float).map(float.is_integer)):
+                    df[col] = df[col].astype('Int64')
+            except (ValueError, TypeError):
+                pass
+        else:
+            df[col].fillna(np.nan, inplace=True)
+    
+    # Replace NaN with None
+    df.replace({np.nan: None, pd.NA: None}, inplace=True)
+    
+    # Classify variables for DDI-CDI
+    identifier_vars = ['record_id']  # Record ID is always an identifier
+    measure_vars = []
+    attribute_vars = []
+    
+    # Classify remaining columns based on content and naming patterns
+    for prop in property_columns:
+        prop_lower = prop.lower()
+        # Common identifier patterns
+        if any(id_pattern in prop_lower for id_pattern in ['id', 'identifier', 'key', 'code']):
+            identifier_vars.append(prop)
+        # Categorical/attribute patterns  
+        elif any(attr_pattern in prop_lower for attr_pattern in ['name', 'type', 'category', 'class', 'status', 'country', 'region']):
+            attribute_vars.append(prop)
+        # Numeric measures (default for numeric columns)
+        else:
+            measure_vars.append(prop)
+    
+    # Create metadata class using the same structure as flat JSON
+    class JSONMetadata:
+        """Mutable metadata class for JSON files, compatible with pyreadstat's metadata structure"""
+        def __init__(self, column_names, column_names_to_labels, original_variable_types,
+                    variable_value_labels, missing_ranges, variable_measure, number_rows,
+                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars,
+                    contextual_vars=None, synthetic_id_vars=None, variable_value_vars=None):
+            self.column_names = column_names
+            self.column_names_to_labels = column_names_to_labels
+            self.column_labels = column_names_to_labels
+            self.original_variable_types = original_variable_types
+            self.readstat_variable_types = original_variable_types
+            self.variable_value_labels = variable_value_labels
+            self.missing_ranges = missing_ranges
+            self.variable_measure = variable_measure
+            self.number_rows = number_rows
+            self.datafile = datafile
+            self.missing_user_values = missing_user_values
+            self.measure_vars = measure_vars
+            self.identifier_vars = identifier_vars
+            self.attribute_vars = attribute_vars
+            self.contextual_vars = contextual_vars or []
+            self.synthetic_id_vars = synthetic_id_vars or []
+            self.variable_value_vars = variable_value_vars or []
+            self.file_format = 'json'
+    
+    meta = JSONMetadata(
+        column_names=column_names,
+        column_names_to_labels=column_labels,
+        original_variable_types=variable_types,
+        variable_value_labels={},  # No value labels for nested format
+        missing_ranges={},  # No missing ranges for nested format
+        variable_measure=measure_types,
+        number_rows=len(df),
+        datafile=filename,
+        missing_user_values={},
+        measure_vars=measure_vars,
+        identifier_vars=identifier_vars,
+        attribute_vars=attribute_vars,
+        contextual_vars=[],              # No contextual vars for nested format initially
+        synthetic_id_vars=[],            # No synthetic id vars for nested format initially
+        variable_value_vars=[]           # No variable value vars for nested format initially
     )
     
     return df, meta, str(filename), meta.number_rows
