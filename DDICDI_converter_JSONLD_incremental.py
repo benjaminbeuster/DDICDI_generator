@@ -170,12 +170,12 @@ def generate_WideDataStructure(df_meta):
         "has_DataStructureComponent": []
     }
     
-    # Set up for primary key if identifiers exist
-    if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
-        elements["has_PrimaryKey"] = "#primaryKey"
-    
     # Check if this is a JSON file to use different component logic
     is_json_file = hasattr(df_meta, 'file_format') and df_meta.file_format == 'json'
+    
+    # Set up for primary key if identifiers exist (non-JSON files only)
+    if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars and not is_json_file:
+        elements["has_PrimaryKey"] = "#primaryKey"
     
     # Process all variables for all possible roles
     for variable in df_meta.column_names:
@@ -1322,14 +1322,18 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
         generate_Concept(df_meta)
     ]
 
-    # Only add primary key related components if identifier_vars is provided AND not empty
-    if df_meta.identifier_vars:
+    # Only add primary key related components for non-JSON files
+    is_json_file = hasattr(df_meta, 'file_format') and df_meta.file_format == 'json'
+    if df_meta.identifier_vars and not is_json_file:
         pk_components = [
             generate_IdentifierComponent(df_meta),
             generate_PrimaryKey(df_meta),
             generate_PrimaryKeyComponent(df_meta)
         ]
         components.extend(pk_components)
+    elif df_meta.identifier_vars and is_json_file:
+        # For JSON files, only generate IdentifierComponent (no PrimaryKey)
+        components.append(generate_IdentifierComponent(df_meta))
     
     # Add attribute components if attribute_vars is not empty
     if df_meta.attribute_vars:
