@@ -428,13 +428,34 @@ def read_json(filename: Path, encoding=None, decompose_keys=True, **kwargs):
         if not json_data:
             raise ValueError("JSON file must contain at least one key-value pair")
         
-        # Check if values are nested objects (dictionaries)
+        # Analyze JSON structure to determine format type
         sample_values = list(json_data.values())[:5]  # Check first 5 values for efficiency
-        has_nested_objects = any(isinstance(val, dict) for val in sample_values)
         
+        # Check for array structures (e.g., {"animals": [...]})
+        has_arrays = any(isinstance(val, list) for val in sample_values)
+        if has_arrays:
+            return _read_array_json(json_data, filename)
+        
+        # Check for nested objects (dictionaries)
+        has_nested_objects = any(isinstance(val, dict) for val in sample_values)
         if has_nested_objects:
-            # Nested object format - flatten objects into separate columns
-            return _read_nested_json(json_data, filename)
+            # Check if nested objects contain other objects (deep nesting)
+            has_deep_nesting = False
+            for val in sample_values:
+                if isinstance(val, dict):
+                    for nested_val in val.values():
+                        if isinstance(nested_val, dict):
+                            has_deep_nesting = True
+                            break
+                if has_deep_nesting:
+                    break
+            
+            if has_deep_nesting:
+                # Deep nested format - flatten nested hierarchies with dot notation
+                return _read_deep_nested_json(json_data, filename)
+            else:
+                # Simple nested object format - flatten objects into separate columns
+                return _read_nested_json(json_data, filename)
         else:
             # Simple flat key-value format
             return _read_flat_json(json_data, filename, decompose_keys)
@@ -724,6 +745,358 @@ def _read_nested_json(json_data, filename):
         contextual_vars=[],              # No contextual vars for nested format initially
         synthetic_id_vars=[],            # No synthetic id vars for nested format initially
         variable_value_vars=[]           # No variable value vars for nested format initially
+    )
+    
+    return df, meta, str(filename), meta.number_rows
+
+
+def _read_deep_nested_json(json_data, filename):
+    """Handle deeply nested JSON format where objects contain other objects"""
+    import pandas as pd
+    import numpy as np
+    
+    def flatten_dict(d, parent_key='', sep='.'):
+        """Recursively flatten a nested dictionary using dot notation"""
+        items = []
+        for k, v in d.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, dict):
+                items.extend(flatten_dict(v, new_key, sep=sep).items())
+            else:
+                items.append((new_key, v))
+        return dict(items)
+    
+    # Extract all keys and their corresponding object values
+    record_keys = list(json_data.keys())
+    record_objects = list(json_data.values())
+    
+    # Flatten each nested object
+    flattened_records = []
+    for obj in record_objects:
+        if isinstance(obj, dict):
+            flattened_records.append(flatten_dict(obj))
+        else:
+            # If not a dict, treat as simple value
+            flattened_records.append({'value': obj})
+    
+    # Find all unique flattened property names across all objects
+    all_properties = set()
+    for flattened_obj in flattened_records:
+        all_properties.update(flattened_obj.keys())
+    
+    # Sort properties for consistent column ordering
+    property_columns = sorted(list(all_properties))
+    
+    # Create DataFrame structure
+    df_data = {}
+    
+    # Add record identifier column
+    df_data['record_id'] = record_keys
+    
+    # Add columns for each flattened property
+    for prop in property_columns:
+        df_data[prop] = [flattened_obj.get(prop) for flattened_obj in flattened_records]
+    
+    # Create DataFrame
+    df = pd.DataFrame(df_data)
+    
+    # Process data types for each column
+    column_names = ['record_id'] + property_columns
+    column_labels = {'record_id': 'Record Identifier'}
+    variable_types = {'record_id': 'string'}
+    measure_types = {'record_id': 'nominal'}
+    
+    # Analyze each property column for appropriate data type
+    for prop in property_columns:
+        # Create human-readable label from dot notation
+        label_parts = prop.split('.')
+        column_labels[prop] = ' '.join(part.replace('_', ' ').title() for part in label_parts)
+        
+        # Check if column contains numeric data
+        try:
+            numeric_data = pd.to_numeric(df[prop], errors='coerce')
+            if not numeric_data.isna().all():  # If any values are numeric
+                variable_types[prop] = 'numeric'
+                measure_types[prop] = 'scale'
+                df[prop] = numeric_data
+            else:
+                variable_types[prop] = 'string'
+                measure_types[prop] = 'nominal'
+        except (ValueError, TypeError):
+            variable_types[prop] = 'string'
+            measure_types[prop] = 'nominal'
+    
+    # Handle data type processing similar to other JSON functions
+    for col in df.columns:
+        if df[col].dtype.kind in 'biufc':
+            df[col].fillna(pd.NA, inplace=True)
+            try:
+                if all(df[col].dropna().astype(float).map(float.is_integer)):
+                    df[col] = df[col].astype('Int64')
+            except (ValueError, TypeError):
+                pass
+        else:
+            df[col].fillna(np.nan, inplace=True)
+    
+    # Replace NaN with None
+    df.replace({np.nan: None, pd.NA: None}, inplace=True)
+    
+    # Classify variables for DDI-CDI based on naming patterns
+    identifier_vars = ['record_id']  # Record ID is always an identifier
+    measure_vars = []
+    attribute_vars = []
+    
+    # Classify remaining columns based on content and naming patterns
+    for prop in property_columns:
+        prop_lower = prop.lower()
+        # Common identifier patterns
+        if any(id_pattern in prop_lower for id_pattern in ['id', 'identifier', 'key', 'code']):
+            identifier_vars.append(prop)
+        # Categorical/attribute patterns  
+        elif any(attr_pattern in prop_lower for attr_pattern in ['name', 'type', 'category', 'class', 'status', 'country', 'region', 'department', 'location']):
+            attribute_vars.append(prop)
+        # Boolean patterns (often attributes)
+        elif variable_types[prop] == 'string' and any(str(val).lower() in ['true', 'false'] for val in df[prop].dropna() if val is not None):
+            attribute_vars.append(prop)
+        # Numeric measures (default for numeric columns)
+        else:
+            measure_vars.append(prop)
+    
+    # Create metadata class using the same structure as other JSON functions
+    class JSONMetadata:
+        """Mutable metadata class for JSON files, compatible with pyreadstat's metadata structure"""
+        def __init__(self, column_names, column_names_to_labels, original_variable_types,
+                    variable_value_labels, missing_ranges, variable_measure, number_rows,
+                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars,
+                    contextual_vars=None, synthetic_id_vars=None, variable_value_vars=None):
+            self.column_names = column_names
+            self.column_names_to_labels = column_names_to_labels
+            self.column_labels = column_names_to_labels
+            self.original_variable_types = original_variable_types
+            self.readstat_variable_types = original_variable_types
+            self.variable_value_labels = variable_value_labels
+            self.missing_ranges = missing_ranges
+            self.variable_measure = variable_measure
+            self.number_rows = number_rows
+            self.datafile = datafile
+            self.missing_user_values = missing_user_values
+            self.measure_vars = measure_vars
+            self.identifier_vars = identifier_vars
+            self.attribute_vars = attribute_vars
+            self.contextual_vars = contextual_vars or []
+            self.synthetic_id_vars = synthetic_id_vars or []
+            self.variable_value_vars = variable_value_vars or []
+            self.file_format = 'json'
+    
+    meta = JSONMetadata(
+        column_names=column_names,
+        column_names_to_labels=column_labels,
+        original_variable_types=variable_types,
+        variable_value_labels={},  # No value labels for deep nested format
+        missing_ranges={},  # No missing ranges for deep nested format
+        variable_measure=measure_types,
+        number_rows=len(df),
+        datafile=filename,
+        missing_user_values={},
+        measure_vars=measure_vars,
+        identifier_vars=identifier_vars,
+        attribute_vars=attribute_vars,
+        contextual_vars=[],              # No contextual vars for deep nested format initially
+        synthetic_id_vars=[],            # No synthetic id vars for deep nested format initially
+        variable_value_vars=[]           # No variable value vars for deep nested format initially
+    )
+    
+    return df, meta, str(filename), meta.number_rows
+
+
+def _read_array_json(json_data, filename):
+    """Handle array-based JSON format where values are arrays of objects"""
+    import pandas as pd
+    import numpy as np
+    
+    def flatten_dict(d, parent_key='', sep='.'):
+        """Recursively flatten a nested dictionary using dot notation"""
+        items = []
+        for k, v in d.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, dict):
+                items.extend(flatten_dict(v, new_key, sep=sep).items())
+            elif isinstance(v, list):
+                # For arrays, we'll handle them separately in the main function
+                items.append((new_key, v))
+            else:
+                items.append((new_key, v))
+        return dict(items)
+    
+    # Find arrays in the JSON data
+    array_data = []
+    array_source_keys = []
+    
+    for key, value in json_data.items():
+        if isinstance(value, list):
+            # Process each item in the array
+            for item in value:
+                if isinstance(item, dict):
+                    # Flatten the object if it has nested structures
+                    flattened_item = flatten_dict(item)
+                    array_data.append(flattened_item)
+                    array_source_keys.append(key)
+                else:
+                    # Simple value in array
+                    array_data.append({'value': item})
+                    array_source_keys.append(key)
+    
+    if not array_data:
+        raise ValueError("No valid array data found in JSON file")
+    
+    # Find all unique property names across all array items
+    all_properties = set()
+    for item in array_data:
+        all_properties.update(item.keys())
+    
+    # Sort properties for consistent column ordering
+    property_columns = sorted(list(all_properties))
+    
+    # Create DataFrame structure
+    df_data = {}
+    
+    # Add source array identifier if there are multiple arrays
+    unique_sources = list(set(array_source_keys))
+    if len(unique_sources) > 1:
+        df_data['array_source'] = array_source_keys
+        column_names = ['array_source'] + property_columns
+    else:
+        column_names = property_columns
+    
+    # Add columns for each property found in the array objects
+    for prop in property_columns:
+        df_data[prop] = [item.get(prop) for item in array_data]
+    
+    # Create DataFrame
+    df = pd.DataFrame(df_data)
+    
+    # Process data types for each column
+    column_labels = {}
+    variable_types = {}
+    measure_types = {}
+    
+    # Handle array_source column if it exists
+    if 'array_source' in df.columns:
+        column_labels['array_source'] = 'Array Source'
+        variable_types['array_source'] = 'string'
+        measure_types['array_source'] = 'nominal'
+    
+    # Analyze each property column for appropriate data type
+    for prop in property_columns:
+        # Create human-readable label from dot notation
+        if '.' in prop:
+            label_parts = prop.split('.')
+            column_labels[prop] = ' '.join(part.replace('_', ' ').title() for part in label_parts)
+        else:
+            column_labels[prop] = prop.replace('_', ' ').title()
+        
+        # Check if column contains numeric data
+        try:
+            numeric_data = pd.to_numeric(df[prop], errors='coerce')
+            if not numeric_data.isna().all():  # If any values are numeric
+                variable_types[prop] = 'numeric'
+                measure_types[prop] = 'scale'
+                df[prop] = numeric_data
+            else:
+                variable_types[prop] = 'string'
+                measure_types[prop] = 'nominal'
+        except (ValueError, TypeError):
+            variable_types[prop] = 'string'
+            measure_types[prop] = 'nominal'
+    
+    # Handle data type processing similar to other JSON functions
+    for col in df.columns:
+        if df[col].dtype.kind in 'biufc':
+            df[col].fillna(pd.NA, inplace=True)
+            try:
+                if all(df[col].dropna().astype(float).map(float.is_integer)):
+                    df[col] = df[col].astype('Int64')
+            except (ValueError, TypeError):
+                pass
+        else:
+            df[col].fillna(np.nan, inplace=True)
+    
+    # Replace NaN with None
+    df.replace({np.nan: None, pd.NA: None}, inplace=True)
+    
+    # Classify variables for DDI-CDI based on naming patterns
+    identifier_vars = []
+    measure_vars = []
+    attribute_vars = []
+    
+    # Add array_source as identifier if it exists
+    if 'array_source' in df.columns:
+        identifier_vars.append('array_source')
+    
+    # Classify remaining columns based on content and naming patterns
+    for prop in property_columns:
+        prop_lower = prop.lower()
+        # Common identifier patterns
+        if any(id_pattern in prop_lower for id_pattern in ['id', 'identifier', 'key', 'code']):
+            identifier_vars.append(prop)
+        # Categorical/attribute patterns  
+        elif any(attr_pattern in prop_lower for attr_pattern in ['name', 'type', 'category', 'class', 'status', 'country', 'region', 'species', 'color', 'location', 'department']):
+            attribute_vars.append(prop)
+        # Boolean patterns (often attributes)
+        elif variable_types[prop] == 'string' and any(str(val).lower() in ['true', 'false'] for val in df[prop].dropna() if val is not None):
+            attribute_vars.append(prop)
+        # Weight, size, measurement patterns (usually measures)
+        elif any(measure_pattern in prop_lower for measure_pattern in ['weight', 'size', 'age', 'score', 'salary', 'amount', 'count', 'quantity']):
+            measure_vars.append(prop)
+        # Numeric measures (default for numeric columns)
+        elif variable_types[prop] == 'numeric':
+            measure_vars.append(prop)
+        # String values default to attributes
+        else:
+            attribute_vars.append(prop)
+    
+    # Create metadata class using the same structure as other JSON functions
+    class JSONMetadata:
+        """Mutable metadata class for JSON files, compatible with pyreadstat's metadata structure"""
+        def __init__(self, column_names, column_names_to_labels, original_variable_types,
+                    variable_value_labels, missing_ranges, variable_measure, number_rows,
+                    datafile, missing_user_values, measure_vars, identifier_vars, attribute_vars,
+                    contextual_vars=None, synthetic_id_vars=None, variable_value_vars=None):
+            self.column_names = column_names
+            self.column_names_to_labels = column_names_to_labels
+            self.column_labels = column_names_to_labels
+            self.original_variable_types = original_variable_types
+            self.readstat_variable_types = original_variable_types
+            self.variable_value_labels = variable_value_labels
+            self.missing_ranges = missing_ranges
+            self.variable_measure = variable_measure
+            self.number_rows = number_rows
+            self.datafile = datafile
+            self.missing_user_values = missing_user_values
+            self.measure_vars = measure_vars
+            self.identifier_vars = identifier_vars
+            self.attribute_vars = attribute_vars
+            self.contextual_vars = contextual_vars or []
+            self.synthetic_id_vars = synthetic_id_vars or []
+            self.variable_value_vars = variable_value_vars or []
+            self.file_format = 'json'
+    
+    meta = JSONMetadata(
+        column_names=column_names,
+        column_names_to_labels=column_labels,
+        original_variable_types=variable_types,
+        variable_value_labels={},  # No value labels for array format
+        missing_ranges={},  # No missing ranges for array format
+        variable_measure=measure_types,
+        number_rows=len(df),
+        datafile=filename,
+        missing_user_values={},
+        measure_vars=measure_vars,
+        identifier_vars=identifier_vars,
+        attribute_vars=attribute_vars,
+        contextual_vars=[],              # No contextual vars for array format initially
+        synthetic_id_vars=[],            # No synthetic id vars for array format initially
+        variable_value_vars=[]           # No variable value vars for array format initially
     )
     
     return df, meta, str(filename), meta.number_rows

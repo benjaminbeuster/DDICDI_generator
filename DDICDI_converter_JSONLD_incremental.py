@@ -389,12 +389,12 @@ def generate_MainKeyMember(df_meta):
             elements = {
                 "@id": "#mainKeyMember",
                 "@type": "MainKeyMember",
-                "basedOn": based_on_components
+                "isBasedOn": based_on_components
             }
             
             # Add substantive value domain reference if we have a key variable
             if first_key_var:
-                elements["hasValueFrom_SubstantiveValueDomain"] = f"#substantiveValueDomain-{first_key_var}"
+                elements["hasValueFrom_ValueDomain"] = f"#substantiveValueDomain-{first_key_var}"
             
             json_ld_data.append(elements)
     
