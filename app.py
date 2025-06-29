@@ -757,11 +757,11 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:
         try:
-            # Clear previous data
+            # Clear previous data (this will be replaced with new classifications from file processing)
             if 'df_meta' in globals():
-                df_meta.measure_vars = []
-                df_meta.identifier_vars = []
-                df_meta.attribute_vars = []
+                # Just note that we're clearing previous metadata - 
+                # new classifications will be set by the file processing functions
+                pass
             
             # Reset lists.txt
             with open('lists.txt', 'w') as f:
@@ -792,13 +792,19 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             else:
                 raise ValueError(f"Unsupported file type. File must be .sav, .dta, .csv, or .json, got: {tmp_filename}")
                 
-            # Initialize with empty classifications
-            df_meta.measure_vars = []
-            df_meta.identifier_vars = []
-            df_meta.attribute_vars = []
-            df_meta.contextual_vars = []
-            df_meta.synthetic_id_vars = []
-            df_meta.variable_value_vars = []
+            # Initialize classifications only if they don't already exist (preserve JSON processing results)
+            if not hasattr(df_meta, 'measure_vars') or df_meta.measure_vars is None:
+                df_meta.measure_vars = []
+            if not hasattr(df_meta, 'identifier_vars') or df_meta.identifier_vars is None:
+                df_meta.identifier_vars = []
+            if not hasattr(df_meta, 'attribute_vars') or df_meta.attribute_vars is None:
+                df_meta.attribute_vars = []
+            if not hasattr(df_meta, 'contextual_vars') or df_meta.contextual_vars is None:
+                df_meta.contextual_vars = []
+            if not hasattr(df_meta, 'synthetic_id_vars') or df_meta.synthetic_id_vars is None:
+                df_meta.synthetic_id_vars = []
+            if not hasattr(df_meta, 'variable_value_vars') or df_meta.variable_value_vars is None:
+                df_meta.variable_value_vars = []
 
             # Prepare table data
             columns1 = [{"name": i, "id": i} for i in df.columns]
