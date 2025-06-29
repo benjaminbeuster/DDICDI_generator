@@ -24,6 +24,24 @@ MAX_ROWS_TO_PROCESS = 5  # Maximum number of rows to process by default
 PREVIEW_ROWS = 5  # Number of rows to show in the data preview table
 CHUNK_SIZE = 500  # Size of chunks to process when handling larger datasets
 
+# Dropdown options for different file types
+NON_JSON_DROPDOWN_OPTIONS = [
+    {'label': 'Measure', 'value': 'measure'},
+    {'label': 'Identifier', 'value': 'identifier'},
+    {'label': 'Attribute', 'value': 'attribute'},
+    {'label': 'Measure, Identifier', 'value': 'measure,identifier'},
+    {'label': 'Measure, Attribute', 'value': 'measure,attribute'},
+    {'label': 'Identifier, Attribute', 'value': 'identifier,attribute'},
+    {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'}
+]
+
+JSON_DROPDOWN_OPTIONS = [
+    {'label': 'Identifier', 'value': 'identifier'},
+    {'label': 'SyntheticId', 'value': 'synthetic'},
+    {'label': 'Contextual', 'value': 'contextual'},
+    {'label': 'VariableValue', 'value': 'variablevalue'}
+]
+
 # Define the namespaces, DDI
 nsmap = {
     'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/',
@@ -277,24 +295,7 @@ app.layout = dbc.Container([
                                 ],
                                 dropdown={
                                     'roles': {
-                                        'options': [
-                                            {'label': 'Measure', 'value': 'measure'},
-                                            {'label': 'Identifier', 'value': 'identifier'},
-                                            {'label': 'Attribute', 'value': 'attribute'},
-                                            {'label': 'Contextual (JSON only)', 'value': 'contextual'},
-                                            {'label': 'SyntheticId (JSON only)', 'value': 'synthetic'},
-                                            {'label': 'VariableValue (JSON only)', 'value': 'variablevalue'},
-                                            {'label': 'Measure, Identifier', 'value': 'measure,identifier'},
-                                            {'label': 'Measure, Attribute', 'value': 'measure,attribute'},
-                                            {'label': 'Measure, Contextual', 'value': 'measure,contextual'},
-                                            {'label': 'Measure, VariableValue', 'value': 'measure,variablevalue'},
-                                            {'label': 'Identifier, Attribute', 'value': 'identifier,attribute'},
-                                            {'label': 'Identifier, Contextual', 'value': 'identifier,contextual'},
-                                            {'label': 'Identifier, VariableValue', 'value': 'identifier,variablevalue'},
-                                            {'label': 'Attribute, Contextual', 'value': 'attribute,contextual'},
-                                            {'label': 'Attribute, VariableValue', 'value': 'attribute,variablevalue'},
-                                            {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'}
-                                        ],
+                                        'options': NON_JSON_DROPDOWN_OPTIONS,  # Default options, will be updated dynamically
                                         'clearable': False
                                     }
                                 },
@@ -487,6 +488,7 @@ app.layout = dbc.Container([
             dcc.Store(id='processing-start-time'),
             dcc.Store(id='processing-data', data={'status': 'idle'}),
             dcc.Store(id='full-json-store'),
+            dcc.Store(id='file-type-store'),
         ])
     ]),
     about_section  # <-- add this line to include the about_section
@@ -560,7 +562,8 @@ def truncate_for_display(json_str, max_length=500000, include_metadata=False):
      Output('include-metadata', 'style'),
      Output('decompose-keys', 'style'),
      Output('upload-data', 'contents'),
-     Output('full-json-store', 'data')],  # Add this new output
+     Output('full-json-store', 'data'),
+     Output('file-type-store', 'data')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
      Input('include-metadata', 'value'),
@@ -691,7 +694,8 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
                     {'display': 'none'},  # decompose-keys style (hidden for non-JSON)
                     None,  # Clear the upload contents
-                    full_json  # full JSON for download
+                    full_json,  # full JSON for download
+                    dash.no_update  # file type (no change for metadata toggle)
                 )
             
         except Exception as e:
@@ -699,7 +703,7 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             import traceback
             print(traceback.format_exc())
             # Return error state
-            return [dash.no_update] * 15
+            return [dash.no_update] * 16
 
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:
@@ -823,6 +827,9 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                 else:
                     decompose_switch_style = {'display': 'none'}
                 
+                # Determine file type
+                file_type = 'json' if '.json' in filename else 'non-json'
+                
                 return (
                     df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
                     columns1,
@@ -838,12 +845,13 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
                     decompose_switch_style,  # decompose-keys style (shown for JSON with hierarchical keys)
                     None,  # Clear the upload contents
-                    full_json  # full JSON for download
+                    full_json,  # full JSON for download
+                    file_type  # file type for dropdown options
                 )
 
         except Exception as e:
             print(f"Error processing file: {str(e)}")
-            return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None
+            return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None, None
 
     # When table2 data changes (dropdown selections change)
     if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
@@ -924,11 +932,12 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},  # include metadata style
             dash.no_update,  # decompose-keys style
             dash.no_update,  # upload contents
-            None  # full JSON store
+            None,  # full JSON store
+            dash.no_update  # file type (no change for table2 updates)
         )
 
     if not contents:
-        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, dash.no_update, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, dash.no_update, None, None
 
     try:
         print("Step 1: Starting file processing")
@@ -1093,6 +1102,9 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             else:
                 decompose_switch_style = {'display': 'none'}
             
+            # Determine file type
+            file_type = 'json' if '.json' in filename else 'non-json'
+            
             return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
                     table2_data, columns2, conditional_styles2, 
                     get_button_group_style(visible=True),  # Use helper function
@@ -1101,12 +1113,13 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
                     decompose_switch_style,  # decompose-keys style
                     None,  # Clear the upload contents
-                    full_json  # full JSON for download
+                    full_json,  # full JSON for download
+                    file_type  # file type for dropdown options
                 )
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None, None
 
     finally:
         if 'tmp_filename' in locals():
@@ -1122,6 +1135,27 @@ def reset_selected_rows(contents):
         return []  # Return an empty list to have no selection by default
     else:
         raise dash.exceptions.PreventUpdate
+
+# Update dropdown options based on file type
+@app.callback(
+    Output('table2', 'dropdown'),
+    [Input('file-type-store', 'data')]
+)
+def update_dropdown_options(file_type):
+    if file_type == 'json':
+        return {
+            'roles': {
+                'options': JSON_DROPDOWN_OPTIONS,
+                'clearable': False
+            }
+        }
+    else:
+        return {
+            'roles': {
+                'options': NON_JSON_DROPDOWN_OPTIONS,
+                'clearable': False
+            }
+        }
 
 @app.callback(
     [Output("table1-col", "style"),
