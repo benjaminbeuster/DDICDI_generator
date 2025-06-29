@@ -179,20 +179,6 @@ app.layout = dbc.Container([
             ),
             html.Br(),
 
-            # Add switch for key decomposition (JSON files only) - positioned prominently after file upload
-            dbc.Switch(
-                id="decompose-keys",
-                label="Decompose hierarchical keys into separate columns (JSON files)",
-                value=True,  # Default to enabled
-                style={
-                    'display': 'none',  # Hidden by default, shown for JSON files
-                    'marginLeft': '15px',
-                    'color': colors['secondary']
-                }
-            ),
-
-            html.Br(),
-
             # Add style and id to the Switch View button
             dbc.Button(
                 "Switch View", 
@@ -297,12 +283,16 @@ app.layout = dbc.Container([
                                             {'label': 'Attribute', 'value': 'attribute'},
                                             {'label': 'Contextual (JSON only)', 'value': 'contextual'},
                                             {'label': 'SyntheticId (JSON only)', 'value': 'synthetic'},
+                                            {'label': 'VariableValue (JSON only)', 'value': 'variablevalue'},
                                             {'label': 'Measure, Identifier', 'value': 'measure,identifier'},
                                             {'label': 'Measure, Attribute', 'value': 'measure,attribute'},
                                             {'label': 'Measure, Contextual', 'value': 'measure,contextual'},
+                                            {'label': 'Measure, VariableValue', 'value': 'measure,variablevalue'},
                                             {'label': 'Identifier, Attribute', 'value': 'identifier,attribute'},
                                             {'label': 'Identifier, Contextual', 'value': 'identifier,contextual'},
+                                            {'label': 'Identifier, VariableValue', 'value': 'identifier,variablevalue'},
                                             {'label': 'Attribute, Contextual', 'value': 'attribute,contextual'},
+                                            {'label': 'Attribute, VariableValue', 'value': 'attribute,variablevalue'},
                                             {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'}
                                         ],
                                         'clearable': False
@@ -360,6 +350,17 @@ app.layout = dbc.Container([
                 value=False,
                 style={
                     'display': 'inline-block',
+                    'marginLeft': '15px',
+                    'color': colors['secondary']
+                }
+            ),
+            # Add switch for key decomposition (JSON files only) - positioned next to include-metadata
+            dbc.Switch(
+                id="decompose-keys",
+                label="Decompose hierarchical keys (JSON files with '/' separator)",
+                value=True,  # Default to enabled
+                style={
+                    'display': 'none',  # Hidden by default, shown for JSON files
                     'marginLeft': '15px',
                     'color': colors['secondary']
                 }
@@ -744,6 +745,7 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             df_meta.attribute_vars = []
             df_meta.contextual_vars = []
             df_meta.synthetic_id_vars = []
+            df_meta.variable_value_vars = []
 
             # Prepare table data
             columns1 = [{"name": i, "id": i} for i in df.columns]
@@ -851,6 +853,7 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
         attributes = []
         contextuals = []
         synthetics = []
+        variable_values = []
         
         # Process the comma-separated roles for each variable
         for row in table2_data:
@@ -865,6 +868,8 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                 contextuals.append(row['name'])
             if 'synthetic' in roles:
                 synthetics.append(row['name'])
+            if 'variablevalue' in roles:
+                variable_values.append(row['name'])
         
         if 'df_meta' in globals():
             df_meta.measure_vars = measures

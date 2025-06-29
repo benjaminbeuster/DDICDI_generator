@@ -267,6 +267,22 @@ def generate_SyntheticIdComponent(df_meta):
                     json_ld_data.append(elements)
     return json_ld_data
 
+def generate_VariableValueComponent(df_meta):
+    """Generate VariableValueComponent entries for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars:
+            for variable in df_meta.variable_value_vars:
+                if variable in df_meta.column_names:  # Verify variable exists in dataset
+                    elements = {
+                        "@id": f"#variableValueComponent-{variable}",
+                        "@type": "VariableValueComponent",
+                        "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                    }
+                    json_ld_data.append(elements)
+    return json_ld_data
+
 def generate_PrimaryKey(df_meta):
     json_ld_data = []
     if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
@@ -1226,6 +1242,10 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
     # Add synthetic ID components if synthetic_id_vars is not empty (JSON files only)
     if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars:
         components.append(generate_SyntheticIdComponent(df_meta))
+    
+    # Add variable value components if variable_value_vars is not empty (JSON files only)
+    if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars:
+        components.append(generate_VariableValueComponent(df_meta))
     
     # Get the separated components
     components_dict = wrap_in_graph(*components)
