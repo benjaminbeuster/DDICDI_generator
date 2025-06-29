@@ -332,6 +332,57 @@ def generate_VariableDescriptorComponent(df_meta):
                     json_ld_data.append(elements)
     return json_ld_data
 
+def generate_MainKeyMember(df_meta):
+    """Generate MainKeyMember entry for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        # Collect all key-related component references
+        based_on_components = []
+        
+        # Add identifier components
+        if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
+            for variable in df_meta.identifier_vars:
+                if variable in df_meta.column_names:
+                    based_on_components.append(f"#identifierComponent-{variable}")
+        
+        # Add contextual components
+        if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars:
+            for variable in df_meta.contextual_vars:
+                if variable in df_meta.column_names:
+                    based_on_components.append(f"#contextualComponent-{variable}")
+        
+        # Add synthetic ID components
+        if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars:
+            for variable in df_meta.synthetic_id_vars:
+                if variable in df_meta.column_names:
+                    based_on_components.append(f"#syntheticIdComponent-{variable}")
+        
+        # Only create MainKeyMember if there are key components to reference
+        if based_on_components:
+            # Use the first key variable's substantive value domain as reference
+            first_key_var = None
+            if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
+                first_key_var = df_meta.identifier_vars[0]
+            elif hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars:
+                first_key_var = df_meta.contextual_vars[0]
+            elif hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars:
+                first_key_var = df_meta.synthetic_id_vars[0]
+            
+            elements = {
+                "@id": "#mainKeyMember",
+                "@type": "MainKeyMember",
+                "basedOn": based_on_components
+            }
+            
+            # Add substantive value domain reference if we have a key variable
+            if first_key_var:
+                elements["hasValueFrom_SubstantiveValueDomain"] = f"#substantiveValueDomain-{first_key_var}"
+            
+            json_ld_data.append(elements)
+    
+    return json_ld_data
+
 def generate_PrimaryKey(df_meta):
     json_ld_data = []
     if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
@@ -1297,6 +1348,10 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
         components.append(generate_VariableValueComponent(df_meta))
         # Add corresponding variable descriptor components (required by SHACL)
         components.append(generate_VariableDescriptorComponent(df_meta))
+    
+    # Add MainKeyMember for JSON files (represents all key components)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        components.append(generate_MainKeyMember(df_meta))
     
     # Get the separated components
     components_dict = wrap_in_graph(*components)
