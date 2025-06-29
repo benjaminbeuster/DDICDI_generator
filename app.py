@@ -941,6 +941,7 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             df_meta.attribute_vars = attributes
             df_meta.contextual_vars = contextuals
             df_meta.synthetic_id_vars = synthetics
+            df_meta.variable_value_vars = variable_values
             
         # Update lists.txt with new classifications
         with open('lists.txt', 'w') as f:

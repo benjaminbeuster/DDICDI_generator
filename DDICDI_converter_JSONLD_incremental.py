@@ -103,6 +103,18 @@ def generate_PhysicalSegmentLayout(df_meta):
         else:
             elements["delimiter"] = ","
     
+    # Check if this is a JSON file with decomposed hierarchical keys
+    elif hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        # Check for decomposed hierarchical keys pattern (key-1, key-2, ..., value)
+        key_columns = [col for col in df_meta.column_names if col.startswith('key-') and col.split('-')[1].isdigit()]
+        has_value_column = 'value' in df_meta.column_names
+        
+        if len(key_columns) > 0 and has_value_column:
+            # This JSON file had hierarchical keys that were decomposed with "/" separator
+            elements["isDelimited"] = True
+            elements["isFixedWidth"] = False
+            elements["delimiter"] = "/"
+    
     # Add both ValueMapping and ValueMappingPosition references for each variable
     for variable in df_meta.column_names:
         elements["has_ValueMappingPosition"].append(f"#valueMappingPosition-{variable}")
@@ -162,24 +174,42 @@ def generate_WideDataStructure(df_meta):
     if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
         elements["has_PrimaryKey"] = "#primaryKey"
     
+    # Check if this is a JSON file to use different component logic
+    is_json_file = hasattr(df_meta, 'file_format') and df_meta.file_format == 'json'
+    
     # Process all variables for all possible roles
     for variable in df_meta.column_names:
-        # Add as identifier component
+        # Add as identifier component (common to both JSON and non-JSON)
         if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars and variable in df_meta.identifier_vars:
             elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
         
-        # Add as attribute component
+        # Add as attribute component (common to both JSON and non-JSON)
         if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars and variable in df_meta.attribute_vars:
             elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
         
-        # Add as measure component
-        if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars and variable in df_meta.measure_vars:
-            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
-        # If no roles are assigned, default to measure
-        elif (not hasattr(df_meta, 'identifier_vars') or variable not in df_meta.identifier_vars) and \
-             (not hasattr(df_meta, 'attribute_vars') or variable not in df_meta.attribute_vars) and \
-             (not hasattr(df_meta, 'measure_vars') or variable not in df_meta.measure_vars):
-            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+        if is_json_file:
+            # JSON-specific components
+            # Add as contextual component
+            if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars and variable in df_meta.contextual_vars:
+                elements["has_DataStructureComponent"].append(f"#contextualComponent-{variable}")
+            
+            # Add as synthetic ID component
+            if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars and variable in df_meta.synthetic_id_vars:
+                elements["has_DataStructureComponent"].append(f"#syntheticIdComponent-{variable}")
+            
+            # Add as variable value component
+            if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars and variable in df_meta.variable_value_vars:
+                elements["has_DataStructureComponent"].append(f"#variableValueComponent-{variable}")
+        else:
+            # Non-JSON files (SPSS, CSV, etc.) - use measure components
+            # Add as measure component
+            if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars and variable in df_meta.measure_vars:
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+            # If no roles are assigned, default to measure for non-JSON files
+            elif (not hasattr(df_meta, 'identifier_vars') or variable not in df_meta.identifier_vars) and \
+                 (not hasattr(df_meta, 'attribute_vars') or variable not in df_meta.attribute_vars) and \
+                 (not hasattr(df_meta, 'measure_vars') or variable not in df_meta.measure_vars):
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
