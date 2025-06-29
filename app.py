@@ -507,6 +507,55 @@ def style_data_conditional(df):
             })
     return style_data_conditional
 
+def get_default_roles_for_variables(df_meta, filename):
+    """
+    Determine appropriate default roles for variables based on file type and metadata.
+    
+    For JSON files:
+    - Variables in identifier_vars → "identifier" 
+    - Variables in measure_vars → "variablevalue"
+    - Variables in contextual_vars → "contextual"
+    - Variables in synthetic_id_vars → "synthetic"
+    
+    For non-JSON files (CSV, SPSS, Stata):
+    - All variables → "measure"
+    
+    Parameters:
+    -----------
+    df_meta : metadata object
+        Metadata object containing variable classifications
+    filename : str
+        Filename to determine file type
+        
+    Returns:
+    --------
+    dict : Dictionary mapping variable names to default roles
+    """
+    is_json = filename and '.json' in filename.lower()
+    default_roles = {}
+    
+    if is_json and hasattr(df_meta, 'column_names'):
+        # For JSON files, assign roles based on metadata classification
+        for var_name in df_meta.column_names:
+            if hasattr(df_meta, 'identifier_vars') and var_name in getattr(df_meta, 'identifier_vars', []):
+                default_roles[var_name] = 'identifier'
+            elif hasattr(df_meta, 'contextual_vars') and var_name in getattr(df_meta, 'contextual_vars', []):
+                default_roles[var_name] = 'contextual'
+            elif hasattr(df_meta, 'synthetic_id_vars') and var_name in getattr(df_meta, 'synthetic_id_vars', []):
+                default_roles[var_name] = 'synthetic'
+            elif hasattr(df_meta, 'measure_vars') and var_name in getattr(df_meta, 'measure_vars', []):
+                default_roles[var_name] = 'variablevalue'
+            else:
+                # Default for unclassified JSON variables
+                default_roles[var_name] = 'identifier'
+    else:
+        # For non-JSON files, default all variables to measure
+        if hasattr(df_meta, 'column_names'):
+            for var_name in df_meta.column_names:
+                default_roles[var_name] = 'measure'
+    
+    return default_roles
+
 # Define callbacks
 @app.callback(
     [Output('table1-instruction', 'style'),
@@ -771,8 +820,9 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             conditional_styles1 = style_data_conditional(df)
             conditional_styles2 = style_data_conditional(df2)
 
-            # Add the roles column to df2 with default values (measure)
-            df2['roles'] = 'measure'
+            # Add the roles column to df2 with appropriate default values based on file type
+            default_roles = get_default_roles_for_variables(df_meta, filename)
+            df2['roles'] = df2['name'].map(default_roles).fillna('measure')
             table2_data = df2.to_dict('records')
 
             # Generate only JSON-LD initially
@@ -1011,8 +1061,9 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        # Add the roles column to df2 with default values (measure)
-        df2['roles'] = 'measure'
+        # Add the roles column to df2 with appropriate default values based on file type
+        default_roles = get_default_roles_for_variables(df_meta, filename)
+        df2['roles'] = df2['name'].map(default_roles).fillna('measure')
         
         # Convert df2 to records for the table
         table2_data = df2.to_dict('records')
