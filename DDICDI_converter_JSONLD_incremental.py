@@ -200,6 +200,8 @@ def generate_WideDataStructure(df_meta):
             # Add as variable value component
             if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars and variable in df_meta.variable_value_vars:
                 elements["has_DataStructureComponent"].append(f"#variableValueComponent-{variable}")
+                # Also add the corresponding VariableDescriptorComponent reference (required by SHACL)
+                elements["has_DataStructureComponent"].append(f"#variableDescriptorComponent-{variable}")
         else:
             # Non-JSON files (SPSS, CSV, etc.) - use measure components
             # Add as measure component
@@ -308,6 +310,23 @@ def generate_VariableValueComponent(df_meta):
                     elements = {
                         "@id": f"#variableValueComponent-{variable}",
                         "@type": "VariableValueComponent",
+                        "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                    }
+                    json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_VariableDescriptorComponent(df_meta):
+    """Generate VariableDescriptorComponent entries for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars:
+            for variable in df_meta.variable_value_vars:
+                if variable in df_meta.column_names:  # Verify variable exists in dataset
+                    elements = {
+                        "@id": f"#variableDescriptorComponent-{variable}",
+                        "@type": "VariableDescriptorComponent",
+                        "refersTo": f"#variableValueComponent-{variable}",
                         "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
                     }
                     json_ld_data.append(elements)
@@ -1276,6 +1295,8 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
     # Add variable value components if variable_value_vars is not empty (JSON files only)
     if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars:
         components.append(generate_VariableValueComponent(df_meta))
+        # Add corresponding variable descriptor components (required by SHACL)
+        components.append(generate_VariableDescriptorComponent(df_meta))
     
     # Get the separated components
     components_dict = wrap_in_graph(*components)
