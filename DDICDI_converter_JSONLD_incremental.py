@@ -187,6 +187,10 @@ def generate_WideDataStructure(df_meta):
         if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars and variable in df_meta.attribute_vars:
             elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
         
+        # Add as dimension component (common to both JSON and non-JSON)
+        if hasattr(df_meta, 'dimension_vars') and df_meta.dimension_vars and variable in df_meta.dimension_vars:
+            elements["has_DataStructureComponent"].append(f"#dimensionComponent-{variable}")
+        
         if is_json_file:
             # JSON-specific components
             # Add as contextual component
@@ -262,6 +266,19 @@ def generate_AttributeComponent(df_meta):
                 elements = {
                     "@id": f"#attributeComponent-{variable}",
                     "@type": "AttributeComponent",
+                    "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                }
+                json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_DimensionComponent(df_meta):
+    json_ld_data = []
+    if hasattr(df_meta, 'dimension_vars') and df_meta.dimension_vars:
+        for variable in df_meta.dimension_vars:
+            if variable in df_meta.column_names:  # Verify variable exists in dataset
+                elements = {
+                    "@id": f"#dimensionComponent-{variable}",
+                    "@type": "DimensionComponent",
                     "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
                 }
                 json_ld_data.append(elements)
@@ -1338,6 +1355,10 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
     # Add attribute components if attribute_vars is not empty
     if df_meta.attribute_vars:
         components.append(generate_AttributeComponent(df_meta))
+    
+    # Add dimension components if dimension_vars is not empty
+    if hasattr(df_meta, 'dimension_vars') and df_meta.dimension_vars:
+        components.append(generate_DimensionComponent(df_meta))
     
     # Add contextual components if contextual_vars is not empty (JSON files only)
     if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars:
