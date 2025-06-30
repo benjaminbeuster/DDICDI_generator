@@ -253,6 +253,10 @@ def generate_WideDataStructure(df_meta):
 
 def generate_MeasureComponent(df_meta):
     json_ld_data = []
+    # Only generate MeasureComponents for non-JSON files
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return json_ld_data
+    
     # Process all variables that are assigned as measures
     if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
         for variable in df_meta.measure_vars:
