@@ -9,8 +9,8 @@ This profile utilizes 29 classes from the DDI-CDI model (v1.0) and 2 SKOS classe
 
 |  DDI-CDI Classes  |  DDI-CDI Classes  | SKOS Classes |
 |------------------|------------------|------------------|
-| [AttributeComponent]({0}/DataDescription/Components/AttributeComponent.html) | [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | |
-| [ComponentPosition]({0}/DataDescription/Components/ComponentPosition.html) | [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | |
+| [AttributeComponent]({0}/DataDescription/Components/AttributeComponent.html) | [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | [`skos:ConceptScheme`](https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme) |
+| [ComponentPosition]({0}/DataDescription/Components/ComponentPosition.html) | [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
 | [ContextualComponent]({0}/DataDescription/KeyValue/ContextualComponent.html) | [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | |
 | [DataPoint]({0}/DataDescription/DataPoint.html) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) | |
 | [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) | |
@@ -19,8 +19,8 @@ This profile utilizes 29 classes from the DDI-CDI model (v1.0) and 2 SKOS classe
 | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) | [SyntheticIdComponent]({0}/DataDescription/KeyValue/SyntheticIdComponent.html#super-class-hierarchy-generalization) | |
 | [InstanceValue]({0}/DataDescription/InstanceValue.html) | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) | |
 | [InstanceVariable]({0}/Conceptual/InstanceVariable.html) | [ValueMapping]({0}/FormatDescription/ValueMapping.html) | |
-| [KeyValueDataStore]({0}/DataDescription/KeyValue/KeyValueDataStore.html) | [ValueMappingPosition]({0}/FormatDescription/ValueMappingPosition.html) | [`skos:ConceptScheme`](https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme) |
-| [KeyValueStructure]({0}/DataDescription/KeyValue/KeyValueStructure.html) | [VariableDescriptorComponent]({0}/DataDescription/Components/VariableDescriptorComponent.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
+| [KeyValueDataStore]({0}/DataDescription/KeyValue/KeyValueDataStore.html) | [ValueMappingPosition]({0}/FormatDescription/ValueMappingPosition.html) | |
+| [KeyValueStructure]({0}/DataDescription/KeyValue/KeyValueStructure.html) | [VariableDescriptorComponent]({0}/DataDescription/Components/VariableDescriptorComponent.html) | |
 | [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) | [VariableValueComponent]({0}/DataDescription/Components/VariableValueComponent.html) | |
 | [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) | [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | |
 |  | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) | |
