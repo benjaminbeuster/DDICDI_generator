@@ -29,18 +29,10 @@ NON_JSON_DROPDOWN_OPTIONS = [
     {'label': 'Measure', 'value': 'measure'},
     {'label': 'Identifier', 'value': 'identifier'},
     {'label': 'Attribute', 'value': 'attribute'},
-    {'label': 'Dimension', 'value': 'dimension'},
     {'label': 'Measure, Identifier', 'value': 'measure,identifier'},
     {'label': 'Measure, Attribute', 'value': 'measure,attribute'},
-    {'label': 'Measure, Dimension', 'value': 'measure,dimension'},
     {'label': 'Identifier, Attribute', 'value': 'identifier,attribute'},
-    {'label': 'Identifier, Dimension', 'value': 'identifier,dimension'},
-    {'label': 'Attribute, Dimension', 'value': 'attribute,dimension'},
-    {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'},
-    {'label': 'Measure, Identifier, Dimension', 'value': 'measure,identifier,dimension'},
-    {'label': 'Measure, Attribute, Dimension', 'value': 'measure,attribute,dimension'},
-    {'label': 'Identifier, Attribute, Dimension', 'value': 'identifier,attribute,dimension'},
-    {'label': 'Measure, Identifier, Attribute, Dimension', 'value': 'measure,identifier,attribute,dimension'}
+    {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'}
 ]
 
 JSON_DROPDOWN_OPTIONS = [
@@ -663,7 +655,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             measures = []
             identifiers = []
             attributes = []
-            dimensions = []
             
             # Process the comma-separated roles for each variable
             for row in table2_data:
@@ -674,8 +665,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     identifiers.append(row['name'])
                 if 'attribute' in roles:
                     attributes.append(row['name'])
-                if 'dimension' in roles:
-                    dimensions.append(row['name'])
             print(f"Identifiers: {identifiers}")
             
             # Get and log data subset
@@ -862,7 +851,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             measures = []
             identifiers = []
             attributes = []
-            dimensions = []
             contextuals = []
             synthetics = []
             variable_values = []
@@ -876,8 +864,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     identifiers.append(row['name'])
                 if 'attribute' in roles:
                     attributes.append(row['name'])
-                if 'dimension' in roles:
-                    dimensions.append(row['name'])
                 if 'contextual' in roles:
                     contextuals.append(row['name'])
                 if 'synthetic' in roles:
@@ -889,7 +875,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             df_meta.measure_vars = measures
             df_meta.identifier_vars = identifiers
             df_meta.attribute_vars = attributes
-            df_meta.dimension_vars = dimensions
             df_meta.contextual_vars = contextuals
             df_meta.synthetic_id_vars = synthetics
             df_meta.variable_value_vars = variable_values
@@ -986,7 +971,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
         measures = []
         identifiers = []
         attributes = []
-        dimensions = []
         contextuals = []
         synthetics = []
         variable_values = []
@@ -1000,8 +984,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                 identifiers.append(row['name'])
             if 'attribute' in roles:
                 attributes.append(row['name'])
-            if 'dimension' in roles:
-                dimensions.append(row['name'])
             if 'contextual' in roles:
                 contextuals.append(row['name'])
             if 'synthetic' in roles:
@@ -1013,7 +995,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             df_meta.measure_vars = measures
             df_meta.identifier_vars = identifiers
             df_meta.attribute_vars = attributes
-            df_meta.dimension_vars = dimensions
             df_meta.contextual_vars = contextuals
             df_meta.synthetic_id_vars = synthetics
             df_meta.variable_value_vars = variable_values
@@ -1023,7 +1004,6 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             f.write(f"Measures: {measures}\n")
             f.write(f"Identifiers: {identifiers}\n")
             f.write(f"Attributes: {attributes}\n")
-            f.write(f"Dimensions: {dimensions}\n")
             f.write(f"Contextuals: {contextuals}\n")
             f.write(f"Synthetics: {synthetics}\n")
         

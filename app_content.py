@@ -5,16 +5,16 @@ prefix = "https://docs.ddialliance.org/DDI-CDI/1.0/model/FieldLevelDocumentation
 markdown_text = r"""
 ## DDI-CDI Subset
 
-This profile utilizes 30 classes from the DDI-CDI model (v1.0) and 2 SKOS classes.
+This profile utilizes 29 classes from the DDI-CDI model (v1.0) and 2 SKOS classes.
 
 |  DDI-CDI Classes  |  DDI-CDI Classes  | SKOS Classes |
 |------------------|------------------|------------------|
 | [AttributeComponent]({0}/DataDescription/Components/AttributeComponent.html) | [PhysicalDataSet]({0}/FormatDescription/PhysicalDataSet.html#super-class-hierarchy-generalization) | |
-| [ContextualComponent]({0}/DataDescription/KeyValue/ContextualComponent.html) | [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | |
-| [DataPoint]({0}/DataDescription/DataPoint.html) | [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | |
-| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) | |
-| [DataStore]({0}/FormatDescription/DataStore.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) | |
-| [DimensionComponent]({0}/DataDescription/Components/DimensionComponent.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) | |
+| [ComponentPosition]({0}/DataDescription/Components/ComponentPosition.html) | [PhysicalRecordSegment]({0}/FormatDescription/PhysicalRecordSegment.html) | |
+| [ContextualComponent]({0}/DataDescription/KeyValue/ContextualComponent.html) | [PhysicalSegmentLayout]({0}/FormatDescription/PhysicalSegmentLayout.html) | |
+| [DataPoint]({0}/DataDescription/DataPoint.html) | [PrimaryKey]({0}/DataDescription/Components/PrimaryKey.html) | |
+| [DataPointPosition]({0}/FormatDescription/DataPointPosition.html) | [PrimaryKeyComponent]({0}/DataDescription/Components/PrimaryKeyComponent.html) | |
+| [DataStore]({0}/FormatDescription/DataStore.html) | [SentinelValueDomain]({0}/Representations/SentinelValueDomain.html#super-class-hierarchy-generalization) | |
 | [EnumerationDomain]({0}/Representations/EnumerationDomain.html) | [SubstantiveValueDomain]({0}/Representations/SubstantiveValueDomain.html) | |
 | [IdentifierComponent]({0}/DataDescription/Components/IdentifierComponent.html) | [SyntheticIdComponent]({0}/DataDescription/KeyValue/SyntheticIdComponent.html#super-class-hierarchy-generalization) | |
 | [InstanceValue]({0}/DataDescription/InstanceValue.html) | [ValueAndConceptDescription]({0}/Representations/ValueAndConceptDescription.html) | |
@@ -22,8 +22,8 @@ This profile utilizes 30 classes from the DDI-CDI model (v1.0) and 2 SKOS classe
 | [KeyValueDataStore]({0}/DataDescription/KeyValue/KeyValueDataStore.html) | [ValueMappingPosition]({0}/FormatDescription/ValueMappingPosition.html) | [`skos:ConceptScheme`](https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme) |
 | [KeyValueStructure]({0}/DataDescription/KeyValue/KeyValueStructure.html) | [VariableDescriptorComponent]({0}/DataDescription/Components/VariableDescriptorComponent.html) | [`skos:Concept`](https://www.w3.org/2009/08/skos-reference/skos.html#Concept) |
 | [LogicalRecord]({0}/FormatDescription/LogicalRecord.html) | [VariableValueComponent]({0}/DataDescription/Components/VariableValueComponent.html) | |
-| [MainKeyMember]({0}/DataDescription/KeyValue/MainKeyMember.html) | [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | |
-| [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) | |
+| [MeasureComponent]({0}/DataDescription/Components/MeasureComponent.html) | [WideDataSet]({0}/DataDescription/Wide/WideDataSet.html) | |
+|  | [WideDataStructure]({0}/DataDescription/Wide/WideDataStructure.html) | |
 """.format(prefix)
 
 # Get current date and format it
