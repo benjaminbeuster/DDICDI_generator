@@ -616,59 +616,50 @@ def _read_flat_json(json_data, filename, decompose_keys=True):
 
 
 def _read_nested_json(json_data, filename):
-    """Handle nested object JSON format where values are dictionaries"""
+    """Handle mixed flat/nested JSON format where values can be either simple values or dictionaries"""
     import pandas as pd
     import numpy as np
     
-    # Extract all keys and their corresponding object values
-    record_keys = list(json_data.keys())
-    record_objects = list(json_data.values())
-    
-    # Find all unique property names across all objects
-    all_properties = set()
-    for obj in record_objects:
-        if isinstance(obj, dict):
-            all_properties.update(obj.keys())
-    
-    # Sort properties for consistent column ordering
-    property_columns = sorted(list(all_properties))
-    
-    # Create DataFrame structure
+    # Create DataFrame structure - use single row for mixed format
     df_data = {}
     
-    # Add record identifier column
-    df_data['record_id'] = record_keys
-    
-    # Add columns for each property found in the nested objects
-    for prop in property_columns:
-        df_data[prop] = [obj.get(prop) if isinstance(obj, dict) else None for obj in record_objects]
+    # For mixed format, create one row with all the flattened data
+    for key, value in json_data.items():
+        if isinstance(value, dict):
+            # Handle nested objects - flatten their properties with prefix
+            for nested_key, nested_value in value.items():
+                nested_col_name = f"{key}_{nested_key}"
+                df_data[nested_col_name] = [nested_value]
+        else:
+            # Simple value - add directly
+            df_data[key] = [value]
     
     # Create DataFrame
     df = pd.DataFrame(df_data)
     
     # Process data types for each column
-    column_names = ['record_id'] + property_columns
-    column_labels = {'record_id': 'Record Identifier'}
-    variable_types = {'record_id': 'string'}
-    measure_types = {'record_id': 'nominal'}
+    column_names = list(df.columns)
+    column_labels = {}
+    variable_types = {}
+    measure_types = {}
     
-    # Analyze each property column for appropriate data type
-    for prop in property_columns:
-        column_labels[prop] = prop.replace('_', ' ').title()
+    # Analyze each column for appropriate data type
+    for col in column_names:
+        column_labels[col] = col.replace('_', ' ').title()
         
         # Check if column contains numeric data
         try:
-            numeric_data = pd.to_numeric(df[prop], errors='coerce')
+            numeric_data = pd.to_numeric(df[col], errors='coerce')
             if not numeric_data.isna().all():  # If any values are numeric
-                variable_types[prop] = 'numeric'
-                measure_types[prop] = 'scale'
-                df[prop] = numeric_data
+                variable_types[col] = 'numeric'
+                measure_types[col] = 'scale'
+                df[col] = numeric_data
             else:
-                variable_types[prop] = 'string'
-                measure_types[prop] = 'nominal'
+                variable_types[col] = 'string'
+                measure_types[col] = 'nominal'
         except (ValueError, TypeError):
-            variable_types[prop] = 'string'
-            measure_types[prop] = 'nominal'
+            variable_types[col] = 'string'
+            measure_types[col] = 'nominal'
     
     # Handle data type processing similar to flat JSON
     for col in df.columns:
@@ -686,22 +677,25 @@ def _read_nested_json(json_data, filename):
     df.replace({np.nan: None, pd.NA: None}, inplace=True)
     
     # Classify variables for DDI-CDI
-    identifier_vars = ['record_id']  # Record ID is always an identifier
+    identifier_vars = []
     measure_vars = []
     attribute_vars = []
     
-    # Classify remaining columns based on content and naming patterns
-    for prop in property_columns:
-        prop_lower = prop.lower()
+    # Classify columns based on content and naming patterns
+    for col in column_names:
+        col_lower = col.lower()
         # Common identifier patterns
-        if any(id_pattern in prop_lower for id_pattern in ['id', 'identifier', 'key', 'code']):
-            identifier_vars.append(prop)
+        if any(id_pattern in col_lower for id_pattern in ['id', 'identifier', 'key', 'code']):
+            identifier_vars.append(col)
         # Categorical/attribute patterns  
-        elif any(attr_pattern in prop_lower for attr_pattern in ['name', 'type', 'category', 'class', 'status', 'country', 'region']):
-            attribute_vars.append(prop)
+        elif any(attr_pattern in col_lower for attr_pattern in ['name', 'type', 'category', 'class', 'status', 'country', 'region']):
+            attribute_vars.append(col)
         # Numeric measures (default for numeric columns)
+        elif variable_types[col] == 'numeric':
+            measure_vars.append(col)
+        # Default string columns to attributes
         else:
-            measure_vars.append(prop)
+            attribute_vars.append(col)
     
     # Create metadata class using the same structure as flat JSON
     class JSONMetadata:
