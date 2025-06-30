@@ -411,10 +411,8 @@ def generate_ComponentPosition(df_meta):
             elements = {
                 "@id": f"#componentPosition-{position}",
                 "@type": "ComponentPosition",
-                "identifier": f"#identifier-componentPosition-{position}",
                 "value": position,
-                "indexes": component_ref,
-                "has_ComponentPosition_OF_DataStructure": _get_structure_reference(df_meta)
+                "indexes": component_ref
             }
             json_ld_data.append(elements)
             position += 1
