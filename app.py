@@ -13,7 +13,7 @@ from DDICDI_converter_JSONLD_incremental import (
     generate_complete_json_ld,
     MemoryManager
 )
-from spss_import import read_sav, create_variable_view, create_variable_view2
+from spss_import import read_sav, read_csv, read_json, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
 from dash.exceptions import PreventUpdate
 import rdflib
@@ -23,6 +23,24 @@ from rdflib import Graph
 MAX_ROWS_TO_PROCESS = 5  # Maximum number of rows to process by default
 PREVIEW_ROWS = 5  # Number of rows to show in the data preview table
 CHUNK_SIZE = 500  # Size of chunks to process when handling larger datasets
+
+# Dropdown options for different file types
+NON_JSON_DROPDOWN_OPTIONS = [
+    {'label': 'Measure', 'value': 'measure'},
+    {'label': 'Identifier', 'value': 'identifier'},
+    {'label': 'Attribute', 'value': 'attribute'},
+    {'label': 'Measure, Identifier', 'value': 'measure,identifier'},
+    {'label': 'Measure, Attribute', 'value': 'measure,attribute'},
+    {'label': 'Identifier, Attribute', 'value': 'identifier,attribute'},
+    {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'}
+]
+
+JSON_DROPDOWN_OPTIONS = [
+    {'label': 'Identifier', 'value': 'identifier'},
+    {'label': 'SyntheticId', 'value': 'synthetic'},
+    {'label': 'Contextual', 'value': 'contextual'},
+    {'label': 'VariableValue', 'value': 'variablevalue'}
+]
 
 # Define the namespaces, DDI
 nsmap = {
@@ -39,6 +57,11 @@ app = dash.Dash(__name__, server=server, external_stylesheets=[
     dbc.themes.LITERA,
     "https://use.fontawesome.com/releases/v5.15.4/css/all.css"
 ])
+
+# Define a helper function to always hide the N-Triples button in the UI
+def get_button_group_style(visible=False):
+    """Helper function to get the button group style while ensuring N-Triples button is always hidden"""
+    return {'display': 'block' if visible else 'none', 'gap': '10px', 'flexDirection': 'row'}
 
 # add title
 app.title = app_title
@@ -85,7 +108,9 @@ navbar = dbc.NavbarSimple(
 
 about_section = dbc.Card([
     dbc.CardBody([
-        dcc.Markdown(about_text, className="card-text"),
+        dcc.Markdown(about_text, 
+            link_target="_blank",
+            className="card-text"),
         html.Div([
             html.Img(
                 src=app.get_asset_url('petals_logos.2.0-01.webp'),
@@ -168,7 +193,7 @@ app.layout = dbc.Container([
                     'height': '100%',
                 },
                 multiple=False,
-                accept=".sav,.dta"
+                accept=".sav,.dta,.csv,.json"
             ),
             html.Br(),
 
@@ -242,7 +267,7 @@ app.layout = dbc.Container([
                                 style_cell=style_dict,
                                 columns=[
                                     {
-                                        "name": "Roles",
+                                        "name": "Select role",
                                         "id": "roles",
                                         "presentation": "dropdown",
                                         "editable": True
@@ -270,15 +295,7 @@ app.layout = dbc.Container([
                                 ],
                                 dropdown={
                                     'roles': {
-                                        'options': [
-                                            {'label': 'Measure', 'value': 'measure'},
-                                            {'label': 'Identifier', 'value': 'identifier'},
-                                            {'label': 'Attribute', 'value': 'attribute'},
-                                            {'label': 'Measure, Identifier', 'value': 'measure,identifier'},
-                                            {'label': 'Measure, Attribute', 'value': 'measure,attribute'},
-                                            {'label': 'Identifier, Attribute', 'value': 'identifier,attribute'},
-                                            {'label': 'Measure, Identifier, Attribute', 'value': 'measure,identifier,attribute'}
-                                        ],
+                                        'options': NON_JSON_DROPDOWN_OPTIONS,  # Default options, will be updated dynamically
                                         'clearable': False
                                     }
                                 },
@@ -291,10 +308,16 @@ app.layout = dbc.Container([
                                     'if': {'column_id': ['roles']},
                                     'textAlign': 'center',
                                     'minWidth': '100px',
+                                    'backgroundColor': 'rgba(33, 150, 243, 0.15)',  # Same as #2196f3 but with 15% opacity
+                                    'color': colors['primary'],
+                                    'fontWeight': '500'
                                 }],
                                 style_data_conditional=[{
                                     'if': {'column_id': ['roles']},
-                                    'cursor': 'pointer'
+                                    'cursor': 'pointer',
+                                    'backgroundColor': 'white',
+                                    'border': f'1px solid {colors["primary"]}',
+                                    'color': colors['primary']
                                 }]
                             ),
                         ]
@@ -310,12 +333,14 @@ app.layout = dbc.Container([
                               id='btn-download-json', 
                               color="primary", 
                               className="mr-1"),
+                    # N-Triples button hidden but still in the DOM for callback functionality
                     dbc.Button([html.I(className="fas fa-download mr-2"), 'N-Triples'], 
                               id='btn-download-nt', 
                               color="info", 
-                              className="mr-1"),
+                              className="mr-1",
+                              style={'display': 'none'}),
                 ],
-                style={'display': 'none', 'gap': '10px'},
+                style=get_button_group_style(visible=False),  # Use helper function
                 id='button-group',
                 className="shadow-sm"
             ),
@@ -330,16 +355,24 @@ app.layout = dbc.Container([
                     'color': colors['secondary']
                 }
             ),
-            # Add a switch for processing all rows
+            # Add switch for key decomposition (JSON files only) - positioned next to include-metadata
+            dbc.Switch(
+                id="decompose-keys",
+                label="Decompose hierarchical keys (JSON files with '/' separator)",
+                value=True,  # Default to enabled
+                style={
+                    'display': 'none',  # Hidden by default, shown for JSON files
+                    'marginLeft': '15px',
+                    'color': colors['secondary']
+                }
+            ),
+            # Add a switch for processing all rows (permanently hidden but still functional)
             dbc.Switch(
                 id="process-all-rows",
                 label=f"Process ALL rows in chunks of {CHUNK_SIZE} (may be slow for large datasets)",
                 value=False,
                 style={
-                    'display': 'inline-block',
-                    'marginLeft': '15px',
-                    'color': colors['secondary'],
-                    'display': 'none'  # Initially hidden, shown only when include-metadata is true
+                    'display': 'none'  # Permanently hidden
                 }
             ),
             # Add a warning message about large datasets
@@ -455,6 +488,7 @@ app.layout = dbc.Container([
             dcc.Store(id='processing-start-time'),
             dcc.Store(id='processing-data', data={'status': 'idle'}),
             dcc.Store(id='full-json-store'),
+            dcc.Store(id='file-type-store'),
         ])
     ]),
     about_section  # <-- add this line to include the about_section
@@ -472,6 +506,71 @@ def style_data_conditional(df):
                 'height': 'auto',
             })
     return style_data_conditional
+
+def get_default_roles_for_variables(df_meta, filename):
+    """
+    Determine appropriate default roles for variables based on file type and metadata.
+    
+    For JSON files:
+    - Variables in measure_vars (like 'value' column) → "variablevalue" (highest priority)
+    - Variables in contextual_vars → "contextual"
+    - Variables in synthetic_id_vars → "synthetic"
+    - Variables in identifier_vars → "identifier" 
+    - Other variables → "identifier" (default)
+    
+    For non-JSON files (CSV, SPSS, Stata):
+    - All variables → "measure"
+    
+    Parameters:
+    -----------
+    df_meta : metadata object
+        Metadata object containing variable classifications
+    filename : str
+        Filename to determine file type
+        
+    Returns:
+    --------
+    dict : Dictionary mapping variable names to default roles
+    """
+    is_json = filename and '.json' in filename.lower()
+    default_roles = {}
+    
+    if is_json and hasattr(df_meta, 'column_names'):
+        # Debug logging
+        print(f"DEBUG: Processing JSON file with {len(df_meta.column_names)} columns")
+        if hasattr(df_meta, 'measure_vars'):
+            print(f"DEBUG: measure_vars = {getattr(df_meta, 'measure_vars', [])}")
+        if hasattr(df_meta, 'identifier_vars'):
+            print(f"DEBUG: identifier_vars = {getattr(df_meta, 'identifier_vars', [])}")
+        
+        # For JSON files, assign roles based on metadata classification
+        # Priority order: measure_vars (value) > contextual > synthetic > identifier > default
+        for var_name in df_meta.column_names:
+            # Highest priority: variables in measure_vars should get 'variablevalue' role
+            if hasattr(df_meta, 'measure_vars') and var_name in getattr(df_meta, 'measure_vars', []):
+                default_roles[var_name] = 'variablevalue'
+                print(f"DEBUG: Assigned '{var_name}' -> 'variablevalue' (from measure_vars)")
+            elif hasattr(df_meta, 'contextual_vars') and var_name in getattr(df_meta, 'contextual_vars', []):
+                default_roles[var_name] = 'contextual'
+                print(f"DEBUG: Assigned '{var_name}' -> 'contextual'")
+            elif hasattr(df_meta, 'synthetic_id_vars') and var_name in getattr(df_meta, 'synthetic_id_vars', []):
+                default_roles[var_name] = 'synthetic'
+                print(f"DEBUG: Assigned '{var_name}' -> 'synthetic'")
+            elif hasattr(df_meta, 'identifier_vars') and var_name in getattr(df_meta, 'identifier_vars', []):
+                default_roles[var_name] = 'identifier'
+                print(f"DEBUG: Assigned '{var_name}' -> 'identifier' (from identifier_vars)")
+            else:
+                # Default for unclassified JSON variables
+                default_roles[var_name] = 'identifier'
+                print(f"DEBUG: Assigned '{var_name}' -> 'identifier' (default)")
+    else:
+        # For non-JSON files, default all variables to measure
+        if hasattr(df_meta, 'column_names'):
+            for var_name in df_meta.column_names:
+                default_roles[var_name] = 'measure'
+    
+    print(f"DEBUG: Final default_roles = {default_roles}")
+    return default_roles
 
 # Define callbacks
 @app.callback(
@@ -493,12 +592,13 @@ def update_instruction_text_style(data):
         return {'display': 'none'}, {'display': 'none'}
 
 # Modify the truncate_for_display function to ensure it doesn't affect the original JSON
-def truncate_for_display(json_str, max_length=100000):
+def truncate_for_display(json_str, max_length=500000, include_metadata=False):
     """
-    Truncates JSON string for display if it's too large.
+    Truncates JSON string for display if it's too large and include_metadata is True.
     Returns the truncated string and a boolean indicating if truncation occurred.
     """
-    if json_str and len(json_str) > max_length:
+    # Only truncate if include_metadata is True
+    if include_metadata and json_str and len(json_str) > max_length:
         # Find the last complete JSON object or array that fits
         truncated = json_str[:max_length]
         # Try to find the last complete object
@@ -525,16 +625,19 @@ def truncate_for_display(json_str, max_length=100000):
      Output('json-ld-output', 'children'),
      Output('table-switch-button', 'style'),
      Output('include-metadata', 'style'),
+     Output('decompose-keys', 'style'),
      Output('upload-data', 'contents'),
-     Output('full-json-store', 'data')],  # Add this new output
+     Output('full-json-store', 'data'),
+     Output('file-type-store', 'data')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
      Input('include-metadata', 'value'),
+     Input('decompose-keys', 'value'),
      Input('table2', 'data'),
      Input('process-all-rows', 'value')],
     [State('upload-data', 'filename')]
 )
-def combined_callback(contents, selected_rows, include_metadata, table2_data, process_all_rows, filename):
+def combined_callback(contents, selected_rows, include_metadata, decompose_keys, table2_data, process_all_rows, filename):
     global df, df_meta
     
     ctx = dash.callback_context
@@ -638,8 +741,8 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             if json_ld_data and json_ld_data != "Error generating JSON-LD":
                 # Store the full JSON output for download BEFORE truncation
                 full_json = json_ld_data
-                # Truncate for display only
-                truncated_json, was_truncated = truncate_for_display(json_ld_data)
+                # Truncate for display only if include_metadata is true
+                truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
                 
                 return (
                     dash.no_update,  # table1 data
@@ -648,14 +751,16 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                     dash.no_update,  # table2 data
                     dash.no_update,  # table2 columns
                     dash.no_update,  # table2 style
-                    dash.no_update,  # button group style
+                    get_button_group_style(visible=True),  # Use helper function
                     instruction_text1, # table1 instruction
                     instruction_text2, # table2 instruction
                     truncated_json,    # json output for display
-                    dash.no_update,  # table switch button style
-                    dash.no_update,  # include metadata style
-                    dash.no_update,   # upload contents
-                    full_json  # full JSON for download
+                    {'display': 'block'},
+                    {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    {'display': 'none'},  # decompose-keys style (hidden for non-JSON)
+                    None,  # Clear the upload contents
+                    full_json,  # full JSON for download
+                    dash.no_update  # file type (no change for metadata toggle)
                 )
             
         except Exception as e:
@@ -663,16 +768,16 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             import traceback
             print(traceback.format_exc())
             # Return error state
-            return [dash.no_update] * 14
+            return [dash.no_update] * 16
 
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:
         try:
-            # Clear previous data
+            # Clear previous data (this will be replaced with new classifications from file processing)
             if 'df_meta' in globals():
-                df_meta.measure_vars = []
-                df_meta.identifier_vars = []
-                df_meta.attribute_vars = []
+                # Just note that we're clearing previous metadata - 
+                # new classifications will be set by the file processing functions
+                pass
             
             # Reset lists.txt
             with open('lists.txt', 'w') as f:
@@ -691,115 +796,174 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             if '.dta' in tmp_filename or '.sav' in tmp_filename:
                 df, df_meta, file_name, n_rows = read_sav(tmp_filename)
                 df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
+            elif '.csv' in tmp_filename:
+                print("Reading file using read_csv")
+                # Use automatic delimiter detection and handle date formats
+                df, df_meta, file_name, n_rows = read_csv(tmp_filename, delimiter=None, dayfirst=False)
+                df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
+            elif '.json' in tmp_filename:
+                print("Reading file using read_json")
+                df, df_meta, file_name, n_rows = read_json(tmp_filename, decompose_keys=decompose_keys)
+                df2 = create_variable_view(df_meta)  # Use standard variable view for JSON
+            else:
+                raise ValueError(f"Unsupported file type. File must be .sav, .dta, .csv, or .json, got: {tmp_filename}")
                 
-                # Initialize with empty classifications
+            # Initialize classifications only if they don't already exist (preserve JSON processing results)
+            if not hasattr(df_meta, 'measure_vars') or df_meta.measure_vars is None:
                 df_meta.measure_vars = []
+            if not hasattr(df_meta, 'identifier_vars') or df_meta.identifier_vars is None:
                 df_meta.identifier_vars = []
+            if not hasattr(df_meta, 'attribute_vars') or df_meta.attribute_vars is None:
                 df_meta.attribute_vars = []
+            if not hasattr(df_meta, 'contextual_vars') or df_meta.contextual_vars is None:
+                df_meta.contextual_vars = []
+            if not hasattr(df_meta, 'synthetic_id_vars') or df_meta.synthetic_id_vars is None:
+                df_meta.synthetic_id_vars = []
+            if not hasattr(df_meta, 'variable_value_vars') or df_meta.variable_value_vars is None:
+                df_meta.variable_value_vars = []
 
-                # Prepare table data
-                columns1 = [{"name": i, "id": i} for i in df.columns]
-                columns2 = [
-                    {
-                        "name": "Roles",
-                        "id": "roles",
-                        "presentation": "dropdown",
-                        "editable": True
-                    },
-                    {
-                        "name": "name",
-                        "id": "name",
-                        "editable": False
-                    },
-                    {
-                        "name": "label",
-                        "id": "label",
-                        "editable": False
-                    },
-                    {
-                        "name": "format",
-                        "id": "format",
-                        "editable": False
-                    },
-                    {
-                        "name": "measure",
-                        "id": "measure",
-                        "editable": False
-                    }
-                ] + [{"name": i, "id": i} for i in df2.columns]
-                
-                conditional_styles1 = style_data_conditional(df)
-                conditional_styles2 = style_data_conditional(df2)
+            # Prepare table data
+            columns1 = [{"name": i, "id": i} for i in df.columns]
+            columns2 = [
+                {
+                    "name": "Select role",
+                    "id": "roles",
+                    "presentation": "dropdown",
+                    "editable": True
+                }
+            ]
+            
+            # Only add columns that aren't already in df2
+            predefined_columns = {'roles'}
+            for col in df2.columns:
+                if col not in predefined_columns:
+                    columns2.append({"name": col, "id": col, "editable": False})
+            
+            conditional_styles1 = style_data_conditional(df)
+            conditional_styles2 = style_data_conditional(df2)
 
-                # Add the roles column to df2 with default values (measure)
-                df2['roles'] = 'measure'
-                table2_data = df2.to_dict('records')
+            # Add the roles column to df2 with appropriate default values based on file type
+            default_roles = get_default_roles_for_variables(df_meta, filename)
+            df2['roles'] = df2['name'].map(default_roles).fillna('measure')
+            table2_data = df2.to_dict('records')
+            
+            # IMPORTANT: Apply the default roles to df_meta immediately so the initial JSON-LD generation uses them
+            measures = []
+            identifiers = []
+            attributes = []
+            contextuals = []
+            synthetics = []
+            variable_values = []
+            
+            # Process the default roles and apply them to df_meta
+            for row in table2_data:
+                roles = row.get('roles', '').split(',') if row.get('roles') else []
+                if 'measure' in roles:
+                    measures.append(row['name'])
+                if 'identifier' in roles:
+                    identifiers.append(row['name'])
+                if 'attribute' in roles:
+                    attributes.append(row['name'])
+                if 'contextual' in roles:
+                    contextuals.append(row['name'])
+                if 'synthetic' in roles:
+                    synthetics.append(row['name'])
+                if 'variablevalue' in roles:
+                    variable_values.append(row['name'])
+            
+            # Update df_meta with the default role assignments
+            df_meta.measure_vars = measures
+            df_meta.identifier_vars = identifiers
+            df_meta.attribute_vars = attributes
+            df_meta.contextual_vars = contextuals
+            df_meta.synthetic_id_vars = synthetics
+            df_meta.variable_value_vars = variable_values
+            
+            print(f"DEBUG: Applied default roles to df_meta during initial file upload:")
+            print(f"  - measures: {measures}")
+            print(f"  - identifiers: {identifiers}")
+            print(f"  - attributes: {attributes}")
+            print(f"  - contextuals: {contextuals}")
+            print(f"  - synthetics: {synthetics}")
+            print(f"  - variable_values: {variable_values}")
 
-                # Generate only JSON-LD initially
-                # Determine optimal chunk size for large datasets
-                dynamic_chunk_size = CHUNK_SIZE
-                if process_all_rows and len(df) > CHUNK_SIZE:
-                    try:
-                        # Try to optimize chunk size based on available memory
-                        dynamic_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
-                        print(f"Optimized chunk size: {dynamic_chunk_size} rows (based on available memory)")
-                    except Exception as e:
-                        print(f"Warning: Could not optimize chunk size, using default: {e}")
-                        dynamic_chunk_size = CHUNK_SIZE
-                        
-                data_subset = df if include_metadata else df.head(0)
-                json_ld_data = generate_complete_json_ld(
-                    data_subset, 
-                    df_meta,
-                    spssfile=filename,
-                    chunk_size=dynamic_chunk_size,
-                    process_all_rows=process_all_rows,
-                    max_rows=MAX_ROWS_TO_PROCESS
-                )
-
-                if include_metadata:
-                    if process_all_rows:
-                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
-                    elif len(df) > MAX_ROWS_TO_PROCESS:
-                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
-                    else:
-                        instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
-                else:
-                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
-
-                # Create instruction text for table2 (column view)
-                instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
-
-                # Clean up temp file
-                os.unlink(tmp_filename)
-
-                # Before returning, store the full JSON and truncate for display
-                if json_ld_data and json_ld_data != "Error generating JSON-LD":
-                    # Store the full JSON output for download BEFORE truncation
-                    full_json = json_ld_data
-                    # Truncate for display only
-                    truncated_json, was_truncated = truncate_for_display(json_ld_data)
+            # Generate only JSON-LD initially
+            # Determine optimal chunk size for large datasets
+            dynamic_chunk_size = CHUNK_SIZE
+            if process_all_rows and len(df) > CHUNK_SIZE:
+                try:
+                    # Try to optimize chunk size based on available memory
+                    dynamic_chunk_size = MemoryManager.optimize_chunk_size(df, df_meta)
+                    print(f"Optimized chunk size: {dynamic_chunk_size} rows (based on available memory)")
+                except Exception as e:
+                    print(f"Warning: Could not optimize chunk size, using default: {e}")
+                    dynamic_chunk_size = CHUNK_SIZE
                     
-                    return (
-                        df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
-                        columns1,
-                        conditional_styles1,
-                        table2_data,
-                        columns2,
-                        conditional_styles2,
-                        {'display': 'block'},
-                        instruction_text1,
-                        instruction_text2,
-                        truncated_json,    # json output for display
-                        {'display': 'block'},
-                        {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
-                        None,  # Clear the upload contents
-                        full_json  # full JSON for download
-                    )
+            data_subset = df if include_metadata else df.head(0)
+            json_ld_data = generate_complete_json_ld(
+                data_subset, 
+                df_meta,
+                spssfile=filename,
+                chunk_size=dynamic_chunk_size,
+                process_all_rows=process_all_rows,
+                max_rows=MAX_ROWS_TO_PROCESS
+            )
+
+            if include_metadata:
+                if process_all_rows:
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include ALL {len(df)} rows."
+                elif len(df) > MAX_ROWS_TO_PROCESS:
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include up to {MAX_ROWS_TO_PROCESS} rows due to performance limitations."
+                else:
+                    instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will include all {len(df)} rows."
+            else:
+                instruction_text1 = f"The table below shows the first {PREVIEW_ROWS} of {len(df)} rows from the dataset '{filename}'. The generated JSON-LD output will not include any data rows."
+
+            # Create instruction text for table2 (column view)
+            instruction_text2 = f"The table below shows all {len(df.columns)} columns from the dataset '{filename}'. Please select the appropriate role for each variable (column)."
+
+            # Clean up temp file
+            os.unlink(tmp_filename)
+
+            # Before returning, store the full JSON and truncate for display
+            if json_ld_data and json_ld_data != "Error generating JSON-LD":
+                # Store the full JSON output for download BEFORE truncation
+                full_json = json_ld_data
+                # Truncate for display only if include_metadata is true
+                truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
+                
+                # Determine if we should show the decompose-keys switch
+                if '.json' in filename and hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+                    # Show the switch for all JSON files
+                    decompose_switch_style = {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']}
+                else:
+                    decompose_switch_style = {'display': 'none'}
+                
+                # Determine file type
+                file_type = 'json' if '.json' in filename else 'non-json'
+                
+                return (
+                    df.head(PREVIEW_ROWS).to_dict('records'),  # Only show PREVIEW_ROWS in the table
+                    columns1,
+                    conditional_styles1,
+                    table2_data,
+                    columns2,
+                    conditional_styles2,
+                    get_button_group_style(visible=True),  # Use helper function
+                    instruction_text1,
+                    instruction_text2,
+                    truncated_json,    # json output for display
+                    {'display': 'block'},
+                    {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    decompose_switch_style,  # decompose-keys style (shown for JSON with hierarchical keys)
+                    None,  # Clear the upload contents
+                    full_json,  # full JSON for download
+                    file_type  # file type for dropdown options
+                )
 
         except Exception as e:
             print(f"Error processing file: {str(e)}")
-            return [], [], [], [], [], [], {'display': 'none'}, "", "", {'display': 'none'}, {'display': 'none'}, None, None
+            return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None, None
 
     # When table2 data changes (dropdown selections change)
     if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
@@ -807,6 +971,9 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         measures = []
         identifiers = []
         attributes = []
+        contextuals = []
+        synthetics = []
+        variable_values = []
         
         # Process the comma-separated roles for each variable
         for row in table2_data:
@@ -817,17 +984,28 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
                 identifiers.append(row['name'])
             if 'attribute' in roles:
                 attributes.append(row['name'])
+            if 'contextual' in roles:
+                contextuals.append(row['name'])
+            if 'synthetic' in roles:
+                synthetics.append(row['name'])
+            if 'variablevalue' in roles:
+                variable_values.append(row['name'])
         
         if 'df_meta' in globals():
             df_meta.measure_vars = measures
             df_meta.identifier_vars = identifiers
             df_meta.attribute_vars = attributes
+            df_meta.contextual_vars = contextuals
+            df_meta.synthetic_id_vars = synthetics
+            df_meta.variable_value_vars = variable_values
             
         # Update lists.txt with new classifications
         with open('lists.txt', 'w') as f:
             f.write(f"Measures: {measures}\n")
             f.write(f"Identifiers: {identifiers}\n")
             f.write(f"Attributes: {attributes}\n")
+            f.write(f"Contextuals: {contextuals}\n")
+            f.write(f"Synthetics: {synthetics}\n")
         
         # Determine optimal chunk size for large datasets
         dynamic_chunk_size = CHUNK_SIZE
@@ -859,18 +1037,20 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             table2_data,     # table2 data
             dash.no_update,  # table2 columns
             dash.no_update,  # table2 style
-            dash.no_update,  # button group style
+            get_button_group_style(visible=True),  # Use helper function
             dash.no_update,  # table1 instruction
             dash.no_update,  # table2 instruction
             json_ld_data,    # json output
-            dash.no_update,  # table switch button style
-            dash.no_update,  # include metadata style
+            {'display': 'block'},  # table switch button style
+            {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},  # include metadata style
+            dash.no_update,  # decompose-keys style
             dash.no_update,  # upload contents
-            None  # full JSON store
+            None,  # full JSON store
+            dash.no_update  # file type (no change for table2 updates)
         )
 
     if not contents:
-        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, dash.no_update, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, dash.no_update, None, None
 
     try:
         print("Step 1: Starting file processing")
@@ -889,12 +1069,21 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         if '.dta' in tmp_filename or '.sav' in tmp_filename:
             print("Reading file using read_sav") 
             df, df_meta, file_name, n_rows = read_sav(tmp_filename)
+            df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
+        elif '.csv' in tmp_filename:
+            print("Reading file using read_csv")
+            # Use automatic delimiter detection and handle date formats
+            df, df_meta, file_name, n_rows = read_csv(tmp_filename, delimiter=None, dayfirst=False)
+            df2 = create_variable_view(df_meta)  # Use standard variable view for CSV
+        elif '.json' in tmp_filename:
+            print("Reading file using read_json")
+            df, df_meta, file_name, n_rows = read_json(tmp_filename, decompose_keys=decompose_keys)
+            df2 = create_variable_view(df_meta)  # Use standard variable view for JSON
         else:
-            raise ValueError(f"Unsupported file type. File must be .sav or .dta, got: {tmp_filename}")
+            raise ValueError(f"Unsupported file type. File must be .sav, .dta, .csv, or .json, got: {tmp_filename}")
 
         print("Step 5: File read complete")
         print(f"df_meta exists: {df_meta is not None}")
-        df2 = create_variable_view2(df_meta) if '.dta' in tmp_filename else create_variable_view(df_meta)
         
         # Initialize the classification attributes
         df_meta.measure_vars = df_meta.column_names  # Default all to measures
@@ -919,40 +1108,68 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
         columns1 = [{"name": i, "id": i} for i in df.columns]
         columns2 = [
             {
-                "name": "Roles",
+                "name": "Select role",
                 "id": "roles",
                 "presentation": "dropdown",
                 "editable": True
-            },
-            {
-                "name": "name",
-                "id": "name",
-                "editable": False
-            },
-            {
-                "name": "label",
-                "id": "label",
-                "editable": False
-            },
-            {
-                "name": "format",
-                "id": "format",
-                "editable": False
-            },
-            {
-                "name": "measure",
-                "id": "measure",
-                "editable": False
             }
-        ] + [{"name": i, "id": i} for i in df2.columns]
+        ]
+        
+        # Only add columns that aren't already in df2
+        predefined_columns = {'roles'}
+        for col in df2.columns:
+            if col not in predefined_columns:
+                columns2.append({"name": col, "id": col, "editable": False})
+        
         conditional_styles1 = style_data_conditional(df)
         conditional_styles2 = style_data_conditional(df2)
 
-        # Add the roles column to df2 with default values (measure)
-        df2['roles'] = 'measure'
+        # Add the roles column to df2 with appropriate default values based on file type
+        default_roles = get_default_roles_for_variables(df_meta, filename)
+        df2['roles'] = df2['name'].map(default_roles).fillna('measure')
         
         # Convert df2 to records for the table
         table2_data = df2.to_dict('records')
+        
+        # IMPORTANT: Apply the default roles to df_meta immediately so the initial JSON-LD generation uses them
+        measures = []
+        identifiers = []
+        attributes = []
+        contextuals = []
+        synthetics = []
+        variable_values = []
+        
+        # Process the default roles and apply them to df_meta
+        for row in table2_data:
+            roles = row.get('roles', '').split(',') if row.get('roles') else []
+            if 'measure' in roles:
+                measures.append(row['name'])
+            if 'identifier' in roles:
+                identifiers.append(row['name'])
+            if 'attribute' in roles:
+                attributes.append(row['name'])
+            if 'contextual' in roles:
+                contextuals.append(row['name'])
+            if 'synthetic' in roles:
+                synthetics.append(row['name'])
+            if 'variablevalue' in roles:
+                variable_values.append(row['name'])
+        
+        # Update df_meta with the default role assignments
+        df_meta.measure_vars = measures
+        df_meta.identifier_vars = identifiers
+        df_meta.attribute_vars = attributes
+        df_meta.contextual_vars = contextuals
+        df_meta.synthetic_id_vars = synthetics
+        df_meta.variable_value_vars = variable_values
+        
+        print(f"DEBUG: Applied default roles to df_meta during fallback file processing:")
+        print(f"  - measures: {measures}")
+        print(f"  - identifiers: {identifiers}")
+        print(f"  - attributes: {attributes}")
+        print(f"  - contextuals: {contextuals}")
+        print(f"  - synthetics: {synthetics}")
+        print(f"  - variable_values: {variable_values}")
 
         # Get selected variables
         vars = []
@@ -1014,33 +1231,49 @@ def combined_callback(contents, selected_rows, include_metadata, table2_data, pr
             measures = [row['name'] for row in table2_data if row.get('role_measure') == True]
             identifiers = [row['name'] for row in table2_data if row.get('role_identifier') == True]
             attributes = [row['name'] for row in table2_data if row.get('role_attribute') == True]
+            contextuals = [row['name'] for row in table2_data if row.get('role_contextual') == True]
+            synthetics = [row['name'] for row in table2_data if row.get('role_synthetic') == True]
             
             # Save to lists.txt
             with open('lists.txt', 'w') as f:
                 f.write(f"Measures: {measures}\n")
                 f.write(f"Identifiers: {identifiers}\n")
                 f.write(f"Attributes: {attributes}\n")
+                f.write(f"Contextuals: {contextuals}\n")
+                f.write(f"Synthetics: {synthetics}\n")
 
         # Before returning, store the full JSON and truncate for display
         if json_ld_data and json_ld_data != "Error generating JSON-LD":
             # Store the full JSON output for download BEFORE truncation
             full_json = json_ld_data
-            # Truncate for display only
-            truncated_json, was_truncated = truncate_for_display(json_ld_data)
+            # Truncate for display only if include_metadata is true
+            truncated_json, was_truncated = truncate_for_display(json_ld_data, include_metadata=include_metadata)
+            
+            # Determine if we should show the decompose-keys switch
+            if '.json' in filename and hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+                # Show the switch for all JSON files
+                decompose_switch_style = {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']}
+            else:
+                decompose_switch_style = {'display': 'none'}
+            
+            # Determine file type
+            file_type = 'json' if '.json' in filename else 'non-json'
             
             return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
                     table2_data, columns2, conditional_styles2, 
-                    {'display': 'block'}, 
+                    get_button_group_style(visible=True),  # Use helper function
                     instruction_text1, instruction_text2, truncated_json,
                     {'display': 'block'},
                     {'display': 'inline-block', 'marginLeft': '15px', 'color': colors['secondary']},
+                    decompose_switch_style,  # decompose-keys style
                     None,  # Clear the upload contents
-                    full_json  # full JSON for download
+                    full_json,  # full JSON for download
+                    file_type  # file type for dropdown options
                 )
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], {'display': 'none'}, "", "", "", {'display': 'none'}, {'display': 'none'}, None, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None, None
 
     finally:
         if 'tmp_filename' in locals():
@@ -1056,6 +1289,27 @@ def reset_selected_rows(contents):
         return []  # Return an empty list to have no selection by default
     else:
         raise dash.exceptions.PreventUpdate
+
+# Update dropdown options based on file type
+@app.callback(
+    Output('table2', 'dropdown'),
+    [Input('file-type-store', 'data')]
+)
+def update_dropdown_options(file_type):
+    if file_type == 'json':
+        return {
+            'roles': {
+                'options': JSON_DROPDOWN_OPTIONS,
+                'clearable': False
+            }
+        }
+    else:
+        return {
+            'roles': {
+                'options': NON_JSON_DROPDOWN_OPTIONS,
+                'clearable': False
+            }
+        }
 
 @app.callback(
     [Output("table1-col", "style"),
@@ -1232,15 +1486,8 @@ def show_performance_warning(data, include_metadata, process_all_rows):
      Input('table1', 'data')]
 )
 def toggle_process_all_rows(include_metadata, data):
-    # Only show this option if include_metadata is True and we have data
-    if include_metadata and data and 'df' in globals() and len(df) > MAX_ROWS_TO_PROCESS:
-        return {
-            'display': 'inline-block',
-            'marginLeft': '15px',
-            'color': colors['secondary']
-        }
-    else:
-        return {'display': 'none'}
+    # Always keep the process-all-rows switch hidden
+    return {'display': 'none'}
 
 # Add callback to update the process-all-rows label with row count
 @app.callback(
@@ -1393,16 +1640,17 @@ def highlight_download_button(json_output, full_json):
             'transition': 'all 0.3s ease'
         }
         
-        # Style for N-Triples button
+        # Style for N-Triples button - always keep it hidden
         nt_style = {
             'fontWeight': 'bold',
-            'transition': 'all 0.3s ease'
+            'transition': 'all 0.3s ease',
+            'display': 'none'  # Always keep N-Triples button hidden
         }
         
         return button_style, nt_style
     
-    # Default style
-    return {}, {}
+    # Default style - always keep N-Triples button hidden
+    return {}, {'display': 'none'}
 
 if __name__ == '__main__':
     import os

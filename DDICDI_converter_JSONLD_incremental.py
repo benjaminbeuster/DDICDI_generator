@@ -6,13 +6,42 @@ import pandas as pd
 import datetime
 import time
 
+# Helper functions for conditional references based on file format
+def _get_dataset_reference(df_meta):
+    """Get the appropriate dataset reference based on file format"""
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return "#keyValueDataStore"
+    else:
+        return "#wideDataSet"
+
+def _get_structure_reference(df_meta):
+    """Get the appropriate structure reference based on file format"""
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return "#keyValueStructure"
+    else:
+        return "#wideDataStructure"
+
+def _get_dataset_type(df_meta):
+    """Get the appropriate dataset type based on file format"""
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return "KeyValueDataStore"
+    else:
+        return "WideDataSet"
+
+def _get_structure_type(df_meta):
+    """Get the appropriate structure type based on file format"""
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return "KeyValueStructure"
+    else:
+        return "WideDataStructure"
+
 # Core functions
 def generate_PhysicalDataSetStructure(df_meta):
     json_ld_data = []
     elements = {
         "@id": "#physicalDataSetStructure",
         "@type": "PhysicalDataSetStructure",
-        "correspondsTo_DataStructure": "#wideDataStructure",
+        "correspondsTo_DataStructure": _get_structure_reference(df_meta),
         "structures": "#physicalDataSet"
     }
     json_ld_data.append(elements)
@@ -21,11 +50,11 @@ def generate_PhysicalDataSetStructure(df_meta):
 def generate_PhysicalDataset(df_meta, spssfile):
     json_ld_data = []
     elements = {
-        "@id": f"#physicalDataSet",
+        "@id": "#physicalDataSet",
         "@type": "PhysicalDataSet",
         "allowsDuplicates": False,
         "physicalFileName": spssfile,
-        "correspondsTo_DataSet": "#wideDataSet",
+        "correspondsTo_DataSet": _get_dataset_reference(df_meta),
         "formats": "#dataStore",
         "has_PhysicalRecordSegment": ["#physicalRecordSegment"]
     }
@@ -63,6 +92,29 @@ def generate_PhysicalSegmentLayout(df_meta):
         "has_ValueMappingPosition": []
     }
     
+    # Check if this is a CSV file
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'csv':
+        elements["isDelimited"] = "true"
+        elements["isFixedWidth"] = False
+        
+        # Get the delimiter from metadata if available, otherwise default to comma
+        if hasattr(df_meta, 'delimiter'):
+            elements["delimiter"] = df_meta.delimiter
+        else:
+            elements["delimiter"] = ","
+    
+    # Check if this is a JSON file with decomposed hierarchical keys
+    elif hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        # Check for decomposed hierarchical keys pattern (key-1, key-2, ..., value)
+        key_columns = [col for col in df_meta.column_names if col.startswith('key-') and col.split('-')[1].isdigit()]
+        has_value_column = 'value' in df_meta.column_names
+        
+        if len(key_columns) > 0 and has_value_column:
+            # This JSON file had hierarchical keys that were decomposed with "/" separator
+            elements["isDelimited"] = True
+            elements["isFixedWidth"] = False
+            elements["delimiter"] = "/"
+    
     # Add both ValueMapping and ValueMappingPosition references for each variable
     for variable in df_meta.column_names:
         elements["has_ValueMappingPosition"].append(f"#valueMappingPosition-{variable}")
@@ -84,10 +136,11 @@ def generate_DataStore(df_meta):
 
 def generate_LogicalRecord(df_meta):
     json_ld_data = []
+    
     elements = {
         "@id": "#logicalRecord",
         "@type": "LogicalRecord",
-        "organizes": "#wideDataSet",
+        "organizes": _get_dataset_reference(df_meta),
         "has_InstanceVariable": []
     }
     
@@ -101,9 +154,9 @@ def generate_LogicalRecord(df_meta):
 def generate_WideDataSet(df_meta):
     json_ld_data = []
     elements = {
-        "@id": "#wideDataSet",
-        "@type": "WideDataSet",
-        "isStructuredBy": "#wideDataStructure"
+        "@id": _get_dataset_reference(df_meta),
+        "@type": _get_dataset_type(df_meta),
+        "isStructuredBy": _get_structure_reference(df_meta)
     }
     
     json_ld_data.append(elements)
@@ -112,39 +165,98 @@ def generate_WideDataSet(df_meta):
 def generate_WideDataStructure(df_meta):
     json_ld_data = []
     elements = {
-        "@id": "#wideDataStructure",
-        "@type": "WideDataStructure",
-        "has_DataStructureComponent": []
+        "@id": _get_structure_reference(df_meta),
+        "@type": _get_structure_type(df_meta),
+        "has_DataStructureComponent": [],
+        "has_ComponentPosition": []
     }
     
-    # Set up for primary key if identifiers exist
-    if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars:
+    # Check if this is a JSON file to use different component logic
+    is_json_file = hasattr(df_meta, 'file_format') and df_meta.file_format == 'json'
+    
+    # Set up for primary key if identifiers exist (non-JSON files only)
+    if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars and not is_json_file:
         elements["has_PrimaryKey"] = "#primaryKey"
     
     # Process all variables for all possible roles
     for variable in df_meta.column_names:
-        # Add as identifier component
+        # Add as identifier component (common to both JSON and non-JSON)
         if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars and variable in df_meta.identifier_vars:
             elements["has_DataStructureComponent"].append(f"#identifierComponent-{variable}")
         
-        # Add as attribute component
+        # Add as attribute component (common to both JSON and non-JSON)
         if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars and variable in df_meta.attribute_vars:
             elements["has_DataStructureComponent"].append(f"#attributeComponent-{variable}")
         
-        # Add as measure component
-        if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars and variable in df_meta.measure_vars:
-            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
-        # If no roles are assigned, default to measure
-        elif (not hasattr(df_meta, 'identifier_vars') or variable not in df_meta.identifier_vars) and \
-             (not hasattr(df_meta, 'attribute_vars') or variable not in df_meta.attribute_vars) and \
-             (not hasattr(df_meta, 'measure_vars') or variable not in df_meta.measure_vars):
-            elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+        
+        if is_json_file:
+            # JSON-specific components
+            # Add as contextual component
+            if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars and variable in df_meta.contextual_vars:
+                elements["has_DataStructureComponent"].append(f"#contextualComponent-{variable}")
+            
+            # Add as synthetic ID component
+            if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars and variable in df_meta.synthetic_id_vars:
+                elements["has_DataStructureComponent"].append(f"#syntheticIdComponent-{variable}")
+            
+            # Add as variable value component
+            if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars and variable in df_meta.variable_value_vars:
+                elements["has_DataStructureComponent"].append(f"#variableValueComponent-{variable}")
+                # Also add the corresponding VariableDescriptorComponent reference (required by SHACL)
+                elements["has_DataStructureComponent"].append(f"#variableDescriptorComponent-{variable}")
+        else:
+            # Non-JSON files (SPSS, CSV, etc.) - use measure components
+            # Add as measure component
+            if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars and variable in df_meta.measure_vars:
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+            # If no roles are assigned, default to measure for non-JSON files
+            elif (not hasattr(df_meta, 'identifier_vars') or variable not in df_meta.identifier_vars) and \
+                 (not hasattr(df_meta, 'attribute_vars') or variable not in df_meta.attribute_vars) and \
+                 (not hasattr(df_meta, 'measure_vars') or variable not in df_meta.measure_vars):
+                elements["has_DataStructureComponent"].append(f"#measureComponent-{variable}")
+
+    # Add ComponentPosition references
+    # Calculate total number of component positions needed
+    position_count = 0
+    for variable in df_meta.column_names:
+        component_count = 0
+        
+        # Count components for this variable
+        if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars and variable in df_meta.identifier_vars:
+            component_count += 1
+        if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars and variable in df_meta.attribute_vars:
+            component_count += 1
+        
+        if not is_json_file:
+            if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars and variable in df_meta.measure_vars:
+                component_count += 1
+            # Default to measure if no roles assigned for non-JSON files
+            elif (not hasattr(df_meta, 'identifier_vars') or variable not in df_meta.identifier_vars) and \
+                 (not hasattr(df_meta, 'attribute_vars') or variable not in df_meta.attribute_vars) and \
+                 (not hasattr(df_meta, 'measure_vars') or variable not in df_meta.measure_vars):
+                component_count += 1
+        else:
+            if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars and variable in df_meta.contextual_vars:
+                component_count += 1
+            if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars and variable in df_meta.synthetic_id_vars:
+                component_count += 1
+            if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars and variable in df_meta.variable_value_vars:
+                component_count += 2  # VariableValue + VariableDescriptor
+        
+        # Add ComponentPosition references for this variable's components
+        for i in range(component_count):
+            elements["has_ComponentPosition"].append(f"#componentPosition-{position_count}")
+            position_count += 1
 
     json_ld_data.append(elements)
     return json_ld_data
 
 def generate_MeasureComponent(df_meta):
     json_ld_data = []
+    # Only generate MeasureComponents for non-JSON files
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        return json_ld_data
+    
     # Process all variables that are assigned as measures
     if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars:
         for variable in df_meta.measure_vars:
@@ -193,6 +305,124 @@ def generate_AttributeComponent(df_meta):
                 }
                 json_ld_data.append(elements)
     return json_ld_data
+
+
+def generate_ContextualComponent(df_meta):
+    """Generate ContextualComponent entries for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars:
+            for variable in df_meta.contextual_vars:
+                if variable in df_meta.column_names:  # Verify variable exists in dataset
+                    elements = {
+                        "@id": f"#contextualComponent-{variable}",
+                        "@type": "ContextualComponent",
+                        "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                    }
+                    json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_SyntheticIdComponent(df_meta):
+    """Generate SyntheticIdComponent entries for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars:
+            for variable in df_meta.synthetic_id_vars:
+                if variable in df_meta.column_names:  # Verify variable exists in dataset
+                    elements = {
+                        "@id": f"#syntheticIdComponent-{variable}",
+                        "@type": "SyntheticIdComponent",
+                        "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                    }
+                    json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_VariableValueComponent(df_meta):
+    """Generate VariableValueComponent entries for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars:
+            for variable in df_meta.variable_value_vars:
+                if variable in df_meta.column_names:  # Verify variable exists in dataset
+                    elements = {
+                        "@id": f"#variableValueComponent-{variable}",
+                        "@type": "VariableValueComponent",
+                        "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                    }
+                    json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_VariableDescriptorComponent(df_meta):
+    """Generate VariableDescriptorComponent entries for JSON files only"""
+    json_ld_data = []
+    # Only generate for JSON files (KeyValueDataStore)
+    if hasattr(df_meta, 'file_format') and df_meta.file_format == 'json':
+        if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars:
+            for variable in df_meta.variable_value_vars:
+                if variable in df_meta.column_names:  # Verify variable exists in dataset
+                    elements = {
+                        "@id": f"#variableDescriptorComponent-{variable}",
+                        "@type": "VariableDescriptorComponent",
+                        "refersTo": f"#variableValueComponent-{variable}",
+                        "isDefinedBy_RepresentedVariable": f"#instanceVariable-{variable}"
+                    }
+                    json_ld_data.append(elements)
+    return json_ld_data
+
+def generate_ComponentPosition(df_meta):
+    """Generate ComponentPosition entries for all components in the data structure"""
+    json_ld_data = []
+    
+    # Check if this is a JSON file to use different component logic
+    is_json_file = hasattr(df_meta, 'file_format') and df_meta.file_format == 'json'
+    
+    # Build list of all components with their positions (0-based indexing)
+    position = 0
+    
+    # Process all variables in the order they appear in column_names
+    for variable in df_meta.column_names:
+        component_references = []
+        
+        # Collect all component types this variable belongs to
+        if hasattr(df_meta, 'identifier_vars') and df_meta.identifier_vars and variable in df_meta.identifier_vars:
+            component_references.append(f"#identifierComponent-{variable}")
+        
+        if hasattr(df_meta, 'attribute_vars') and df_meta.attribute_vars and variable in df_meta.attribute_vars:
+            component_references.append(f"#attributeComponent-{variable}")
+        
+        if not is_json_file:
+            # Non-JSON specific components
+            if hasattr(df_meta, 'measure_vars') and df_meta.measure_vars and variable in df_meta.measure_vars:
+                component_references.append(f"#measureComponent-{variable}")
+        else:
+            # JSON-specific components
+            if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars and variable in df_meta.contextual_vars:
+                component_references.append(f"#contextualComponent-{variable}")
+            
+            if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars and variable in df_meta.synthetic_id_vars:
+                component_references.append(f"#syntheticIdComponent-{variable}")
+            
+            if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars and variable in df_meta.variable_value_vars:
+                component_references.append(f"#variableValueComponent-{variable}")
+                # Also add the corresponding VariableDescriptorComponent
+                component_references.append(f"#variableDescriptorComponent-{variable}")
+        
+        # Create ComponentPosition for each component reference
+        for component_ref in component_references:
+            elements = {
+                "@id": f"#componentPosition-{position}",
+                "@type": "ComponentPosition",
+                "value": position,
+                "indexes": component_ref
+            }
+            json_ld_data.append(elements)
+            position += 1
+    
+    return json_ld_data
+
 
 def generate_PrimaryKey(df_meta):
     json_ld_data = []
@@ -387,7 +617,7 @@ def generate_DataPoint(df, df_meta, process_all_rows=False, chunk_size=5):
     # Using a list comprehension to generate all data points at once is more efficient
     # Pre-calculate the common values
     datapoint_type = "DataPoint"
-    dataset_reference = "#wideDataSet"
+    dataset_reference = _get_dataset_reference(df_meta)
     
     result = []
     # Generate data points in a single operation to avoid repeated function calls
@@ -568,32 +798,75 @@ def generate_InstanceValue(df, df_meta, process_all_rows=False, chunk_size=5):
 
 def map_to_xsd_type(original_type):
     """Map original data types to XSD data types with full URLs"""
+    # Convert original_type to lowercase string for comparison
+    type_str = str(original_type).lower()
+    
     type_mapping = {
         # Numeric types
         'int8': 'https://www.w3.org/TR/xmlschema-2/#byte',
         'int16': 'https://www.w3.org/TR/xmlschema-2/#short',
         'int32': 'https://www.w3.org/TR/xmlschema-2/#int',
         'int64': 'https://www.w3.org/TR/xmlschema-2/#long',
+        'int': 'https://www.w3.org/TR/xmlschema-2/#int',
+        'integer': 'https://www.w3.org/TR/xmlschema-2/#integer',
+        'uint8': 'https://www.w3.org/TR/xmlschema-2/#unsignedByte',
+        'uint16': 'https://www.w3.org/TR/xmlschema-2/#unsignedShort',
+        'uint32': 'https://www.w3.org/TR/xmlschema-2/#unsignedInt',
+        'uint64': 'https://www.w3.org/TR/xmlschema-2/#unsignedLong',
         'float': 'https://www.w3.org/TR/xmlschema-2/#float',
+        'float32': 'https://www.w3.org/TR/xmlschema-2/#float',
+        'float64': 'https://www.w3.org/TR/xmlschema-2/#double',
         'double': 'https://www.w3.org/TR/xmlschema-2/#double',
         'decimal': 'https://www.w3.org/TR/xmlschema-2/#decimal',
+        'numeric': 'https://www.w3.org/TR/xmlschema-2/#decimal',
+        'number': 'https://www.w3.org/TR/xmlschema-2/#decimal',
+        'complex': 'https://www.w3.org/TR/xmlschema-2/#string',
         
         # String types
         'string': 'https://www.w3.org/TR/xmlschema-2/#string',
         'str': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'object': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'text': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'varchar': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'character': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'char': 'https://www.w3.org/TR/xmlschema-2/#string',
         
         # Date/Time types
         'datetime': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
+        'datetime64': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
+        'datetime64[ns]': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
+        'timestamp': 'https://www.w3.org/TR/xmlschema-2/#dateTime',
         'date': 'https://www.w3.org/TR/xmlschema-2/#date',
         'time': 'https://www.w3.org/TR/xmlschema-2/#time',
+        'timedelta': 'https://www.w3.org/TR/xmlschema-2/#duration',
+        'duration': 'https://www.w3.org/TR/xmlschema-2/#duration',
         
         # Boolean
         'bool': 'https://www.w3.org/TR/xmlschema-2/#boolean',
+        'boolean': 'https://www.w3.org/TR/xmlschema-2/#boolean',
+        
+        # Other specialized types
+        'category': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'factor': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'array': 'https://www.w3.org/TR/xmlschema-2/#string',
+        'list': 'https://www.w3.org/TR/xmlschema-2/#string',
         
         # Default fallback
         'unknown': 'https://www.w3.org/TR/xmlschema-2/#string'
     }
-    return type_mapping.get(original_type.lower(), 'https://www.w3.org/TR/xmlschema-2/#string')
+    
+    # Check for pandas-specific type strings
+    if 'int' in type_str:
+        return 'https://www.w3.org/TR/xmlschema-2/#int'
+    elif 'float' in type_str:
+        return 'https://www.w3.org/TR/xmlschema-2/#double'
+    elif 'date' in type_str:
+        return 'https://www.w3.org/TR/xmlschema-2/#dateTime'
+    elif 'bool' in type_str:
+        return 'https://www.w3.org/TR/xmlschema-2/#boolean'
+    
+    # Try direct mapping first
+    return type_mapping.get(type_str, 'https://www.w3.org/TR/xmlschema-2/#string')
 
 def generate_SubstantiveValueDomain(df_meta):
     json_ld_data = []
@@ -1090,18 +1363,41 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
         generate_Concept(df_meta)
     ]
 
-    # Only add primary key related components if identifier_vars is provided AND not empty
-    if df_meta.identifier_vars:
+    # Only add primary key related components for non-JSON files
+    is_json_file = hasattr(df_meta, 'file_format') and df_meta.file_format == 'json'
+    if df_meta.identifier_vars and not is_json_file:
         pk_components = [
             generate_IdentifierComponent(df_meta),
             generate_PrimaryKey(df_meta),
             generate_PrimaryKeyComponent(df_meta)
         ]
         components.extend(pk_components)
+    elif df_meta.identifier_vars and is_json_file:
+        # For JSON files, only generate IdentifierComponent (no PrimaryKey)
+        components.append(generate_IdentifierComponent(df_meta))
     
     # Add attribute components if attribute_vars is not empty
     if df_meta.attribute_vars:
         components.append(generate_AttributeComponent(df_meta))
+    
+    
+    # Add contextual components if contextual_vars is not empty (JSON files only)
+    if hasattr(df_meta, 'contextual_vars') and df_meta.contextual_vars:
+        components.append(generate_ContextualComponent(df_meta))
+    
+    # Add synthetic ID components if synthetic_id_vars is not empty (JSON files only)
+    if hasattr(df_meta, 'synthetic_id_vars') and df_meta.synthetic_id_vars:
+        components.append(generate_SyntheticIdComponent(df_meta))
+    
+    # Add variable value components if variable_value_vars is not empty (JSON files only)
+    if hasattr(df_meta, 'variable_value_vars') and df_meta.variable_value_vars:
+        components.append(generate_VariableValueComponent(df_meta))
+        # Add corresponding variable descriptor components (required by SHACL)
+        components.append(generate_VariableDescriptorComponent(df_meta))
+    
+    
+    # Add ComponentPosition for all components in the data structure
+    components.append(generate_ComponentPosition(df_meta))
     
     # Get the separated components
     components_dict = wrap_in_graph(*components)
