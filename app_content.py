@@ -5,7 +5,7 @@ prefix = "https://docs.ddialliance.org/DDI-CDI/1.0/model/FieldLevelDocumentation
 markdown_text = r"""
 ## DDI-CDI Subset
 
-This profile utilizes 29 classes from the DDI-CDI model (v1.0) and 2 SKOS classes.
+This profile utilizes 29 classes from the DDI-CDI model (v1.0) and 23 SKOS classes.
 
 |  DDI-CDI Classes  |  DDI-CDI Classes  | SKOS Classes |
 |------------------|------------------|------------------|
