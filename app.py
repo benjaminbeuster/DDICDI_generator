@@ -96,6 +96,12 @@ logo_section = html.Div(
 navbar = dbc.NavbarSimple(
     children=[
         dbc.NavItem(dbc.NavLink(app_description, href="#", className="nav-link-custom")),
+        dbc.NavItem(dbc.Button(
+            [html.I(className="fas fa-code mr-2"), "API"],
+            id="open-api-modal",
+            color="link",
+            style={'color': colors['primary'], 'textDecoration': 'none'}
+        )),
         logo_section
     ],
     brand=brand_section,
@@ -110,9 +116,128 @@ navbar = dbc.NavbarSimple(
     }
 )
 
+# API Documentation Content
+api_documentation = """
+## REST API Documentation
+
+The DDI-CDI Converter provides a REST API for programmatic file conversion.
+
+### Base URL
+```
+http://localhost:8000/api
+```
+
+### Endpoints
+
+#### 1. Health Check
+```bash
+GET /api/health
+```
+Check if the API is running. No authentication required.
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "version": "1.0",
+  "service": "DDI-CDI Converter API"
+}
+```
+
+#### 2. Convert File
+```bash
+POST /api/convert
+```
+Convert a file to DDI-CDI JSON-LD format.
+
+**Parameters:**
+- `file` (required): The file to convert (.sav, .dta, .csv, .json)
+- `max_rows` (optional): Number of rows to include (default: 5)
+- `process_all_rows` (optional): "true" to process all rows (default: "false")
+- `decompose_keys` (optional): "true" to decompose hierarchical JSON keys (default: "false")
+- `variable_roles` (optional): JSON string with role assignments
+
+**Example:**
+```bash
+curl -X POST http://localhost:8000/api/convert \\
+  -F "file=@/path/to/yourfile.sav" \\
+  -F "max_rows=5" \\
+  -o output.jsonld
+```
+
+**With variable roles:**
+```bash
+curl -X POST http://localhost:8000/api/convert \\
+  -F "file=@/path/to/yourfile.sav" \\
+  -F 'variable_roles={"id":"identifier","age":"measure","gender":"attribute"}' \\
+  -o output.jsonld
+```
+
+**Response:**
+Returns the DDI-CDI JSON-LD document with content type `application/ld+json`.
+
+#### 3. API Information
+```bash
+GET /api/info
+```
+Get information about available endpoints and parameters.
+
+### Supported File Formats
+- SPSS (.sav)
+- Stata (.dta)
+- CSV (.csv)
+- JSON (.json)
+
+### Authentication
+By default, no authentication is required. To enable API key authentication, set the `DDI_API_KEY` environment variable:
+
+```bash
+export DDI_API_KEY="your-secret-key"
+```
+
+Then include the API key in requests:
+```bash
+curl -X POST http://localhost:8000/api/convert \\
+  -H "X-API-Key: your-secret-key" \\
+  -F "file=@/path/to/yourfile.sav" \\
+  -o output.jsonld
+```
+"""
+
+api_modal = dbc.Modal(
+    [
+        dbc.ModalHeader(
+            dbc.ModalTitle([html.I(className="fas fa-code mr-2"), "REST API Documentation"]),
+            close_button=True
+        ),
+        dbc.ModalBody(
+            dcc.Markdown(
+                api_documentation,
+                style={
+                    'fontFamily': "'Inter', sans-serif",
+                    'fontSize': '14px',
+                    'maxHeight': '70vh',
+                    'overflowY': 'auto'
+                }
+            )
+        ),
+        dbc.ModalFooter(
+            dbc.Button(
+                "Close",
+                id="close-api-modal",
+                className="ml-auto",
+                color="secondary"
+            )
+        ),
+    ],
+    id="api-modal",
+    size="lg",
+    is_open=False,
+)
+
 about_section = dbc.Card([
     dbc.CardBody([
-        dcc.Markdown(about_text, 
+        dcc.Markdown(about_text,
             link_target="_blank",
             className="card-text"),
         html.Div([
@@ -150,6 +275,7 @@ about_section = dbc.Card([
 
 app.layout = dbc.Container([
     navbar,
+    api_modal,
     dbc.Row([
         dbc.Col([
             html.Br(),
@@ -1655,6 +1781,18 @@ def highlight_download_button(json_output, full_json):
     
     # Default style - always keep N-Triples button hidden
     return {}, {'display': 'none'}
+
+# Callback to toggle API modal
+@app.callback(
+    Output("api-modal", "is_open"),
+    [Input("open-api-modal", "n_clicks"),
+     Input("close-api-modal", "n_clicks")],
+    [State("api-modal", "is_open")],
+)
+def toggle_api_modal(open_clicks, close_clicks, is_open):
+    if open_clicks or close_clicks:
+        return not is_open
+    return is_open
 
 if __name__ == '__main__':
     import os
