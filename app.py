@@ -18,6 +18,7 @@ from app_content import markdown_text, colors, style_dict, table_style, header_d
 from dash.exceptions import PreventUpdate
 import rdflib
 from rdflib import Graph
+from api import register_api_routes
 
 # Configuration parameters
 MAX_ROWS_TO_PROCESS = 5  # Maximum number of rows to process by default
@@ -57,6 +58,9 @@ app = dash.Dash(__name__, server=server, external_stylesheets=[
     dbc.themes.LITERA,
     "https://use.fontawesome.com/releases/v5.15.4/css/all.css"
 ])
+
+# Register API routes
+register_api_routes(server)
 
 # Define a helper function to always hide the N-Triples button in the UI
 def get_button_group_style(visible=False):
