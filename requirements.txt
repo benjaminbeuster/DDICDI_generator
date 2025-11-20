@@ -1,11 +1,8 @@
 pandas==1.5.3
-numpy==1.23.2
+numpy==1.26.4
 pyreadstat==1.2.7
 dash==2.13.0
 dash-bootstrap-components==1.5.0
-dash-core-components==2.0.0
-dash-html-components==2.0.0
-dash-table==5.0.0
 flask==2.1.2
 lxml==4.9.3
 pyld==2.0.4
