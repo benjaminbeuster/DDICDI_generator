@@ -1,18 +1,48 @@
 # DDI-CDI Converter API - Quick Start
 
+## Base URLs
+
+**Production (Azure):** `https://ddi-cdi-converter-app.azurewebsites.net/api`
+**Local Development:** `http://localhost:8000/api`
+
+---
+
 ## Quick Test Commands
 
 ### 1. Check API is Running
+
+**Azure:**
+```bash
+curl https://ddi-cdi-converter-app.azurewebsites.net/api/health
+```
+
+**Local:**
 ```bash
 curl http://localhost:8000/api/health
 ```
 
 ### 2. Get API Info
+
+**Azure:**
+```bash
+curl https://ddi-cdi-converter-app.azurewebsites.net/api/info
+```
+
+**Local:**
 ```bash
 curl http://localhost:8000/api/info
 ```
 
 ### 3. Basic Conversion
+
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@yourfile.sav" \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -F "file=@yourfile.sav" \
@@ -20,6 +50,16 @@ curl -X POST http://localhost:8000/api/convert \
 ```
 
 ### 4. With Authentication (if DDI_API_KEY is set)
+
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -H "X-API-Key: your-api-key" \
+  -F "file=@yourfile.sav" \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -H "X-API-Key: your-api-key" \
@@ -28,6 +68,16 @@ curl -X POST http://localhost:8000/api/convert \
 ```
 
 ### 5. Process More Rows
+
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@yourfile.csv" \
+  -F "max_rows=100" \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -F "file=@yourfile.csv" \
@@ -36,6 +86,16 @@ curl -X POST http://localhost:8000/api/convert \
 ```
 
 ### 6. Custom Variable Roles
+
+**Azure (Real Example with ESS11 data):**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@/Users/beb/dev/DDICDI_generator/files/ESS11-subset.sav" \
+  -F 'variable_roles={"idno":"identifier"}' \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -F "file=@yourfile.csv" \
@@ -59,9 +119,16 @@ python app.py
    - Value: `your-secret-key`
 4. Save and restart
 
-## Testing Locally Before Azure Deployment
+## Testing Strategy
 
-The API works locally on http://localhost:8000/api and will work exactly the same on Azure without any code changes. Test all your curl commands locally first!
+**Recommendation:** Test commands locally first, then use the same commands on Azure by just replacing the URL.
+
+Example workflow:
+1. Test locally: `curl http://localhost:8000/api/health`
+2. Deploy to Azure
+3. Test on Azure: `curl https://ddi-cdi-converter-app.azurewebsites.net/api/health`
+
+The API works identically in both environments!
 
 ## Supported File Formats
 

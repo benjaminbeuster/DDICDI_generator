@@ -36,6 +36,126 @@ This prototype was initially developed by Sikt as part of the [WorldFAIR Project
 app_title = 'DDI-CDI Converter for STATA, SPSS, CSV and JSON (Prototype)'
 app_description = ''
 
+# API Documentation Content
+api_documentation = """
+## REST API Documentation
+
+The DDI-CDI Converter provides a REST API for programmatic file conversion.
+
+### Base URLs
+
+**Production (Azure):**
+```
+https://ddi-cdi-converter-app.azurewebsites.net/api
+```
+
+**Local Development:**
+```
+http://localhost:8000/api
+```
+
+### Endpoints
+
+#### 1. Health Check
+```bash
+GET /api/health
+```
+Check if the API is running. No authentication required.
+
+**Example (Azure):**
+```bash
+curl https://ddi-cdi-converter-app.azurewebsites.net/api/health
+```
+
+**Example (Local):**
+```bash
+curl http://localhost:8000/api/health
+```
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "version": "1.0",
+  "service": "DDI-CDI Converter API"
+}
+```
+
+#### 2. Convert File
+```bash
+POST /api/convert
+```
+Convert a file to DDI-CDI JSON-LD format.
+
+**Parameters:**
+- `file` (required): The file to convert (.sav, .dta, .csv, .json)
+- `max_rows` (optional): Number of rows to include (default: 5)
+- `process_all_rows` (optional): "true" to process all rows (default: "false")
+- `decompose_keys` (optional): "true" to decompose hierarchical JSON keys (default: "false")
+- `variable_roles` (optional): JSON string with role assignments
+
+**Example (Azure):**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+  -F "file=@/path/to/yourfile.sav" \\
+  -F "max_rows=5" \\
+  -o output.jsonld
+```
+
+**Example (Local):**
+```bash
+curl -X POST http://localhost:8000/api/convert \\
+  -F "file=@/path/to/yourfile.sav" \\
+  -F "max_rows=5" \\
+  -o output.jsonld
+```
+
+**With variable roles:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+  -F "file=@/Users/beb/dev/DDICDI_generator/files/ESS11-subset.sav" \\
+  -F 'variable_roles={"idno":"identifier"}' \\
+  -o output.jsonld
+```
+
+**Response:**
+Returns the DDI-CDI JSON-LD document with content type `application/ld+json`.
+
+#### 3. API Information
+```bash
+GET /api/info
+```
+Get information about available endpoints and parameters.
+
+### Supported File Formats
+- SPSS (.sav)
+- Stata (.dta)
+- CSV (.csv)
+- JSON (.json)
+
+### Authentication
+By default, no authentication is required. To enable API key authentication, set the `DDI_API_KEY` environment variable:
+
+**Local:**
+```bash
+export DDI_API_KEY="your-secret-key"
+python app.py
+```
+
+**Azure:**
+1. Go to Azure Portal → App Service → Configuration → Application settings
+2. Add: `DDI_API_KEY` = `your-secret-key`
+3. Save and restart
+
+Then include the API key in requests:
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+  -H "X-API-Key: your-secret-key" \\
+  -F "file=@/path/to/yourfile.sav" \\
+  -o output.jsonld
+```
+"""
+
 # Modern bright color scheme
 colors = {
     'background': '#ffffff',    # Pure white

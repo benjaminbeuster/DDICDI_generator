@@ -14,7 +14,7 @@ from DDICDI_converter_JSONLD_incremental import (
     MemoryManager
 )
 from spss_import import read_sav, read_csv, read_json, create_variable_view, create_variable_view2
-from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text
+from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text, api_documentation
 from dash.exceptions import PreventUpdate
 import rdflib
 from rdflib import Graph
@@ -115,94 +115,6 @@ navbar = dbc.NavbarSimple(
         'padding': '15px 0'
     }
 )
-
-# API Documentation Content
-api_documentation = """
-## REST API Documentation
-
-The DDI-CDI Converter provides a REST API for programmatic file conversion.
-
-### Base URL
-```
-http://localhost:8000/api
-```
-
-### Endpoints
-
-#### 1. Health Check
-```bash
-GET /api/health
-```
-Check if the API is running. No authentication required.
-
-**Response:**
-```json
-{
-  "status": "healthy",
-  "version": "1.0",
-  "service": "DDI-CDI Converter API"
-}
-```
-
-#### 2. Convert File
-```bash
-POST /api/convert
-```
-Convert a file to DDI-CDI JSON-LD format.
-
-**Parameters:**
-- `file` (required): The file to convert (.sav, .dta, .csv, .json)
-- `max_rows` (optional): Number of rows to include (default: 5)
-- `process_all_rows` (optional): "true" to process all rows (default: "false")
-- `decompose_keys` (optional): "true" to decompose hierarchical JSON keys (default: "false")
-- `variable_roles` (optional): JSON string with role assignments
-
-**Example:**
-```bash
-curl -X POST http://localhost:8000/api/convert \\
-  -F "file=@/path/to/yourfile.sav" \\
-  -F "max_rows=5" \\
-  -o output.jsonld
-```
-
-**With variable roles:**
-```bash
-curl -X POST http://localhost:8000/api/convert \\
-  -F "file=@/path/to/yourfile.sav" \\
-  -F 'variable_roles={"id":"identifier","age":"measure","gender":"attribute"}' \\
-  -o output.jsonld
-```
-
-**Response:**
-Returns the DDI-CDI JSON-LD document with content type `application/ld+json`.
-
-#### 3. API Information
-```bash
-GET /api/info
-```
-Get information about available endpoints and parameters.
-
-### Supported File Formats
-- SPSS (.sav)
-- Stata (.dta)
-- CSV (.csv)
-- JSON (.json)
-
-### Authentication
-By default, no authentication is required. To enable API key authentication, set the `DDI_API_KEY` environment variable:
-
-```bash
-export DDI_API_KEY="your-secret-key"
-```
-
-Then include the API key in requests:
-```bash
-curl -X POST http://localhost:8000/api/convert \\
-  -H "X-API-Key: your-secret-key" \\
-  -F "file=@/path/to/yourfile.sav" \\
-  -o output.jsonld
-```
-"""
 
 api_modal = dbc.Modal(
     [

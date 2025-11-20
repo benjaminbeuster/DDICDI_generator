@@ -4,7 +4,9 @@
 
 The DDI-CDI Converter API provides programmatic access to convert statistical data files (SPSS, Stata, CSV, JSON) into DDI-CDI JSON-LD format. The API runs alongside the web interface on the same server.
 
-**Base URL**: `http://your-server:8000/api` (or `https://your-app.azurewebsites.net/api` on Azure)
+**Base URLs:**
+- **Production (Azure):** `https://ddi-cdi-converter-app.azurewebsites.net/api`
+- **Local Development:** `http://localhost:8000/api`
 
 ## Authentication
 
@@ -28,6 +30,12 @@ export DDI_API_KEY="your-secret-key-here"
 
 Include the API key in the `X-API-Key` header:
 
+**Azure:**
+```bash
+curl -H "X-API-Key: your-secret-key-here" https://ddi-cdi-converter-app.azurewebsites.net/api/info
+```
+
+**Local:**
 ```bash
 curl -H "X-API-Key: your-secret-key-here" http://localhost:8000/api/info
 ```
@@ -44,7 +52,12 @@ Check if the API is running.
 
 **Authentication**: Not required
 
-**Example**:
+**Example (Azure):**
+```bash
+curl https://ddi-cdi-converter-app.azurewebsites.net/api/health
+```
+
+**Example (Local):**
 ```bash
 curl http://localhost:8000/api/health
 ```
@@ -68,7 +81,12 @@ Get information about available endpoints and parameters.
 
 **Authentication**: Not required
 
-**Example**:
+**Example (Azure):**
+```bash
+curl https://ddi-cdi-converter-app.azurewebsites.net/api/info
+```
+
+**Example (Local):**
 ```bash
 curl http://localhost:8000/api/info
 ```
@@ -149,6 +167,14 @@ The `variable_roles` parameter accepts a JSON object mapping variable names to r
 
 Convert an SPSS file with default settings (5 rows):
 
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@data.sav" \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -F "file=@data.sav" \
@@ -159,6 +185,15 @@ curl -X POST http://localhost:8000/api/convert \
 
 Process 100 rows instead of the default 5:
 
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@data.sav" \
+  -F "max_rows=100" \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -F "file=@data.sav" \
@@ -170,6 +205,15 @@ curl -X POST http://localhost:8000/api/convert \
 
 Process the entire dataset (may be slow for large files):
 
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@data.csv" \
+  -F "process_all_rows=true" \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -F "file=@data.csv" \
@@ -181,6 +225,15 @@ curl -X POST http://localhost:8000/api/convert \
 
 Specify custom roles for variables:
 
+**Azure (Real Example with ESS11 data):**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@/Users/beb/dev/DDICDI_generator/files/ESS11-subset.sav" \
+  -F 'variable_roles={"idno":"identifier"}' \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -F "file=@data.csv" \
@@ -192,6 +245,15 @@ curl -X POST http://localhost:8000/api/convert \
 
 Decompose hierarchical keys in JSON files:
 
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@data.json" \
+  -F "decompose_keys=true" \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -F "file=@data.json" \
@@ -203,6 +265,16 @@ curl -X POST http://localhost:8000/api/convert \
 
 Include API key when authentication is enabled:
 
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -H "X-API-Key: your-secret-key-here" \
+  -F "file=@data.sav" \
+  -F "max_rows=50" \
+  -o output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -H "X-API-Key: your-secret-key-here" \
@@ -213,6 +285,18 @@ curl -X POST http://localhost:8000/api/convert \
 
 ### Complete Example with All Parameters
 
+**Azure:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -H "X-API-Key: your-secret-key-here" \
+  -F "file=@survey.sav" \
+  -F "max_rows=1000" \
+  -F "process_all_rows=false" \
+  -F 'variable_roles={"respondent_id":"identifier","age":"measure","income":"measure","country":"attribute"}' \
+  -o survey_output.jsonld
+```
+
+**Local:**
 ```bash
 curl -X POST http://localhost:8000/api/convert \
   -H "X-API-Key: your-secret-key-here" \
@@ -323,7 +407,7 @@ To enable authentication on Azure:
    - Value: Your secret key
 3. Save and restart the app
 
-The API will be available at: `https://your-app.azurewebsites.net/api`
+The API will be available at: `https://ddi-cdi-converter-app.azurewebsites.net/api`
 
 ---
 
