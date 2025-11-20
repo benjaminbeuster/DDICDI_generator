@@ -1,0 +1,3440 @@
+{
+    "@context": [
+        "https://docs.ddialliance.org/DDI-CDI/1.0/model/encoding/json-ld/ddi-cdi.jsonld",
+        {
+            "skos": "http://www.w3.org/2004/02/skos/core#"
+        }
+    ],
+    "DDICDIModels": [
+        {
+            "@id": "#physicalDataSet",
+            "@type": "PhysicalDataSet",
+            "allowsDuplicates": false,
+            "physicalFileName": "ESS11-subset.sav",
+            "correspondsTo_DataSet": "#wideDataSet",
+            "formats": "#dataStore",
+            "has_PhysicalRecordSegment": [
+                "#physicalRecordSegment"
+            ]
+        },
+        {
+            "@id": "#physicalRecordSegment",
+            "@type": "PhysicalRecordSegment",
+            "mapsTo": "#logicalRecord",
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_DataPointPosition": [
+                "#dataPointPosition-0-name",
+                "#dataPointPosition-1-name",
+                "#dataPointPosition-2-name",
+                "#dataPointPosition-3-name",
+                "#dataPointPosition-4-name",
+                "#dataPointPosition-0-essround",
+                "#dataPointPosition-1-essround",
+                "#dataPointPosition-2-essround",
+                "#dataPointPosition-3-essround",
+                "#dataPointPosition-4-essround",
+                "#dataPointPosition-0-edition",
+                "#dataPointPosition-1-edition",
+                "#dataPointPosition-2-edition",
+                "#dataPointPosition-3-edition",
+                "#dataPointPosition-4-edition",
+                "#dataPointPosition-0-proddate",
+                "#dataPointPosition-1-proddate",
+                "#dataPointPosition-2-proddate",
+                "#dataPointPosition-3-proddate",
+                "#dataPointPosition-4-proddate",
+                "#dataPointPosition-0-idno",
+                "#dataPointPosition-1-idno",
+                "#dataPointPosition-2-idno",
+                "#dataPointPosition-3-idno",
+                "#dataPointPosition-4-idno",
+                "#dataPointPosition-0-cntry",
+                "#dataPointPosition-1-cntry",
+                "#dataPointPosition-2-cntry",
+                "#dataPointPosition-3-cntry",
+                "#dataPointPosition-4-cntry",
+                "#dataPointPosition-0-dweight",
+                "#dataPointPosition-1-dweight",
+                "#dataPointPosition-2-dweight",
+                "#dataPointPosition-3-dweight",
+                "#dataPointPosition-4-dweight",
+                "#dataPointPosition-0-pweight",
+                "#dataPointPosition-1-pweight",
+                "#dataPointPosition-2-pweight",
+                "#dataPointPosition-3-pweight",
+                "#dataPointPosition-4-pweight",
+                "#dataPointPosition-0-ppltrst",
+                "#dataPointPosition-1-ppltrst",
+                "#dataPointPosition-2-ppltrst",
+                "#dataPointPosition-3-ppltrst",
+                "#dataPointPosition-4-ppltrst",
+                "#dataPointPosition-0-hinctnta",
+                "#dataPointPosition-1-hinctnta",
+                "#dataPointPosition-2-hinctnta",
+                "#dataPointPosition-3-hinctnta",
+                "#dataPointPosition-4-hinctnta",
+                "#dataPointPosition-0-prob",
+                "#dataPointPosition-1-prob",
+                "#dataPointPosition-2-prob",
+                "#dataPointPosition-3-prob",
+                "#dataPointPosition-4-prob",
+                "#dataPointPosition-0-stratum",
+                "#dataPointPosition-1-stratum",
+                "#dataPointPosition-2-stratum",
+                "#dataPointPosition-3-stratum",
+                "#dataPointPosition-4-stratum",
+                "#dataPointPosition-0-psu",
+                "#dataPointPosition-1-psu",
+                "#dataPointPosition-2-psu",
+                "#dataPointPosition-3-psu",
+                "#dataPointPosition-4-psu"
+            ]
+        },
+        {
+            "@id": "#physicalSegmentLayout",
+            "@type": "PhysicalSegmentLayout",
+            "allowsDuplicates": false,
+            "formats": "#logicalRecord",
+            "isDelimited": false,
+            "isFixedWidth": false,
+            "delimiter": "",
+            "has_ValueMappingPosition": [
+                "#valueMappingPosition-name",
+                "#valueMappingPosition-essround",
+                "#valueMappingPosition-edition",
+                "#valueMappingPosition-proddate",
+                "#valueMappingPosition-idno",
+                "#valueMappingPosition-cntry",
+                "#valueMappingPosition-dweight",
+                "#valueMappingPosition-pweight",
+                "#valueMappingPosition-ppltrst",
+                "#valueMappingPosition-hinctnta",
+                "#valueMappingPosition-prob",
+                "#valueMappingPosition-stratum",
+                "#valueMappingPosition-psu"
+            ]
+        },
+        {
+            "@id": "#valueMapping-name",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-name",
+                "#dataPoint-1-name",
+                "#dataPoint-2-name",
+                "#dataPoint-3-name",
+                "#dataPoint-4-name"
+            ]
+        },
+        {
+            "@id": "#valueMapping-essround",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-essround",
+                "#dataPoint-1-essround",
+                "#dataPoint-2-essround",
+                "#dataPoint-3-essround",
+                "#dataPoint-4-essround"
+            ]
+        },
+        {
+            "@id": "#valueMapping-edition",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-edition",
+                "#dataPoint-1-edition",
+                "#dataPoint-2-edition",
+                "#dataPoint-3-edition",
+                "#dataPoint-4-edition"
+            ]
+        },
+        {
+            "@id": "#valueMapping-proddate",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-proddate",
+                "#dataPoint-1-proddate",
+                "#dataPoint-2-proddate",
+                "#dataPoint-3-proddate",
+                "#dataPoint-4-proddate"
+            ]
+        },
+        {
+            "@id": "#valueMapping-idno",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-idno",
+                "#dataPoint-1-idno",
+                "#dataPoint-2-idno",
+                "#dataPoint-3-idno",
+                "#dataPoint-4-idno"
+            ]
+        },
+        {
+            "@id": "#valueMapping-cntry",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-cntry",
+                "#dataPoint-1-cntry",
+                "#dataPoint-2-cntry",
+                "#dataPoint-3-cntry",
+                "#dataPoint-4-cntry"
+            ]
+        },
+        {
+            "@id": "#valueMapping-dweight",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-dweight",
+                "#dataPoint-1-dweight",
+                "#dataPoint-2-dweight",
+                "#dataPoint-3-dweight",
+                "#dataPoint-4-dweight"
+            ]
+        },
+        {
+            "@id": "#valueMapping-pweight",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-pweight",
+                "#dataPoint-1-pweight",
+                "#dataPoint-2-pweight",
+                "#dataPoint-3-pweight",
+                "#dataPoint-4-pweight"
+            ]
+        },
+        {
+            "@id": "#valueMapping-ppltrst",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-ppltrst",
+                "#dataPoint-1-ppltrst",
+                "#dataPoint-2-ppltrst",
+                "#dataPoint-3-ppltrst",
+                "#dataPoint-4-ppltrst"
+            ]
+        },
+        {
+            "@id": "#valueMapping-hinctnta",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-hinctnta",
+                "#dataPoint-1-hinctnta",
+                "#dataPoint-2-hinctnta",
+                "#dataPoint-3-hinctnta",
+                "#dataPoint-4-hinctnta"
+            ]
+        },
+        {
+            "@id": "#valueMapping-prob",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-prob",
+                "#dataPoint-1-prob",
+                "#dataPoint-2-prob",
+                "#dataPoint-3-prob",
+                "#dataPoint-4-prob"
+            ]
+        },
+        {
+            "@id": "#valueMapping-stratum",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-stratum",
+                "#dataPoint-1-stratum",
+                "#dataPoint-2-stratum",
+                "#dataPoint-3-stratum",
+                "#dataPoint-4-stratum"
+            ]
+        },
+        {
+            "@id": "#valueMapping-psu",
+            "@type": "ValueMapping",
+            "defaultValue": "",
+            "formats": [
+                "#dataPoint-0-psu",
+                "#dataPoint-1-psu",
+                "#dataPoint-2-psu",
+                "#dataPoint-3-psu",
+                "#dataPoint-4-psu"
+            ]
+        },
+        {
+            "@id": "#valueMappingPosition-name",
+            "@type": "ValueMappingPosition",
+            "value": 0,
+            "indexes": "#valueMapping-name"
+        },
+        {
+            "@id": "#valueMappingPosition-essround",
+            "@type": "ValueMappingPosition",
+            "value": 1,
+            "indexes": "#valueMapping-essround"
+        },
+        {
+            "@id": "#valueMappingPosition-edition",
+            "@type": "ValueMappingPosition",
+            "value": 2,
+            "indexes": "#valueMapping-edition"
+        },
+        {
+            "@id": "#valueMappingPosition-proddate",
+            "@type": "ValueMappingPosition",
+            "value": 3,
+            "indexes": "#valueMapping-proddate"
+        },
+        {
+            "@id": "#valueMappingPosition-idno",
+            "@type": "ValueMappingPosition",
+            "value": 4,
+            "indexes": "#valueMapping-idno"
+        },
+        {
+            "@id": "#valueMappingPosition-cntry",
+            "@type": "ValueMappingPosition",
+            "value": 5,
+            "indexes": "#valueMapping-cntry"
+        },
+        {
+            "@id": "#valueMappingPosition-dweight",
+            "@type": "ValueMappingPosition",
+            "value": 6,
+            "indexes": "#valueMapping-dweight"
+        },
+        {
+            "@id": "#valueMappingPosition-pweight",
+            "@type": "ValueMappingPosition",
+            "value": 7,
+            "indexes": "#valueMapping-pweight"
+        },
+        {
+            "@id": "#valueMappingPosition-ppltrst",
+            "@type": "ValueMappingPosition",
+            "value": 8,
+            "indexes": "#valueMapping-ppltrst"
+        },
+        {
+            "@id": "#valueMappingPosition-hinctnta",
+            "@type": "ValueMappingPosition",
+            "value": 9,
+            "indexes": "#valueMapping-hinctnta"
+        },
+        {
+            "@id": "#valueMappingPosition-prob",
+            "@type": "ValueMappingPosition",
+            "value": 10,
+            "indexes": "#valueMapping-prob"
+        },
+        {
+            "@id": "#valueMappingPosition-stratum",
+            "@type": "ValueMappingPosition",
+            "value": 11,
+            "indexes": "#valueMapping-stratum"
+        },
+        {
+            "@id": "#valueMappingPosition-psu",
+            "@type": "ValueMappingPosition",
+            "value": 12,
+            "indexes": "#valueMapping-psu"
+        },
+        {
+            "@id": "#dataPoint-0-name",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-name",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-name",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-name",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-name",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-name",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-name",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-name",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-name",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-name",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-essround",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-essround",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-essround",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-essround",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-essround",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-essround",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-essround",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-essround",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-essround",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-essround",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-edition",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-edition",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-edition",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-edition",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-edition",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-edition",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-edition",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-edition",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-edition",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-edition",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-proddate",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-proddate",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-proddate",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-proddate",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-proddate",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-proddate",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-proddate",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-proddate",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-proddate",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-proddate",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-idno",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-idno",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-idno",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-idno",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-idno",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-idno",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-idno",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-idno",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-idno",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-idno",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-cntry",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-cntry",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-cntry",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-cntry",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-cntry",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-cntry",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-cntry",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-cntry",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-cntry",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-cntry",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-dweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-dweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-dweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-dweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-dweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-dweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-dweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-dweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-dweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-dweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-pweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-pweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-pweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-pweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-pweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-pweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-pweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-pweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-pweight",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-pweight",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-ppltrst",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-ppltrst",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-ppltrst",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-ppltrst",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-ppltrst",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-ppltrst",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-ppltrst",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-ppltrst",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-ppltrst",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-ppltrst",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-hinctnta",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-hinctnta",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-hinctnta",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-hinctnta",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-hinctnta",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-hinctnta",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-hinctnta",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-hinctnta",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-hinctnta",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-hinctnta",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-prob",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-prob",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-prob",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-prob",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-prob",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-prob",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-prob",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-prob",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-prob",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-prob",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-stratum",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-stratum",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-stratum",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-stratum",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-stratum",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-stratum",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-stratum",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-stratum",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-stratum",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-stratum",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-0-psu",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-psu",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-1-psu",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-psu",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-2-psu",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-psu",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-3-psu",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-psu",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPoint-4-psu",
+            "@type": "DataPoint",
+            "isDescribedBy": "#instanceVariable-psu",
+            "has_DataPoint_OF_DataSet": "#wideDataSet"
+        },
+        {
+            "@id": "#dataPointPosition-0-name",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-name"
+        },
+        {
+            "@id": "#dataPointPosition-1-name",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-name"
+        },
+        {
+            "@id": "#dataPointPosition-2-name",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-name"
+        },
+        {
+            "@id": "#dataPointPosition-3-name",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-name"
+        },
+        {
+            "@id": "#dataPointPosition-4-name",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-name"
+        },
+        {
+            "@id": "#dataPointPosition-0-essround",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-essround"
+        },
+        {
+            "@id": "#dataPointPosition-1-essround",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-essround"
+        },
+        {
+            "@id": "#dataPointPosition-2-essround",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-essround"
+        },
+        {
+            "@id": "#dataPointPosition-3-essround",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-essround"
+        },
+        {
+            "@id": "#dataPointPosition-4-essround",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-essround"
+        },
+        {
+            "@id": "#dataPointPosition-0-edition",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-edition"
+        },
+        {
+            "@id": "#dataPointPosition-1-edition",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-edition"
+        },
+        {
+            "@id": "#dataPointPosition-2-edition",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-edition"
+        },
+        {
+            "@id": "#dataPointPosition-3-edition",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-edition"
+        },
+        {
+            "@id": "#dataPointPosition-4-edition",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-edition"
+        },
+        {
+            "@id": "#dataPointPosition-0-proddate",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-proddate"
+        },
+        {
+            "@id": "#dataPointPosition-1-proddate",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-proddate"
+        },
+        {
+            "@id": "#dataPointPosition-2-proddate",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-proddate"
+        },
+        {
+            "@id": "#dataPointPosition-3-proddate",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-proddate"
+        },
+        {
+            "@id": "#dataPointPosition-4-proddate",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-proddate"
+        },
+        {
+            "@id": "#dataPointPosition-0-idno",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-idno"
+        },
+        {
+            "@id": "#dataPointPosition-1-idno",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-idno"
+        },
+        {
+            "@id": "#dataPointPosition-2-idno",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-idno"
+        },
+        {
+            "@id": "#dataPointPosition-3-idno",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-idno"
+        },
+        {
+            "@id": "#dataPointPosition-4-idno",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-idno"
+        },
+        {
+            "@id": "#dataPointPosition-0-cntry",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-cntry"
+        },
+        {
+            "@id": "#dataPointPosition-1-cntry",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-cntry"
+        },
+        {
+            "@id": "#dataPointPosition-2-cntry",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-cntry"
+        },
+        {
+            "@id": "#dataPointPosition-3-cntry",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-cntry"
+        },
+        {
+            "@id": "#dataPointPosition-4-cntry",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-cntry"
+        },
+        {
+            "@id": "#dataPointPosition-0-dweight",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-dweight"
+        },
+        {
+            "@id": "#dataPointPosition-1-dweight",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-dweight"
+        },
+        {
+            "@id": "#dataPointPosition-2-dweight",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-dweight"
+        },
+        {
+            "@id": "#dataPointPosition-3-dweight",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-dweight"
+        },
+        {
+            "@id": "#dataPointPosition-4-dweight",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-dweight"
+        },
+        {
+            "@id": "#dataPointPosition-0-pweight",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-pweight"
+        },
+        {
+            "@id": "#dataPointPosition-1-pweight",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-pweight"
+        },
+        {
+            "@id": "#dataPointPosition-2-pweight",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-pweight"
+        },
+        {
+            "@id": "#dataPointPosition-3-pweight",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-pweight"
+        },
+        {
+            "@id": "#dataPointPosition-4-pweight",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-pweight"
+        },
+        {
+            "@id": "#dataPointPosition-0-ppltrst",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-ppltrst"
+        },
+        {
+            "@id": "#dataPointPosition-1-ppltrst",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-ppltrst"
+        },
+        {
+            "@id": "#dataPointPosition-2-ppltrst",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-ppltrst"
+        },
+        {
+            "@id": "#dataPointPosition-3-ppltrst",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-ppltrst"
+        },
+        {
+            "@id": "#dataPointPosition-4-ppltrst",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-ppltrst"
+        },
+        {
+            "@id": "#dataPointPosition-0-hinctnta",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-hinctnta"
+        },
+        {
+            "@id": "#dataPointPosition-1-hinctnta",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-hinctnta"
+        },
+        {
+            "@id": "#dataPointPosition-2-hinctnta",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-hinctnta"
+        },
+        {
+            "@id": "#dataPointPosition-3-hinctnta",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-hinctnta"
+        },
+        {
+            "@id": "#dataPointPosition-4-hinctnta",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-hinctnta"
+        },
+        {
+            "@id": "#dataPointPosition-0-prob",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-prob"
+        },
+        {
+            "@id": "#dataPointPosition-1-prob",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-prob"
+        },
+        {
+            "@id": "#dataPointPosition-2-prob",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-prob"
+        },
+        {
+            "@id": "#dataPointPosition-3-prob",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-prob"
+        },
+        {
+            "@id": "#dataPointPosition-4-prob",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-prob"
+        },
+        {
+            "@id": "#dataPointPosition-0-stratum",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-stratum"
+        },
+        {
+            "@id": "#dataPointPosition-1-stratum",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-stratum"
+        },
+        {
+            "@id": "#dataPointPosition-2-stratum",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-stratum"
+        },
+        {
+            "@id": "#dataPointPosition-3-stratum",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-stratum"
+        },
+        {
+            "@id": "#dataPointPosition-4-stratum",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-stratum"
+        },
+        {
+            "@id": "#dataPointPosition-0-psu",
+            "@type": "DataPointPosition",
+            "value": 0,
+            "indexes": "#dataPoint-0-psu"
+        },
+        {
+            "@id": "#dataPointPosition-1-psu",
+            "@type": "DataPointPosition",
+            "value": 1,
+            "indexes": "#dataPoint-1-psu"
+        },
+        {
+            "@id": "#dataPointPosition-2-psu",
+            "@type": "DataPointPosition",
+            "value": 2,
+            "indexes": "#dataPoint-2-psu"
+        },
+        {
+            "@id": "#dataPointPosition-3-psu",
+            "@type": "DataPointPosition",
+            "value": 3,
+            "indexes": "#dataPoint-3-psu"
+        },
+        {
+            "@id": "#dataPointPosition-4-psu",
+            "@type": "DataPointPosition",
+            "value": 4,
+            "indexes": "#dataPoint-4-psu"
+        },
+        {
+            "@id": "#instanceValue-0-name",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "ESS11e01"
+            },
+            "isStoredIn": "#dataPoint-0-name",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-name"
+        },
+        {
+            "@id": "#instanceValue-1-name",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "ESS11e01"
+            },
+            "isStoredIn": "#dataPoint-1-name",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-name"
+        },
+        {
+            "@id": "#instanceValue-2-name",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "ESS11e01"
+            },
+            "isStoredIn": "#dataPoint-2-name",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-name"
+        },
+        {
+            "@id": "#instanceValue-3-name",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "ESS11e01"
+            },
+            "isStoredIn": "#dataPoint-3-name",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-name"
+        },
+        {
+            "@id": "#instanceValue-4-name",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "ESS11e01"
+            },
+            "isStoredIn": "#dataPoint-4-name",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-name"
+        },
+        {
+            "@id": "#instanceValue-0-essround",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "11"
+            },
+            "isStoredIn": "#dataPoint-0-essround",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-essround"
+        },
+        {
+            "@id": "#instanceValue-1-essround",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "11"
+            },
+            "isStoredIn": "#dataPoint-1-essround",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-essround"
+        },
+        {
+            "@id": "#instanceValue-2-essround",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "11"
+            },
+            "isStoredIn": "#dataPoint-2-essround",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-essround"
+        },
+        {
+            "@id": "#instanceValue-3-essround",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "11"
+            },
+            "isStoredIn": "#dataPoint-3-essround",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-essround"
+        },
+        {
+            "@id": "#instanceValue-4-essround",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "11"
+            },
+            "isStoredIn": "#dataPoint-4-essround",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-essround"
+        },
+        {
+            "@id": "#instanceValue-0-edition",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "1.0"
+            },
+            "isStoredIn": "#dataPoint-0-edition",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-edition"
+        },
+        {
+            "@id": "#instanceValue-1-edition",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "1.0"
+            },
+            "isStoredIn": "#dataPoint-1-edition",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-edition"
+        },
+        {
+            "@id": "#instanceValue-2-edition",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "1.0"
+            },
+            "isStoredIn": "#dataPoint-2-edition",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-edition"
+        },
+        {
+            "@id": "#instanceValue-3-edition",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "1.0"
+            },
+            "isStoredIn": "#dataPoint-3-edition",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-edition"
+        },
+        {
+            "@id": "#instanceValue-4-edition",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "1.0"
+            },
+            "isStoredIn": "#dataPoint-4-edition",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-edition"
+        },
+        {
+            "@id": "#instanceValue-0-proddate",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "20.06.2024"
+            },
+            "isStoredIn": "#dataPoint-0-proddate",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-proddate"
+        },
+        {
+            "@id": "#instanceValue-1-proddate",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "20.06.2024"
+            },
+            "isStoredIn": "#dataPoint-1-proddate",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-proddate"
+        },
+        {
+            "@id": "#instanceValue-2-proddate",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "20.06.2024"
+            },
+            "isStoredIn": "#dataPoint-2-proddate",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-proddate"
+        },
+        {
+            "@id": "#instanceValue-3-proddate",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "20.06.2024"
+            },
+            "isStoredIn": "#dataPoint-3-proddate",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-proddate"
+        },
+        {
+            "@id": "#instanceValue-4-proddate",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "20.06.2024"
+            },
+            "isStoredIn": "#dataPoint-4-proddate",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-proddate"
+        },
+        {
+            "@id": "#instanceValue-0-idno",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "50004"
+            },
+            "isStoredIn": "#dataPoint-0-idno",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-idno"
+        },
+        {
+            "@id": "#instanceValue-1-idno",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "50032"
+            },
+            "isStoredIn": "#dataPoint-1-idno",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-idno"
+        },
+        {
+            "@id": "#instanceValue-2-idno",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "50052"
+            },
+            "isStoredIn": "#dataPoint-2-idno",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-idno"
+        },
+        {
+            "@id": "#instanceValue-3-idno",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "50059"
+            },
+            "isStoredIn": "#dataPoint-3-idno",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-idno"
+        },
+        {
+            "@id": "#instanceValue-4-idno",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "50070"
+            },
+            "isStoredIn": "#dataPoint-4-idno",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-idno"
+        },
+        {
+            "@id": "#instanceValue-0-cntry",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "DE"
+            },
+            "isStoredIn": "#dataPoint-0-cntry",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-cntry"
+        },
+        {
+            "@id": "#instanceValue-1-cntry",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "DE"
+            },
+            "isStoredIn": "#dataPoint-1-cntry",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-cntry"
+        },
+        {
+            "@id": "#instanceValue-2-cntry",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "DE"
+            },
+            "isStoredIn": "#dataPoint-2-cntry",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-cntry"
+        },
+        {
+            "@id": "#instanceValue-3-cntry",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "DE"
+            },
+            "isStoredIn": "#dataPoint-3-cntry",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-cntry"
+        },
+        {
+            "@id": "#instanceValue-4-cntry",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "DE"
+            },
+            "isStoredIn": "#dataPoint-4-cntry",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-cntry"
+        },
+        {
+            "@id": "#instanceValue-0-dweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.9958686232566833"
+            },
+            "isStoredIn": "#dataPoint-0-dweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-dweight"
+        },
+        {
+            "@id": "#instanceValue-1-dweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.9958686232566833"
+            },
+            "isStoredIn": "#dataPoint-1-dweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-dweight"
+        },
+        {
+            "@id": "#instanceValue-2-dweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.9958686232566833"
+            },
+            "isStoredIn": "#dataPoint-2-dweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-dweight"
+        },
+        {
+            "@id": "#instanceValue-3-dweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.9958686828613281"
+            },
+            "isStoredIn": "#dataPoint-3-dweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-dweight"
+        },
+        {
+            "@id": "#instanceValue-4-dweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.9958685636520386"
+            },
+            "isStoredIn": "#dataPoint-4-dweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-dweight"
+        },
+        {
+            "@id": "#instanceValue-0-pweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2.9929697513580322"
+            },
+            "isStoredIn": "#dataPoint-0-pweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-pweight"
+        },
+        {
+            "@id": "#instanceValue-1-pweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2.9929697513580322"
+            },
+            "isStoredIn": "#dataPoint-1-pweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-pweight"
+        },
+        {
+            "@id": "#instanceValue-2-pweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2.9929697513580322"
+            },
+            "isStoredIn": "#dataPoint-2-pweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-pweight"
+        },
+        {
+            "@id": "#instanceValue-3-pweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2.9929697513580322"
+            },
+            "isStoredIn": "#dataPoint-3-pweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-pweight"
+        },
+        {
+            "@id": "#instanceValue-4-pweight",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2.9929697513580322"
+            },
+            "isStoredIn": "#dataPoint-4-pweight",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-pweight"
+        },
+        {
+            "@id": "#instanceValue-0-ppltrst",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0"
+            },
+            "isStoredIn": "#dataPoint-0-ppltrst",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-ppltrst"
+        },
+        {
+            "@id": "#instanceValue-1-ppltrst",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "8"
+            },
+            "isStoredIn": "#dataPoint-1-ppltrst",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-ppltrst"
+        },
+        {
+            "@id": "#instanceValue-2-ppltrst",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "5"
+            },
+            "isStoredIn": "#dataPoint-2-ppltrst",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-ppltrst"
+        },
+        {
+            "@id": "#instanceValue-3-ppltrst",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "5"
+            },
+            "isStoredIn": "#dataPoint-3-ppltrst",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-ppltrst"
+        },
+        {
+            "@id": "#instanceValue-4-ppltrst",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "8"
+            },
+            "isStoredIn": "#dataPoint-4-ppltrst",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-ppltrst"
+        },
+        {
+            "@id": "#instanceValue-0-hinctnta",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "9"
+            },
+            "isStoredIn": "#dataPoint-0-hinctnta",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-hinctnta"
+        },
+        {
+            "@id": "#instanceValue-1-hinctnta",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "3"
+            },
+            "isStoredIn": "#dataPoint-1-hinctnta",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-hinctnta"
+        },
+        {
+            "@id": "#instanceValue-2-hinctnta",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "77"
+            },
+            "isStoredIn": "#dataPoint-2-hinctnta",
+            "hasValueFrom_ValueDomain": "#sentinelValueDomain-hinctnta"
+        },
+        {
+            "@id": "#instanceValue-3-hinctnta",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "8"
+            },
+            "isStoredIn": "#dataPoint-3-hinctnta",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-hinctnta"
+        },
+        {
+            "@id": "#instanceValue-4-hinctnta",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "10"
+            },
+            "isStoredIn": "#dataPoint-4-hinctnta",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-hinctnta"
+        },
+        {
+            "@id": "#instanceValue-0-prob",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.00012835317465942353"
+            },
+            "isStoredIn": "#dataPoint-0-prob",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-prob"
+        },
+        {
+            "@id": "#instanceValue-1-prob",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.00012835317465942353"
+            },
+            "isStoredIn": "#dataPoint-1-prob",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-prob"
+        },
+        {
+            "@id": "#instanceValue-2-prob",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.00012835317465942353"
+            },
+            "isStoredIn": "#dataPoint-2-prob",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-prob"
+        },
+        {
+            "@id": "#instanceValue-3-prob",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.0001283531601075083"
+            },
+            "isStoredIn": "#dataPoint-3-prob",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-prob"
+        },
+        {
+            "@id": "#instanceValue-4-prob",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "0.00012835317465942353"
+            },
+            "isStoredIn": "#dataPoint-4-prob",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-prob"
+        },
+        {
+            "@id": "#instanceValue-0-stratum",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "192"
+            },
+            "isStoredIn": "#dataPoint-0-stratum",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-stratum"
+        },
+        {
+            "@id": "#instanceValue-1-stratum",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "167"
+            },
+            "isStoredIn": "#dataPoint-1-stratum",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-stratum"
+        },
+        {
+            "@id": "#instanceValue-2-stratum",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "133"
+            },
+            "isStoredIn": "#dataPoint-2-stratum",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-stratum"
+        },
+        {
+            "@id": "#instanceValue-3-stratum",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "205"
+            },
+            "isStoredIn": "#dataPoint-3-stratum",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-stratum"
+        },
+        {
+            "@id": "#instanceValue-4-stratum",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "170"
+            },
+            "isStoredIn": "#dataPoint-4-stratum",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-stratum"
+        },
+        {
+            "@id": "#instanceValue-0-psu",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2231"
+            },
+            "isStoredIn": "#dataPoint-0-psu",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-psu"
+        },
+        {
+            "@id": "#instanceValue-1-psu",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2362"
+            },
+            "isStoredIn": "#dataPoint-1-psu",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-psu"
+        },
+        {
+            "@id": "#instanceValue-2-psu",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2304"
+            },
+            "isStoredIn": "#dataPoint-2-psu",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-psu"
+        },
+        {
+            "@id": "#instanceValue-3-psu",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2234"
+            },
+            "isStoredIn": "#dataPoint-3-psu",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-psu"
+        },
+        {
+            "@id": "#instanceValue-4-psu",
+            "@type": "InstanceValue",
+            "content": {
+                "@type": "TypedString",
+                "content": "2375"
+            },
+            "isStoredIn": "#dataPoint-4-psu",
+            "hasValueFrom_ValueDomain": "#substantiveValueDomain-psu"
+        },
+        {
+            "@id": "#dataStore",
+            "@type": "DataStore",
+            "allowsDuplicates": false,
+            "recordCount": 2420,
+            "has_LogicalRecord": [
+                "#logicalRecord"
+            ]
+        },
+        {
+            "@id": "#logicalRecord",
+            "@type": "LogicalRecord",
+            "organizes": "#wideDataSet",
+            "has_InstanceVariable": [
+                "#instanceVariable-name",
+                "#instanceVariable-essround",
+                "#instanceVariable-edition",
+                "#instanceVariable-proddate",
+                "#instanceVariable-idno",
+                "#instanceVariable-cntry",
+                "#instanceVariable-dweight",
+                "#instanceVariable-pweight",
+                "#instanceVariable-ppltrst",
+                "#instanceVariable-hinctnta",
+                "#instanceVariable-prob",
+                "#instanceVariable-stratum",
+                "#instanceVariable-psu"
+            ]
+        },
+        {
+            "@id": "#wideDataSet",
+            "@type": "WideDataSet",
+            "isStructuredBy": "#wideDataStructure"
+        },
+        {
+            "@id": "#wideDataStructure",
+            "@type": "WideDataStructure",
+            "has_DataStructureComponent": [
+                "#measureComponent-name",
+                "#measureComponent-essround",
+                "#measureComponent-edition",
+                "#measureComponent-proddate",
+                "#measureComponent-idno",
+                "#measureComponent-cntry",
+                "#measureComponent-dweight",
+                "#measureComponent-pweight",
+                "#measureComponent-ppltrst",
+                "#measureComponent-hinctnta",
+                "#measureComponent-prob",
+                "#measureComponent-stratum",
+                "#measureComponent-psu"
+            ],
+            "has_ComponentPosition": [
+                "#componentPosition-0",
+                "#componentPosition-1",
+                "#componentPosition-2",
+                "#componentPosition-3",
+                "#componentPosition-4",
+                "#componentPosition-5",
+                "#componentPosition-6",
+                "#componentPosition-7",
+                "#componentPosition-8",
+                "#componentPosition-9",
+                "#componentPosition-10",
+                "#componentPosition-11",
+                "#componentPosition-12"
+            ]
+        },
+        {
+            "@id": "#measureComponent-name",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-name"
+        },
+        {
+            "@id": "#measureComponent-essround",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-essround"
+        },
+        {
+            "@id": "#measureComponent-edition",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-edition"
+        },
+        {
+            "@id": "#measureComponent-proddate",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-proddate"
+        },
+        {
+            "@id": "#measureComponent-idno",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-idno"
+        },
+        {
+            "@id": "#measureComponent-cntry",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-cntry"
+        },
+        {
+            "@id": "#measureComponent-dweight",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-dweight"
+        },
+        {
+            "@id": "#measureComponent-pweight",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-pweight"
+        },
+        {
+            "@id": "#measureComponent-ppltrst",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-ppltrst"
+        },
+        {
+            "@id": "#measureComponent-hinctnta",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-hinctnta"
+        },
+        {
+            "@id": "#measureComponent-prob",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-prob"
+        },
+        {
+            "@id": "#measureComponent-stratum",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-stratum"
+        },
+        {
+            "@id": "#measureComponent-psu",
+            "@type": "MeasureComponent",
+            "isDefinedBy_RepresentedVariable": "#instanceVariable-psu"
+        },
+        {
+            "@id": "#instanceVariable-name",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "A8"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Title of dataset"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "name"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-name",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-name"
+        },
+        {
+            "@id": "#instanceVariable-essround",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F2.0"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "ESS round"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "essround"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-essround",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-essround"
+        },
+        {
+            "@id": "#instanceVariable-edition",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "A3"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Edition"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "edition"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-edition",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-edition"
+        },
+        {
+            "@id": "#instanceVariable-proddate",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "A10"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Production date"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "proddate"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-proddate",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-proddate"
+        },
+        {
+            "@id": "#instanceVariable-idno",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F5.0"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Respondent's identification number"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "idno"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-idno",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-idno"
+        },
+        {
+            "@id": "#instanceVariable-cntry",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "A2"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Country"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "cntry"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-cntry",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-cntry"
+        },
+        {
+            "@id": "#instanceVariable-dweight",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F3.2"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Design weight"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "dweight"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-dweight",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-dweight"
+        },
+        {
+            "@id": "#instanceVariable-pweight",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F3.2"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Population size weight (must be combined with dweight or pspwght)"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "pweight"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-pweight",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-pweight"
+        },
+        {
+            "@id": "#instanceVariable-ppltrst",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F2.0"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Most people can be trusted or you can't be too careful"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "ppltrst"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-ppltrst",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-ppltrst",
+            "takesSentinelValuesFrom": "#sentinelValueDomain-ppltrst"
+        },
+        {
+            "@id": "#instanceVariable-hinctnta",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F2.0"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Household's total net income, all sources"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "hinctnta"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-hinctnta",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-hinctnta",
+            "takesSentinelValuesFrom": "#sentinelValueDomain-hinctnta"
+        },
+        {
+            "@id": "#instanceVariable-prob",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F3.2"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Sampling probability"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "prob"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-prob",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-prob"
+        },
+        {
+            "@id": "#instanceVariable-stratum",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F3.0"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Sampling stratum"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "stratum"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-stratum",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-stratum"
+        },
+        {
+            "@id": "#instanceVariable-psu",
+            "@type": "InstanceVariable",
+            "physicalDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "F5.0"
+            },
+            "displayLabel": {
+                "@type": "LabelForDisplay",
+                "locationVariant": {
+                    "@type": "ControlledVocabularyEntry",
+                    "entryValue": "Primary sampling unit"
+                }
+            },
+            "name": {
+                "@type": "ObjectName",
+                "name": "psu"
+            },
+            "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
+            "has_ValueMapping": "#valueMapping-psu",
+            "takesSubstantiveValuesFrom_SubstantiveValueDomain": "#substantiveValueDomain-psu"
+        },
+        {
+            "@id": "#substantiveValueDomain-name",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#string"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-name"
+        },
+        {
+            "@id": "#substantiveValueDomain-essround",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-essround"
+        },
+        {
+            "@id": "#substantiveValueDomain-edition",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#string"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-edition"
+        },
+        {
+            "@id": "#substantiveValueDomain-proddate",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#string"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-proddate"
+        },
+        {
+            "@id": "#substantiveValueDomain-idno",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-idno"
+        },
+        {
+            "@id": "#substantiveValueDomain-cntry",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#string"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-cntry",
+            "takesValuesFrom": "#substantiveEnumerationDomain-cntry"
+        },
+        {
+            "@id": "#substantiveValueDomain-dweight",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-dweight"
+        },
+        {
+            "@id": "#substantiveValueDomain-pweight",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-pweight"
+        },
+        {
+            "@id": "#substantiveValueDomain-ppltrst",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-ppltrst",
+            "takesValuesFrom": "#substantiveEnumerationDomain-ppltrst"
+        },
+        {
+            "@id": "#substantiveValueDomain-hinctnta",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-hinctnta",
+            "takesValuesFrom": "#substantiveEnumerationDomain-hinctnta"
+        },
+        {
+            "@id": "#substantiveValueDomain-prob",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-prob"
+        },
+        {
+            "@id": "#substantiveValueDomain-stratum",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-stratum"
+        },
+        {
+            "@id": "#substantiveValueDomain-psu",
+            "@type": "SubstantiveValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#substantiveValueAndConceptDescription-psu"
+        },
+        {
+            "@id": "#substantiveEnumerationDomain-cntry",
+            "@type": "EnumerationDomain",
+            "sameAs": "#substantiveConceptScheme-cntry"
+        },
+        {
+            "@id": "#substantiveEnumerationDomain-ppltrst",
+            "@type": "EnumerationDomain",
+            "sameAs": "#substantiveConceptScheme-ppltrst"
+        },
+        {
+            "@id": "#substantiveEnumerationDomain-hinctnta",
+            "@type": "EnumerationDomain",
+            "sameAs": "#substantiveConceptScheme-hinctnta"
+        },
+        {
+            "@id": "#sentinelValueDomain-ppltrst",
+            "@type": "SentinelValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#sentinelValueAndConceptDescription-ppltrst",
+            "takesValuesFrom": "#sentinelEnumerationDomain-ppltrst"
+        },
+        {
+            "@id": "#sentinelValueDomain-hinctnta",
+            "@type": "SentinelValueDomain",
+            "recommendedDataType": {
+                "@type": "ControlledVocabularyEntry",
+                "entryValue": "https://www.w3.org/TR/xmlschema-2/#double"
+            },
+            "isDescribedBy": "#sentinelValueAndConceptDescription-hinctnta",
+            "takesValuesFrom": "#sentinelEnumerationDomain-hinctnta"
+        },
+        {
+            "@id": "#sentinelEnumerationDomain-ppltrst",
+            "@type": "EnumerationDomain",
+            "sameAs": "#sentinelConceptScheme-ppltrst"
+        },
+        {
+            "@id": "#sentinelEnumerationDomain-hinctnta",
+            "@type": "EnumerationDomain",
+            "sameAs": "#sentinelConceptScheme-hinctnta"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-name",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Nominal"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-essround",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Continuous"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-edition",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Nominal"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-proddate",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Nominal"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-idno",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Nominal"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-cntry",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Nominal"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-dweight",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Continuous"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-pweight",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Continuous"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-ppltrst",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Nominal"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-hinctnta",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Nominal"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-prob",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Continuous"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-stratum",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Continuous"
+        },
+        {
+            "@id": "#substantiveValueAndConceptDescription-psu",
+            "@type": "ValueAndConceptDescription",
+            "classificationLevel": "Continuous"
+        },
+        {
+            "@id": "#sentinelValueAndConceptDescription-ppltrst",
+            "@type": "ValueAndConceptDescription",
+            "description": {
+                "@type": "InternationalString",
+                "languageSpecificString": {
+                    "@type": "LanguageString",
+                    "content": "[{'lo': 77.0, 'hi': 77.0}, {'lo': 88.0, 'hi': 88.0}, {'lo': 99.0, 'hi': 99.0}]"
+                }
+            },
+            "maximumValueExclusive": "99.0",
+            "minimumValueExclusive": "77.0"
+        },
+        {
+            "@id": "#sentinelValueAndConceptDescription-hinctnta",
+            "@type": "ValueAndConceptDescription",
+            "description": {
+                "@type": "InternationalString",
+                "languageSpecificString": {
+                    "@type": "LanguageString",
+                    "content": "[{'lo': 77.0, 'hi': 77.0}, {'lo': 88.0, 'hi': 88.0}, {'lo': 99.0, 'hi': 99.0}]"
+                }
+            },
+            "maximumValueExclusive": "99.0",
+            "minimumValueExclusive": "77.0"
+        },
+        {
+            "@id": "#componentPosition-0",
+            "@type": "ComponentPosition",
+            "value": 0,
+            "indexes": "#measureComponent-name"
+        },
+        {
+            "@id": "#componentPosition-1",
+            "@type": "ComponentPosition",
+            "value": 1,
+            "indexes": "#measureComponent-essround"
+        },
+        {
+            "@id": "#componentPosition-2",
+            "@type": "ComponentPosition",
+            "value": 2,
+            "indexes": "#measureComponent-edition"
+        },
+        {
+            "@id": "#componentPosition-3",
+            "@type": "ComponentPosition",
+            "value": 3,
+            "indexes": "#measureComponent-proddate"
+        },
+        {
+            "@id": "#componentPosition-4",
+            "@type": "ComponentPosition",
+            "value": 4,
+            "indexes": "#measureComponent-idno"
+        },
+        {
+            "@id": "#componentPosition-5",
+            "@type": "ComponentPosition",
+            "value": 5,
+            "indexes": "#measureComponent-cntry"
+        },
+        {
+            "@id": "#componentPosition-6",
+            "@type": "ComponentPosition",
+            "value": 6,
+            "indexes": "#measureComponent-dweight"
+        },
+        {
+            "@id": "#componentPosition-7",
+            "@type": "ComponentPosition",
+            "value": 7,
+            "indexes": "#measureComponent-pweight"
+        },
+        {
+            "@id": "#componentPosition-8",
+            "@type": "ComponentPosition",
+            "value": 8,
+            "indexes": "#measureComponent-ppltrst"
+        },
+        {
+            "@id": "#componentPosition-9",
+            "@type": "ComponentPosition",
+            "value": 9,
+            "indexes": "#measureComponent-hinctnta"
+        },
+        {
+            "@id": "#componentPosition-10",
+            "@type": "ComponentPosition",
+            "value": 10,
+            "indexes": "#measureComponent-prob"
+        },
+        {
+            "@id": "#componentPosition-11",
+            "@type": "ComponentPosition",
+            "value": 11,
+            "indexes": "#measureComponent-stratum"
+        },
+        {
+            "@id": "#componentPosition-12",
+            "@type": "ComponentPosition",
+            "value": 12,
+            "indexes": "#measureComponent-psu"
+        }
+    ],
+    "@included": [
+        {
+            "@id": "#substantiveConceptScheme-cntry",
+            "@type": "skos:ConceptScheme",
+            "skos:hasTopConcept": [
+                "#cntry-concept-AL",
+                "#cntry-concept-AT",
+                "#cntry-concept-BE",
+                "#cntry-concept-BG",
+                "#cntry-concept-CH",
+                "#cntry-concept-CY",
+                "#cntry-concept-CZ",
+                "#cntry-concept-DE",
+                "#cntry-concept-DK",
+                "#cntry-concept-EE",
+                "#cntry-concept-ES",
+                "#cntry-concept-FI",
+                "#cntry-concept-FR",
+                "#cntry-concept-GB",
+                "#cntry-concept-GE",
+                "#cntry-concept-GR",
+                "#cntry-concept-HR",
+                "#cntry-concept-HU",
+                "#cntry-concept-IE",
+                "#cntry-concept-IS",
+                "#cntry-concept-IL",
+                "#cntry-concept-IT",
+                "#cntry-concept-LT",
+                "#cntry-concept-LU",
+                "#cntry-concept-LV",
+                "#cntry-concept-ME",
+                "#cntry-concept-MK",
+                "#cntry-concept-NL",
+                "#cntry-concept-NO",
+                "#cntry-concept-PL",
+                "#cntry-concept-PT",
+                "#cntry-concept-RO",
+                "#cntry-concept-RS",
+                "#cntry-concept-RU",
+                "#cntry-concept-SE",
+                "#cntry-concept-SI",
+                "#cntry-concept-SK",
+                "#cntry-concept-TR",
+                "#cntry-concept-UA",
+                "#cntry-concept-XK"
+            ]
+        },
+        {
+            "@id": "#substantiveConceptScheme-ppltrst",
+            "@type": "skos:ConceptScheme",
+            "skos:hasTopConcept": [
+                "#ppltrst-concept-0.0",
+                "#ppltrst-concept-1.0",
+                "#ppltrst-concept-2.0",
+                "#ppltrst-concept-3.0",
+                "#ppltrst-concept-4.0",
+                "#ppltrst-concept-5.0",
+                "#ppltrst-concept-6.0",
+                "#ppltrst-concept-7.0",
+                "#ppltrst-concept-8.0",
+                "#ppltrst-concept-9.0",
+                "#ppltrst-concept-10.0"
+            ]
+        },
+        {
+            "@id": "#substantiveConceptScheme-hinctnta",
+            "@type": "skos:ConceptScheme",
+            "skos:hasTopConcept": [
+                "#hinctnta-concept-1.0",
+                "#hinctnta-concept-2.0",
+                "#hinctnta-concept-3.0",
+                "#hinctnta-concept-4.0",
+                "#hinctnta-concept-5.0",
+                "#hinctnta-concept-6.0",
+                "#hinctnta-concept-7.0",
+                "#hinctnta-concept-8.0",
+                "#hinctnta-concept-9.0",
+                "#hinctnta-concept-10.0"
+            ]
+        },
+        {
+            "@id": "#sentinelConceptScheme-ppltrst",
+            "@type": "skos:ConceptScheme",
+            "skos:hasTopConcept": [
+                "#ppltrst-concept-77.0",
+                "#ppltrst-concept-88.0",
+                "#ppltrst-concept-99.0"
+            ]
+        },
+        {
+            "@id": "#sentinelConceptScheme-hinctnta",
+            "@type": "skos:ConceptScheme",
+            "skos:hasTopConcept": [
+                "#hinctnta-concept-77.0",
+                "#hinctnta-concept-88.0",
+                "#hinctnta-concept-99.0"
+            ]
+        },
+        {
+            "@id": "#cntry-concept-AL",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "AL"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Albania"
+            }
+        },
+        {
+            "@id": "#cntry-concept-AT",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "AT"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Austria"
+            }
+        },
+        {
+            "@id": "#cntry-concept-BE",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "BE"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Belgium"
+            }
+        },
+        {
+            "@id": "#cntry-concept-BG",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "BG"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Bulgaria"
+            }
+        },
+        {
+            "@id": "#cntry-concept-CH",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "CH"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Switzerland"
+            }
+        },
+        {
+            "@id": "#cntry-concept-CY",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "CY"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Cyprus"
+            }
+        },
+        {
+            "@id": "#cntry-concept-CZ",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "CZ"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Czechia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-DE",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "DE"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Germany"
+            }
+        },
+        {
+            "@id": "#cntry-concept-DK",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "DK"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Denmark"
+            }
+        },
+        {
+            "@id": "#cntry-concept-EE",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "EE"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Estonia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-ES",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "ES"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Spain"
+            }
+        },
+        {
+            "@id": "#cntry-concept-FI",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "FI"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Finland"
+            }
+        },
+        {
+            "@id": "#cntry-concept-FR",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "FR"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "France"
+            }
+        },
+        {
+            "@id": "#cntry-concept-GB",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "GB"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "United Kingdom"
+            }
+        },
+        {
+            "@id": "#cntry-concept-GE",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "GE"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Georgia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-GR",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "GR"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Greece"
+            }
+        },
+        {
+            "@id": "#cntry-concept-HR",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "HR"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Croatia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-HU",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "HU"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Hungary"
+            }
+        },
+        {
+            "@id": "#cntry-concept-IE",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "IE"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Ireland"
+            }
+        },
+        {
+            "@id": "#cntry-concept-IS",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "IS"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Iceland"
+            }
+        },
+        {
+            "@id": "#cntry-concept-IL",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "IL"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Israel"
+            }
+        },
+        {
+            "@id": "#cntry-concept-IT",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "IT"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Italy"
+            }
+        },
+        {
+            "@id": "#cntry-concept-LT",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "LT"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Lithuania"
+            }
+        },
+        {
+            "@id": "#cntry-concept-LU",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "LU"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Luxembourg"
+            }
+        },
+        {
+            "@id": "#cntry-concept-LV",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "LV"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Latvia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-ME",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "ME"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Montenegro"
+            }
+        },
+        {
+            "@id": "#cntry-concept-MK",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "MK"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "North Macedonia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-NL",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "NL"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Netherlands"
+            }
+        },
+        {
+            "@id": "#cntry-concept-NO",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "NO"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Norway"
+            }
+        },
+        {
+            "@id": "#cntry-concept-PL",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "PL"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Poland"
+            }
+        },
+        {
+            "@id": "#cntry-concept-PT",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "PT"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Portugal"
+            }
+        },
+        {
+            "@id": "#cntry-concept-RO",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "RO"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Romania"
+            }
+        },
+        {
+            "@id": "#cntry-concept-RS",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "RS"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Serbia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-RU",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "RU"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Russian Federation"
+            }
+        },
+        {
+            "@id": "#cntry-concept-SE",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "SE"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Sweden"
+            }
+        },
+        {
+            "@id": "#cntry-concept-SI",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "SI"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Slovenia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-SK",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "SK"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Slovakia"
+            }
+        },
+        {
+            "@id": "#cntry-concept-TR",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "TR"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Turkey"
+            }
+        },
+        {
+            "@id": "#cntry-concept-UA",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "UA"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Ukraine"
+            }
+        },
+        {
+            "@id": "#cntry-concept-XK",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "XK"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Kosovo"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-0.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "0.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "You can't be too careful"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-1.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "1.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "1"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-2.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "2.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "2"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-3.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "3.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "3"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-4.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "4.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "4"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-5.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "5.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "5"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-6.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "6.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "6"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-7.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "7.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "7"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-8.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "8.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "8"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-9.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "9.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "9"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-10.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "10.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Most people can be trusted"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-77.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "77.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Refusal"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-88.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "88.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Don't know"
+            }
+        },
+        {
+            "@id": "#ppltrst-concept-99.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "99.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "No answer"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-1.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "1.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "J - 1st decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-2.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "2.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "R - 2nd decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-3.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "3.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "C - 3rd decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-4.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "4.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "M - 4th decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-5.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "5.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "F - 5th decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-6.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "6.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "S - 6th decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-7.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "7.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "K - 7th decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-8.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "8.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "P - 8th decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-9.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "9.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "D - 9th decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-10.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "10.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "H - 10th decile"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-77.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "77.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Refusal"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-88.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "88.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "Don't know"
+            }
+        },
+        {
+            "@id": "#hinctnta-concept-99.0",
+            "@type": "skos:Concept",
+            "skos:notation": {
+                "@type": "TypedString",
+                "content": "99.0"
+            },
+            "skos:prefLabel": {
+                "@type": "TypedString",
+                "content": "No answer"
+            }
+        }
+    ]
+}

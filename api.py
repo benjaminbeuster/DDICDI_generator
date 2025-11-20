@@ -6,7 +6,7 @@ REST API for DDI-CDI Converter
 Provides endpoints for programmatic file conversion
 """
 
-from flask import request, jsonify, send_file
+from flask import request, jsonify, send_file, Response
 from functools import wraps
 import tempfile
 import os
@@ -210,8 +210,8 @@ def register_api_routes(server):
                 process_all_rows=process_all_rows
             )
 
-            # Return JSON-LD
-            return jsonify(json_ld_output), 200
+            # Return JSON-LD directly (already a JSON string, don't double-encode)
+            return Response(json_ld_output, mimetype='application/ld+json'), 200
 
         except Exception as e:
             return jsonify({
