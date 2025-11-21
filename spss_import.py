@@ -217,12 +217,15 @@ def read_csv(filename: Path, delimiter=None, header=0, encoding=None, infer_type
     # Determine variable types
     variable_types = {}
     measure_types = {}
-    
+
     for col in column_names:
         dtype = df[col].dtype
-        
+
         # Determine format type
-        if pd.api.types.is_numeric_dtype(dtype):
+        if pd.api.types.is_bool_dtype(dtype):
+            variable_types[col] = 'string'  # Treat boolean as string/categorical
+            measure_types[col] = 'nominal'
+        elif pd.api.types.is_numeric_dtype(dtype):
             if pd.api.types.is_integer_dtype(dtype):
                 variable_types[col] = 'numeric'
                 measure_types[col] = 'scale'
