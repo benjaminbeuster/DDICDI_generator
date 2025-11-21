@@ -884,11 +884,33 @@ def generate_SubstantiveValueDomain(df_meta):
             },
             "isDescribedBy": f"#substantiveValueAndConceptDescription-{variable}"
         }
-        
+
         # Add reference to EnumerationDomain if variable has value labels
+        # and if at least one value label will be included (not all excluded as missing)
         if variable in df_meta.variable_value_labels:
-            elements["takesValuesFrom"] = f"#substantiveEnumerationDomain-{variable}"
-            
+            # Create a set to track excluded values (same logic as in generate_SubstantiveEnumerationDomain)
+            excluded_values = set()
+
+            # Check if there are missing values for this variable
+            if variable in df_meta.missing_ranges:
+                for dict_range in df_meta.missing_ranges[variable]:
+                    if isinstance(dict_range['lo'], float) and isinstance(dict_range['hi'], float):
+                        excluded_values.update(
+                            range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1))
+                    elif isinstance(dict_range['lo'], str):
+                        excluded_values.add(dict_range['lo'])
+
+            # Check if there will be any non-excluded values
+            excluded_values_str = {str(i) for i in excluded_values}
+            has_substantive_values = any(
+                (value not in excluded_values) and (str(value) not in excluded_values_str)
+                for value in df_meta.variable_value_labels[variable].keys()
+            )
+
+            # Only add takesValuesFrom if there are substantive values
+            if has_substantive_values:
+                elements["takesValuesFrom"] = f"#substantiveEnumerationDomain-{variable}"
+
         json_ld_data.append(elements)
     return json_ld_data
 
