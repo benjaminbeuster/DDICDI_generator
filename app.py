@@ -69,6 +69,8 @@ def get_button_group_style(visible=False):
 # add title
 app.title = app_title
 
+# Add custom CSS for dropdown indicator visibility
+
 brand_section = html.Div([
     dbc.NavLink(app_title, href="#", style={'verticalAlign': 'middle'}, className='ml-0')  # Add className='ml-0' and remove marginRight
 ])
@@ -379,7 +381,14 @@ app.layout = dbc.Container([
                     ],
                     value='jsonld',
                     clearable=False,
-                    style={'width': '350px', 'display': 'inline-block', 'marginRight': '15px'}
+                    searchable=False,
+                    placeholder='Select format...',
+                    style={
+                        'width': '350px',
+                        'display': 'inline-block',
+                        'marginRight': '15px',
+                        'verticalAlign': 'middle'
+                    }
                 ),
                 dbc.Button([html.I(className="fas fa-download mr-2"), 'Download'],
                           id='btn-download-format',
@@ -433,6 +442,8 @@ app.layout = dbc.Container([
                 dbc.Col([
                     # Wrap both outputs in a single Pre element
                     html.Pre(
+                        id='output-wrapper',
+                        style={'display': 'none'},  # Hide initially until data is loaded
                         children=[
                             html.Div(id='xml-ld-output',
                                 style={
@@ -448,7 +459,7 @@ app.layout = dbc.Container([
                                     'borderRadius': '8px',
                                     'border': f'1px solid {colors["border"]}',
                                     'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.05)',
-                                    'display': 'block',
+                                    'display': 'none',
                                     'fontFamily': "'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', monospace",
                                     'lineHeight': '1.5'
                                 }
@@ -669,7 +680,8 @@ def truncate_for_display(json_str, max_length=500000, include_metadata=False):
      Output('decompose-keys', 'style'),
      Output('upload-data', 'contents'),
      Output('full-json-store', 'data'),
-     Output('file-type-store', 'data')],
+     Output('file-type-store', 'data'),
+     Output('output-wrapper', 'style')],
     [Input('upload-data', 'contents'),
      Input('table2', 'selected_rows'),
      Input('include-metadata', 'value'),
@@ -812,7 +824,7 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             import traceback
             print(traceback.format_exc())
             # Return error state
-            return [dash.no_update] * 16
+            return [dash.no_update] * 17
 
     # Handle file upload (both initial and subsequent)
     if trigger == 'upload-data' and contents is not None:
@@ -1009,7 +1021,7 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
 
         except Exception as e:
             print(f"Error processing file: {str(e)}")
-            return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None, None
+            return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None, None, {'display': 'none'}
 
     # When table2 data changes (dropdown selections change)
     if trigger == 'table2' and table2_data and 'df' in globals():  # Check if df exists
@@ -1094,11 +1106,12 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             dash.no_update,  # decompose-keys style
             dash.no_update,  # upload contents
             None,  # full JSON store
-            dash.no_update  # file type (no change for table2 updates)
+            dash.no_update,  # file type (no change for table2 updates)
+            {'display': 'block'}  # output-wrapper style (show when data loaded)
         )
 
     if not contents:
-        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, dash.no_update, None, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, dash.no_update, None, None, {'display': 'none'}
 
     try:
         print("Step 1: Starting file processing")
@@ -1310,8 +1323,8 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             # Determine file type
             file_type = 'json' if '.json' in filename else 'non-json'
             
-            return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1, 
-                    table2_data, columns2, conditional_styles2, 
+            return (df.head(PREVIEW_ROWS).to_dict('records'), columns1, conditional_styles1,
+                    table2_data, columns2, conditional_styles2,
                     get_button_group_style(visible=True),  # Use helper function
                     instruction_text1, instruction_text2, truncated_json,
                     {'display': 'block'},
@@ -1319,12 +1332,13 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     decompose_switch_style,  # decompose-keys style
                     None,  # Clear the upload contents
                     full_json,  # full JSON for download
-                    file_type  # file type for dropdown options
+                    file_type,  # file type for dropdown options
+                    {'display': 'block'}  # output-wrapper style (show when data loaded)
                 )
 
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None, None
+        return [], [], [], [], [], [], get_button_group_style(visible=False), "", "", "", {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, None, None, None, {'display': 'none'}
 
     finally:
         if 'tmp_filename' in locals():
