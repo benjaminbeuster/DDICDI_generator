@@ -16,8 +16,6 @@ from DDICDI_converter_JSONLD_incremental import (
 from spss_import import read_sav, read_csv, read_json, create_variable_view, create_variable_view2
 from app_content import markdown_text, colors, style_dict, table_style, header_dict, app_title, app_description, about_text, api_documentation
 from dash.exceptions import PreventUpdate
-import rdflib
-from rdflib import Graph
 from api import register_api_routes
 from format_converter import FormatConverter
 
@@ -469,7 +467,7 @@ app.layout = dbc.Container([
                                     'borderRadius': '8px',
                                     'border': f'1px solid {colors["border"]}',
                                     'boxShadow': '0 2px 4px rgba(0, 0, 0, 0.05)',
-                                    'display': 'none',
+                                    'display': 'block',
                                     'fontFamily': "'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', monospace",
                                     'lineHeight': '1.5'
                                 }
@@ -1379,125 +1377,6 @@ def switch_table(n_clicks, style1, style2):
         return {'display': 'block'}, {'display': 'none'}
     else:
         return {'display': 'none'}, {'display': 'block'}
-
-@app.callback(
-    Output('download-json', 'data'),
-    [Input('btn-download-json', 'n_clicks')],
-    [State('full-json-store', 'data'),
-     State('json-ld-output', 'children'),
-     State('upload-data', 'filename')]
-)
-def download_json(n_clicks, full_json, displayed_json, filename):
-    if n_clicks is None:
-        raise PreventUpdate
-    
-    if not n_clicks or (not full_json and not displayed_json):
-        return None
-    
-    # Use the full JSON if available, otherwise use the displayed JSON
-    # BUT - strip out any truncation message that might be present
-    json_data = full_json if full_json else displayed_json
-    
-    # Remove the truncation message if it exists
-    if isinstance(json_data, str) and "... Output truncated for display." in json_data:
-        truncation_msg_pos = json_data.find("\n\n... Output truncated for display.")
-        if truncation_msg_pos > 0:
-            json_data = json_data[:truncation_msg_pos]
-    
-    if filename:
-        download_filename = f"{os.path.splitext(filename)[0]}_DDICDI.jsonld"
-    else:
-        download_filename = "output_DDICDI.jsonld"
-    
-    return dict(content=json_data, filename=download_filename)
-
-@app.callback(
-    [Output('xml-ld-output', 'style'),
-     Output('json-ld-output', 'style')],
-    [Input('btn-download-json', 'n_clicks'),
-     Input('btn-download-nt', 'n_clicks')],
-    [State('xml-ld-output', 'style'),
-     State('json-ld-output', 'style')]
-)
-def toggle_output_display(json_clicks, nt_clicks, xml_style, json_style):
-    base_style = {
-        'whiteSpace': 'pre',
-        'wordBreak': 'break-all',
-        'color': colors['text'],
-        'backgroundColor': colors['background'],
-        'marginTop': '10px',
-        'maxHeight': '300px',
-        'overflowY': 'scroll',
-        'fontSize': '14px',
-    }
-    
-    # Always hide XML, show JSON
-    return {**base_style, 'display': 'none'}, {**base_style, 'display': 'block'}
-
-@app.callback(
-    Output('download-nt', 'data'),
-    [Input('btn-download-nt', 'n_clicks')],
-    [State('full-json-store', 'data'),
-     State('json-ld-output', 'children'),
-     State('upload-data', 'filename')]
-)
-def download_nt(n_clicks, full_json, displayed_json, filename):
-    if n_clicks is None:
-        raise PreventUpdate
-    
-    if not n_clicks or (not full_json and not displayed_json):
-        return None
-    
-    # Use the full JSON if available, otherwise use the displayed JSON
-    json_data = full_json if full_json else displayed_json
-    
-    # Remove the truncation message if it exists
-    if isinstance(json_data, str) and "... Output truncated for display." in json_data:
-        truncation_msg_pos = json_data.find("\n\n... Output truncated for display.")
-        if truncation_msg_pos > 0:
-            json_data = json_data[:truncation_msg_pos]
-    
-    try:
-        # Create temporary files for the conversion process
-        with tempfile.NamedTemporaryFile(suffix='.jsonld', delete=False, mode='w', encoding='utf-8') as temp_jsonld_file:
-            temp_jsonld_file.write(json_data)
-            temp_jsonld_path = temp_jsonld_file.name
-        
-        # Create a graph and parse the JSON-LD
-        g = Graph()
-        g.bind('sikt', 'https://sikt.no/cdi/RDF/')
-        g.parse(temp_jsonld_path, format="json-ld")
-        
-        # Create new graph with transformed URIs
-        new_g = Graph()
-        for s, p, o in g:
-            # Transform file:/// URIs to https://sikt.no/cdi/RDF/
-            if str(s).startswith('file:///'):
-                s = rdflib.URIRef('https://sikt.no/cdi/RDF/' + str(s).split('/')[-1])
-            if str(o).startswith('file:///'):
-                o = rdflib.URIRef('https://sikt.no/cdi/RDF/' + str(o).split('/')[-1])
-            new_g.add((s, p, o))
-        
-        # Serialize to N-Triples format
-        nt_data = new_g.serialize(format="nt", encoding="utf-8")
-        
-        # Create the download filename
-        if filename:
-            download_filename = f"{os.path.splitext(filename)[0]}_DDICDI.nt"
-        else:
-            download_filename = "output_DDICDI.nt"
-        
-        # Remove temporary files
-        os.unlink(temp_jsonld_path)
-        
-        return dict(content=nt_data.decode('utf-8'), filename=download_filename)
-    
-    except Exception as e:
-        print(f"Error converting to N-Triples: {str(e)}")
-        # Ensure temporary files are removed in case of error
-        if 'temp_jsonld_path' in locals():
-            os.unlink(temp_jsonld_path)
-        return None
 
 # Unified download callback for all RDF formats
 @app.callback(

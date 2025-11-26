@@ -184,6 +184,13 @@ class FormatConverter:
         if uri_str.startswith('file:///'):
             # Extract fragment/last segment
             fragment = uri_str.split('/')[-1]
+
+            # Remove .jsonld extension from temporary filenames
+            # e.g., tmpq7lxd77t.jsonld#v480004 -> #v480004
+            if '.jsonld#' in fragment:
+                # Extract just the fragment part after #
+                fragment = '#' + fragment.split('#', 1)[1]
+
             return URIRef(base_uri + fragment)
 
         return uri_ref
