@@ -68,14 +68,16 @@ def generate_PhysicalRecordSegment(df_meta, df):
         "@id": f"#physicalRecordSegment",
         "@type": "PhysicalRecordSegment",
         "mapsTo": "#logicalRecord",
-        "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
-        "has_DataPointPosition": []
+        "has_PhysicalSegmentLayout": "#physicalSegmentLayout"
     }
 
-    # Iterate through column names and their values to add DataPointPosition references
-    for variable in df_meta.column_names:
-        for i in range(len(df[variable])):
-            elements["has_DataPointPosition"].append(f"#dataPointPosition-{i}-{variable}")
+    # Only include has_DataPointPosition if there are rows to process
+    if len(df) > 0:
+        elements["has_DataPointPosition"] = []
+        # Iterate through column names and their values to add DataPointPosition references
+        for variable in df_meta.column_names:
+            for i in range(len(df[variable])):
+                elements["has_DataPointPosition"].append(f"#dataPointPosition-{i}-{variable}")
 
     json_ld_data.append(elements)
     return json_ld_data
