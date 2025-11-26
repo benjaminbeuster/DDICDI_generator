@@ -40,7 +40,7 @@ app_description = ''
 api_documentation = """
 ## REST API Documentation
 
-The DDI-CDI Converter provides a REST API for programmatic file conversion.
+The DDI-CDI Converter provides a REST API for programmatic file conversion with support for multiple RDF output formats.
 
 ### Base URLs
 
@@ -62,12 +62,7 @@ GET /api/health
 ```
 Check if the API is running. No authentication required.
 
-**Example (Azure):**
-```bash
-curl https://ddi-cdi-converter-app.azurewebsites.net/api/health
-```
-
-**Example (Local):**
+**Example:**
 ```bash
 curl http://localhost:8000/api/health
 ```
@@ -85,47 +80,82 @@ curl http://localhost:8000/api/health
 ```bash
 POST /api/convert
 ```
-Convert a file to DDI-CDI JSON-LD format.
+Convert a file to DDI-CDI format in JSON-LD, Turtle, or N-Triples.
 
 **Parameters:**
 - `file` (required): The file to convert (.sav, .dta, .csv, .json)
+- `output_format` (optional): Output format - "jsonld", "turtle", or "ntriples" (default: "jsonld")
+- `base_uri` (optional): Base URI for RDF output (default: "http://example.org/ddi/")
 - `max_rows` (optional): Number of rows to include (default: 5)
 - `process_all_rows` (optional): "true" to process all rows (default: "false")
 - `decompose_keys` (optional): "true" to decompose hierarchical JSON keys (default: "false")
 - `variable_roles` (optional): JSON string with role assignments
 
-**Example (Azure):**
-```bash
-curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
-  -F "file=@/path/to/yourfile.sav" \\
-  -F "max_rows=5" \\
-  -o output.jsonld
-```
-
-**Example (Local):**
+**Example 1: JSON-LD (default):**
 ```bash
 curl -X POST http://localhost:8000/api/convert \\
-  -F "file=@/path/to/yourfile.sav" \\
+  -F "file=@files/NES1948.sav" \\
   -F "max_rows=5" \\
   -o output.jsonld
 ```
 
-**With variable roles:**
+**Example 2: Turtle format (human-readable):**
 ```bash
-curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
-  -F "file=@/Users/beb/dev/DDICDI_generator/files/ESS11-subset.sav" \\
+curl -X POST http://localhost:8000/api/convert \\
+  -F "file=@files/NES1948.sav" \\
+  -F "max_rows=5" \\
+  -F "output_format=turtle" \\
+  -o output.ttl
+```
+
+**Example 3: Turtle with custom base URI:**
+```bash
+curl -X POST http://localhost:8000/api/convert \\
+  -F "file=@files/NES1948.sav" \\
+  -F "max_rows=5" \\
+  -F "output_format=turtle" \\
+  -F "base_uri=http://myorg.edu/data/" \\
+  -o output.ttl
+```
+
+**Example 4: N-Triples format (simple line-based):**
+```bash
+curl -X POST http://localhost:8000/api/convert \\
+  -F "file=@files/NES1948.sav" \\
+  -F "output_format=ntriples" \\
+  -o output.nt
+```
+
+**Example 5: With variable roles:**
+```bash
+curl -X POST http://localhost:8000/api/convert \\
+  -F "file=@files/ESS11-subset.sav" \\
   -F 'variable_roles={"idno":"identifier"}' \\
-  -o output.jsonld
+  -F "output_format=turtle" \\
+  -o output.ttl
 ```
 
 **Response:**
-Returns the DDI-CDI JSON-LD document with content type `application/ld+json`.
+Returns the DDI-CDI document in the requested format:
+- JSON-LD: `application/ld+json`
+- Turtle: `text/turtle`
+- N-Triples: `application/n-triples`
 
 #### 3. API Information
 ```bash
 GET /api/info
 ```
-Get information about available endpoints and parameters.
+Get information about available endpoints, parameters, and supported formats.
+
+### Output Formats
+
+The API supports three RDF serialization formats:
+
+1. **JSON-LD** (.jsonld) - Default format, W3C standard JSON-LD
+2. **Turtle** (.ttl) - Human-readable with namespace prefixes
+3. **N-Triples** (.nt) - Simple line-based format
+
+Use the `output_format` parameter to select the format and optionally provide a `base_uri` for universal/portable files.
 
 ### Supported File Formats
 - SPSS (.sav)
@@ -149,11 +179,14 @@ python app.py
 
 Then include the API key in requests:
 ```bash
-curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+curl -X POST http://localhost:8000/api/convert \\
   -H "X-API-Key: your-secret-key" \\
-  -F "file=@/path/to/yourfile.sav" \\
-  -o output.jsonld
+  -F "file=@files/NES1948.sav" \\
+  -F "output_format=turtle" \\
+  -o output.ttl
 ```
+
+**Full documentation:** See `API_DOCUMENTATION.md` for complete details.
 """
 
 # Modern bright color scheme
