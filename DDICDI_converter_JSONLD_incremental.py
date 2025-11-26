@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import datetime
 import time
+import math
 
 # Helper functions for conditional references based on file format
 def _get_dataset_reference(df_meta):
@@ -522,8 +523,17 @@ def generate_SubstantiveConceptScheme(df_meta):
                     )
 
                     if lo_is_numeric and hi_is_numeric:
-                        excluded_values.update(
-                            range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1))
+                        lo_val = float(dict_range['lo'])
+                        hi_val = float(dict_range['hi'])
+
+                        # Handle infinity case - just add the lo value if hi is infinity
+                        if math.isinf(hi_val):
+                            if not math.isinf(lo_val):
+                                excluded_values.add(int(lo_val))
+                        elif not math.isinf(lo_val):
+                            # Normal range case
+                            excluded_values.update(
+                                range(int(lo_val), int(hi_val) + 1))
                     elif isinstance(dict_range['lo'], str):
                         excluded_values.add(dict_range['lo'])
                     else:
@@ -895,8 +905,17 @@ def generate_SubstantiveValueDomain(df_meta):
             if variable in df_meta.missing_ranges:
                 for dict_range in df_meta.missing_ranges[variable]:
                     if isinstance(dict_range['lo'], float) and isinstance(dict_range['hi'], float):
-                        excluded_values.update(
-                            range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1))
+                        lo_val = float(dict_range['lo'])
+                        hi_val = float(dict_range['hi'])
+
+                        # Handle infinity case - just add the lo value if hi is infinity
+                        if math.isinf(hi_val):
+                            if not math.isinf(lo_val):
+                                excluded_values.add(int(lo_val))
+                        elif not math.isinf(lo_val):
+                            # Normal range case
+                            excluded_values.update(
+                                range(int(lo_val), int(hi_val) + 1))
                     elif isinstance(dict_range['lo'], str):
                         excluded_values.add(dict_range['lo'])
 
@@ -1025,8 +1044,17 @@ def generate_SubstantiveEnumerationDomain(df_meta):
             if variable in df_meta.missing_ranges:
                 for dict_range in df_meta.missing_ranges[variable]:
                     if isinstance(dict_range['lo'], float) and isinstance(dict_range['hi'], float):
-                        excluded_values.update(
-                            range(int(float(dict_range['lo'])), int(float(dict_range['hi'])) + 1))
+                        lo_val = float(dict_range['lo'])
+                        hi_val = float(dict_range['hi'])
+
+                        # Handle infinity case - just add the lo value if hi is infinity
+                        if math.isinf(hi_val):
+                            if not math.isinf(lo_val):
+                                excluded_values.add(int(lo_val))
+                        elif not math.isinf(lo_val):
+                            # Normal range case
+                            excluded_values.update(
+                                range(int(lo_val), int(hi_val) + 1))
                     elif isinstance(dict_range['lo'], str):
                         excluded_values.add(dict_range['lo'])
 
