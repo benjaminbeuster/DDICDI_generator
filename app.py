@@ -713,13 +713,13 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             data_subset = df if include_metadata else df.head(0)
             print(f"Data subset shape: {data_subset.shape}")
             print(f"Data subset columns: {data_subset.columns.tolist()}")
-            
+
             # Log df_meta attributes
             if hasattr(df_meta, 'identifier_vars'):
                 print(f"df_meta.identifier_vars before: {df_meta.identifier_vars}")
                 df_meta.identifier_vars = identifiers
                 print(f"df_meta.identifier_vars after: {df_meta.identifier_vars}")
-            
+
             # Generate JSON-LD with detailed error handling
             try:
                 # Determine optimal chunk size for large datasets
@@ -732,14 +732,17 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     except Exception as e:
                         print(f"Warning: Could not optimize chunk size, using default: {e}")
                         dynamic_chunk_size = CHUNK_SIZE
-                
+
+                # Set max_rows to 0 when metadata-only mode is selected (include_metadata is False)
+                max_rows_param = 0 if not include_metadata else MAX_ROWS_TO_PROCESS
+
                 json_ld_data = generate_complete_json_ld(
-                    data_subset, 
+                    data_subset,
                     df_meta,
                     spssfile=filename,
                     chunk_size=dynamic_chunk_size,
                     process_all_rows=process_all_rows,
-                    max_rows=MAX_ROWS_TO_PROCESS
+                    max_rows=max_rows_param
                 )
                 print("JSON-LD generation successful")
             except Exception as e:
@@ -942,13 +945,15 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     dynamic_chunk_size = CHUNK_SIZE
                     
             data_subset = df if include_metadata else df.head(0)
+            # Set max_rows to 0 when metadata-only mode is selected (include_metadata is False)
+            max_rows_param = 0 if not include_metadata else MAX_ROWS_TO_PROCESS
             json_ld_data = generate_complete_json_ld(
-                data_subset, 
+                data_subset,
                 df_meta,
                 spssfile=filename,
                 chunk_size=dynamic_chunk_size,
                 process_all_rows=process_all_rows,
-                max_rows=MAX_ROWS_TO_PROCESS
+                max_rows=max_rows_param
             )
 
             if include_metadata:
@@ -1062,13 +1067,15 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
         
         # Generate only JSON-LD with updated classifications
         data_subset = df if include_metadata else df.head(0)
+        # Set max_rows to 0 when metadata-only mode is selected (include_metadata is False)
+        max_rows_param = 0 if not include_metadata else MAX_ROWS_TO_PROCESS
         json_ld_data = generate_complete_json_ld(
-            data_subset, 
+            data_subset,
             df_meta,
             spssfile=filename,
             chunk_size=dynamic_chunk_size,
             process_all_rows=process_all_rows,
-            max_rows=MAX_ROWS_TO_PROCESS
+            max_rows=max_rows_param
         )
         
         # Return all outputs with updated JSON
@@ -1258,14 +1265,17 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
             except Exception as e:
                 print(f"Warning: Could not optimize chunk size, using default: {e}")
                 dynamic_chunk_size = CHUNK_SIZE
-                
+
+        # Set max_rows to 0 when metadata-only mode is selected (include_metadata is False)
+        max_rows_param = 0 if not include_metadata else MAX_ROWS_TO_PROCESS
+
         json_ld_data = generate_complete_json_ld(
-            data_subset, 
+            data_subset,
             df_meta,
             spssfile=filename,
             chunk_size=dynamic_chunk_size,
             process_all_rows=process_all_rows,
-            max_rows=MAX_ROWS_TO_PROCESS
+            max_rows=max_rows_param
         )
 
         # Add debug logging for variable types

@@ -80,7 +80,7 @@ def generate_PhysicalRecordSegment(df_meta, df):
     json_ld_data.append(elements)
     return json_ld_data
 
-def generate_PhysicalSegmentLayout(df_meta):
+def generate_PhysicalSegmentLayout(df_meta, include_value_mapping=True):
     json_ld_data = []
     elements = {
         "@id": f"#physicalSegmentLayout",
@@ -89,9 +89,12 @@ def generate_PhysicalSegmentLayout(df_meta):
         "formats": "#logicalRecord",
         "isDelimited": False,
         "isFixedWidth": False,
-        "delimiter": "",
-        "has_ValueMappingPosition": []
+        "delimiter": ""
     }
+
+    # Only include has_ValueMappingPosition if include_value_mapping is True
+    if include_value_mapping:
+        elements["has_ValueMappingPosition"] = []
     
     # Check if this is a CSV file
     if hasattr(df_meta, 'file_format') and df_meta.file_format == 'csv':
@@ -117,9 +120,11 @@ def generate_PhysicalSegmentLayout(df_meta):
             elements["delimiter"] = "/"
     
     # Add both ValueMapping and ValueMappingPosition references for each variable
-    for variable in df_meta.column_names:
-        elements["has_ValueMappingPosition"].append(f"#valueMappingPosition-{variable}")
-        
+    # Only if include_value_mapping is True
+    if include_value_mapping:
+        for variable in df_meta.column_names:
+            elements["has_ValueMappingPosition"].append(f"#valueMappingPosition-{variable}")
+
     json_ld_data.append(elements)
     return json_ld_data
 
@@ -449,14 +454,14 @@ def generate_PrimaryKeyComponent(df_meta):
                 json_ld_data.append(elements)
     return json_ld_data
 
-def generate_InstanceVariable(df_meta):
+def generate_InstanceVariable(df_meta, include_value_mapping=True):
     json_ld_data = []
     for idx, variable in enumerate(df_meta.column_names):
         # Handle both list and dictionary cases for column_labels
-        label = (df_meta.column_labels[idx] 
-                if isinstance(df_meta.column_labels, list) 
+        label = (df_meta.column_labels[idx]
+                if isinstance(df_meta.column_labels, list)
                 else df_meta.column_labels.get(variable, variable))
-        
+
         # Handle both list and dictionary cases for original_variable_types
         data_type = (df_meta.original_variable_types[idx]
                     if isinstance(df_meta.original_variable_types, list)
@@ -481,9 +486,12 @@ def generate_InstanceVariable(df_meta):
                 "name": variable
             },
             "has_PhysicalSegmentLayout": "#physicalSegmentLayout",
-            "has_ValueMapping": f"#valueMapping-{variable}",
             "takesSubstantiveValuesFrom_SubstantiveValueDomain": f"#substantiveValueDomain-{variable}"
         }
+
+        # Only include has_ValueMapping if include_value_mapping is True
+        if include_value_mapping:
+            elements["has_ValueMapping"] = f"#valueMapping-{variable}"
 
         # Add sentinel value domain reference if the variable has missing values
         if (variable in df_meta.missing_ranges) or (
@@ -1386,14 +1394,16 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
         component_start_time = time.time()
         value_mappings = generate_ValueMapping(df_limited, df_meta, process_all_rows, max_rows)
         print(f"ValueMappings generated in {(time.time() - component_start_time):.2f} seconds")
-    
+
+    # Determine if we should include ValueMapping and ValueMappingPosition
+    # Skip these when max_rows is 0 (metadata-only mode)
+    include_value_mappings = max_rows > 0 or process_all_rows
+
     # Generate base components that are always included
     components = [
         generate_PhysicalDataset(df_meta, spssfile),
         generate_PhysicalRecordSegment(df_meta, df_limited),
-        generate_PhysicalSegmentLayout(df_meta),
-        value_mappings,
-        generate_ValueMappingPosition(df_meta),
+        generate_PhysicalSegmentLayout(df_meta, include_value_mapping=include_value_mappings),
         all_data_points,
         all_data_point_positions,
         all_instance_values,
@@ -1402,7 +1412,7 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
         generate_WideDataSet(df_meta),
         generate_WideDataStructure(df_meta),
         generate_MeasureComponent(df_meta),
-        generate_InstanceVariable(df_meta),
+        generate_InstanceVariable(df_meta, include_value_mapping=include_value_mappings),
         generate_SubstantiveValueDomain(df_meta),
         generate_SubstantiveEnumerationDomain(df_meta),
         generate_SentinelValueDomain(df_meta),
@@ -1412,6 +1422,11 @@ def generate_complete_json_ld(df, df_meta, spssfile='name', chunk_size=5, proces
         generate_SentinelConceptScheme(df_meta),
         generate_Concept(df_meta)
     ]
+
+    # Only add ValueMapping and ValueMappingPosition if we're processing data
+    if include_value_mappings:
+        components.insert(3, value_mappings)  # Insert after PhysicalSegmentLayout
+        components.insert(4, generate_ValueMappingPosition(df_meta))  # Insert after ValueMapping
 
     # Only add primary key related components for non-JSON files
     is_json_file = hasattr(df_meta, 'file_format') and df_meta.file_format == 'json'
