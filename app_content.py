@@ -42,7 +42,7 @@ api_documentation = """
 
 The DDI-CDI Converter provides a REST API for programmatic file conversion with support for multiple RDF output formats.
 
-### Base URLs
+### Base URL
 
 **Production (Azure):**
 ```
@@ -64,7 +64,7 @@ Check if the API is running. No authentication required.
 
 **Example:**
 ```bash
-curl http://localhost:8000/api/health
+curl https://ddi-cdi-converter-app.azurewebsites.net/api/health
 ```
 
 **Response:**
@@ -93,16 +93,16 @@ Convert a file to DDI-CDI format in JSON-LD, Turtle, or N-Triples.
 
 **Example 1: JSON-LD (default):**
 ```bash
-curl -X POST http://localhost:8000/api/convert \\
-  -F "file=@files/NES1948.sav" \\
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+  -F "file=@yourfile.sav" \\
   -F "max_rows=5" \\
   -o output.jsonld
 ```
 
 **Example 2: Turtle format (human-readable):**
 ```bash
-curl -X POST http://localhost:8000/api/convert \\
-  -F "file=@files/NES1948.sav" \\
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+  -F "file=@yourfile.sav" \\
   -F "max_rows=5" \\
   -F "output_format=turtle" \\
   -o output.ttl
@@ -110,8 +110,8 @@ curl -X POST http://localhost:8000/api/convert \\
 
 **Example 3: Turtle with custom base URI:**
 ```bash
-curl -X POST http://localhost:8000/api/convert \\
-  -F "file=@files/NES1948.sav" \\
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+  -F "file=@yourfile.sav" \\
   -F "max_rows=5" \\
   -F "output_format=turtle" \\
   -F "base_uri=http://myorg.edu/data/" \\
@@ -120,16 +120,16 @@ curl -X POST http://localhost:8000/api/convert \\
 
 **Example 4: N-Triples format (simple line-based):**
 ```bash
-curl -X POST http://localhost:8000/api/convert \\
-  -F "file=@files/NES1948.sav" \\
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+  -F "file=@yourfile.sav" \\
   -F "output_format=ntriples" \\
   -o output.nt
 ```
 
 **Example 5: With variable roles:**
 ```bash
-curl -X POST http://localhost:8000/api/convert \\
-  -F "file=@files/ESS11-subset.sav" \\
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
+  -F "file=@yourfile.sav" \\
   -F 'variable_roles={"idno":"identifier"}' \\
   -F "output_format=turtle" \\
   -o output.ttl
@@ -146,6 +146,11 @@ Returns the DDI-CDI document in the requested format:
 GET /api/info
 ```
 Get information about available endpoints, parameters, and supported formats.
+
+**Example:**
+```bash
+curl https://ddi-cdi-converter-app.azurewebsites.net/api/info
+```
 
 ### Output Formats
 
@@ -166,22 +171,22 @@ Use the `output_format` parameter to select the format and optionally provide a 
 ### Authentication
 By default, no authentication is required. To enable API key authentication, set the `DDI_API_KEY` environment variable:
 
+**Azure:**
+1. Go to Azure Portal → App Service → Configuration → Application settings
+2. Add: `DDI_API_KEY` = `your-secret-key`
+3. Save and restart
+
 **Local:**
 ```bash
 export DDI_API_KEY="your-secret-key"
 python app.py
 ```
 
-**Azure:**
-1. Go to Azure Portal → App Service → Configuration → Application settings
-2. Add: `DDI_API_KEY` = `your-secret-key`
-3. Save and restart
-
 Then include the API key in requests:
 ```bash
-curl -X POST http://localhost:8000/api/convert \\
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \\
   -H "X-API-Key: your-secret-key" \\
-  -F "file=@files/NES1948.sav" \\
+  -F "file=@yourfile.sav" \\
   -F "output_format=turtle" \\
   -o output.ttl
 ```
