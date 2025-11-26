@@ -84,9 +84,12 @@ Convert a file to DDI-CDI format in JSON-LD, Turtle, or N-Triples.
 
 **Parameters:**
 - `file` (required): The file to convert (.sav, .dta, .csv, .json)
-- `output_format` (optional): Output format - "jsonld", "turtle", or "ntriples" (default: "jsonld")
+- `output_format` (optional): RDF output format (default: "jsonld")
+  - `"jsonld"` - JSON-LD format (.jsonld)
+  - `"turtle"` - Turtle format (.ttl)
+  - `"ntriples"` - N-Triples format (.nt)
 - `base_uri` (optional): Base URI for RDF output (default: "http://example.org/ddi/")
-- `max_rows` (optional): Number of rows to include (default: 5)
+- `max_rows` (optional): Number of rows to include (default: 5, set to 0 for metadata-only)
 - `process_all_rows` (optional): "true" to process all rows (default: "false")
 - `decompose_keys` (optional): "true" to decompose hierarchical JSON keys (default: "false")
 - `variable_roles` (optional): JSON string with role assignments
@@ -154,13 +157,23 @@ curl https://ddi-cdi-converter-app.azurewebsites.net/api/info
 
 ### Output Formats
 
-The API supports three RDF serialization formats:
+The API supports three RDF serialization formats. Use the exact parameter values shown below:
 
-1. **JSON-LD** (.jsonld) - Default format, W3C standard JSON-LD
-2. **Turtle** (.ttl) - Human-readable with namespace prefixes
-3. **N-Triples** (.nt) - Simple line-based format
+| Format | Parameter Value | File Extension | Description |
+|--------|----------------|----------------|-------------|
+| JSON-LD | `output_format=jsonld` | .jsonld | W3C standard (default) |
+| Turtle | `output_format=turtle` | .ttl | Human-readable with prefixes |
+| N-Triples | `output_format=ntriples` | .nt | Simple line-based format |
 
-Use the `output_format` parameter to select the format and optionally provide a `base_uri` for universal/portable files.
+**Example usage:**
+```bash
+# Use exact parameter values:
+-F "output_format=jsonld"    # for JSON-LD
+-F "output_format=turtle"    # for Turtle
+-F "output_format=ntriples"  # for N-Triples
+```
+
+Optionally provide a `base_uri` for universal/portable files.
 
 ### Supported File Formats
 - SPSS (.sav)

@@ -1,0 +1,142 @@
+Subject: Re: DDI-CDI Converter API - All Issues Fixed!
+
+Dear Pascal,
+
+Thank you so much for testing the API and providing such detailed feedback! I'm pleased to report that all three issues you identified have been successfully resolved:
+
+## 1. ✅ SPSS Infinity Error - FIXED
+
+The error you encountered with the NES1948.sav file:
+```
+{"error":"Conversion failed","message":"cannot convert float infinity to integer"}
+```
+
+This has been completely fixed. The converter now properly handles SPSS files with infinity values by:
+- Detecting infinity values in numeric columns
+- Converting them to NaN (Not a Number)
+- Treating them appropriately in the DDI-CDI output
+
+Your NES1948.sav file (SPSS v16) now converts successfully through the API.
+
+## 2. ✅ Turtle Output Format - IMPLEMENTED
+
+You asked: "Is there an option for producing a Turtle output (JSON-LD is hard to read...:-))?"
+
+Yes! The API now supports three RDF serialization formats:
+- **JSON-LD** (.jsonld) - Default format
+- **Turtle** (.ttl) - Human-readable with namespace prefixes
+- **N-Triples** (.nt) - Simple line-based format
+
+### How to Use Turtle Format:
+
+**Basic Turtle conversion:**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@NES1948.sav" \
+  -F "output_format=turtle" \
+  -o output.ttl
+```
+
+**Turtle with custom base URI (for universal/portable files):**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@NES1948.sav" \
+  -F "output_format=turtle" \
+  -F "base_uri=http://myorg.edu/data/" \
+  -o output.ttl
+```
+
+**N-Triples format (if you prefer the simplest RDF format):**
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@NES1948.sav" \
+  -F "output_format=ntriples" \
+  -o output.nt
+```
+
+The Turtle format is much more readable than JSON-LD and includes standard namespace prefixes (ddi, skos, rdf, rdfs, xsd).
+
+## 3. ✅ Metadata-Only Mode (No Data Rows) - IMPLEMENTED
+
+You mentioned: "I typically would not store data in DDI. Tried to set max_rows=0 but still get the extra content (with no data)."
+
+This is now fully supported! Setting `max_rows=0` creates a true metadata-only output:
+
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@NES1948.sav" \
+  -F "max_rows=0" \
+  -F "output_format=turtle" \
+  -o metadata_only.ttl
+```
+
+When `max_rows=0`:
+- ✅ All metadata is included (variables, value labels, data structure)
+- ✅ NO InstanceValues are generated
+- ✅ NO DataPoints are created
+- ✅ Significantly smaller output files
+- ✅ Perfect for metadata-only use cases
+
+This gives you a clean metadata-only DDI-CDI document without any actual data rows.
+
+## Complete Example for Your Use Case
+
+Based on your needs, here's the recommended command for the NES1948 dataset:
+
+```bash
+curl -X POST https://ddi-cdi-converter-app.azurewebsites.net/api/convert \
+  -F "file=@NES1948.sav" \
+  -F "output_format=turtle" \
+  -F "base_uri=http://example.org/nes/" \
+  -F "max_rows=0" \
+  -o nes1948_metadata.ttl
+```
+
+This produces:
+- ✅ Human-readable Turtle format
+- ✅ Metadata only (no data rows)
+- ✅ Custom base URI for portability
+- ✅ No infinity errors
+
+## API Documentation
+
+All these features are documented in:
+- **Web UI**: Click the </>API link in the top navigation
+- **Markdown**: See `API_DOCUMENTATION.md` in the repository
+
+The API also has an `/api/info` endpoint that lists all available parameters and formats:
+```bash
+curl https://ddi-cdi-converter-app.azurewebsites.net/api/info
+```
+
+## Web Interface Updates
+
+These features are also available through the web interface at:
+https://ddi-cdi-converter-app.azurewebsites.net/
+
+The UI now includes:
+- Format dropdown selector (JSON-LD, Turtle, N-Triples)
+- "Include data rows" toggle for metadata-only mode
+- Download button that respects your format choice
+
+## Testing Confirmation
+
+I've tested all three fixes with your NES1948.sav file:
+- ✅ SPSS conversion works without errors
+- ✅ Turtle output is readable and includes proper namespaces
+- ✅ max_rows=0 produces true metadata-only output
+
+Please let me know if you'd like any adjustments to the output format or if you encounter any other issues. I'm happy to iterate on this!
+
+Best regards,
+Benjamin
+
+---
+
+**Technical Details** (if you're interested):
+
+The infinity fix: Detects `np.inf` values in SPSS files and converts them to `np.nan` before processing.
+
+The Turtle conversion: Uses rdflib to convert JSON-LD to Turtle with proper namespace bindings (ddi, skos, rdf, rdfs, xsd).
+
+The metadata-only mode: When max_rows=0, the generator skips the InstanceValue and DataPoint generation loops entirely.
