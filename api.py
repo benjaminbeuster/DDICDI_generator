@@ -13,12 +13,14 @@ import os
 import base64
 from DDICDI_converter_JSONLD_incremental import generate_complete_json_ld, MemoryManager
 from spss_import import read_sav, read_csv, read_json
+from format_converter import FormatConverter
 import io
 import json
 
 # API Configuration
 API_KEY_ENV_VAR = 'DDI_API_KEY'
 DEFAULT_MAX_ROWS = 5
+DEFAULT_OUTPUT_FORMAT = 'jsonld'
 
 def require_api_key(f):
     """Decorator to require API key authentication"""
@@ -67,18 +69,20 @@ def register_api_routes(server):
     @require_api_key
     def convert_file():
         """
-        Convert uploaded file to DDI-CDI JSON-LD format
+        Convert uploaded file to DDI-CDI format with optional output format
 
         Request:
             - Multipart form data with 'file' field
             - Optional form fields:
+                - output_format: Output RDF format ('jsonld', 'turtle', 'ntriples') [default: 'jsonld']
+                - base_uri: Base URI for instance data [default: http://example.org/ddi/]
                 - max_rows: Number of rows to process (default: 5)
                 - process_all_rows: 'true' to process all rows (default: 'false')
                 - decompose_keys: 'true' to decompose hierarchical JSON keys (default: 'false')
                 - variable_roles: JSON string with role assignments
 
         Response:
-            - JSON-LD document as application/json
+            - RDF document in requested format with appropriate mimetype
         """
 
         # Validate file upload
@@ -95,6 +99,24 @@ def register_api_routes(server):
                 'error': 'Empty filename',
                 'message': 'The uploaded file has no filename'
             }), 400
+
+        # Get output format parameter
+        output_format = request.form.get('output_format', DEFAULT_OUTPUT_FORMAT).lower()
+
+        # Validate format
+        try:
+            format_info = FormatConverter.get_format_info(output_format)
+            if not format_info:
+                raise ValueError(f"Unsupported format: {output_format}")
+        except ValueError as e:
+            return jsonify({
+                'error': 'Invalid output_format parameter',
+                'message': str(e),
+                'supported_formats': list(FormatConverter.FORMATS.keys())
+            }), 400
+
+        # Get optional base URI (defaults to environment variable or FormatConverter default)
+        base_uri = request.form.get('base_uri', os.environ.get('DDI_BASE_URI', None))
 
         # Get optional parameters
         try:
@@ -210,8 +232,33 @@ def register_api_routes(server):
                 process_all_rows=process_all_rows
             )
 
-            # Return JSON-LD directly (already a JSON string, don't double-encode)
-            return Response(json_ld_output, mimetype='application/ld+json'), 200
+            # Convert to requested format
+            try:
+                output_content = FormatConverter.convert(
+                    json_ld_output,
+                    output_format,
+                    base_uri=base_uri
+                )
+            except ValueError as e:
+                return jsonify({
+                    'error': 'Format conversion failed',
+                    'message': str(e)
+                }), 500
+
+            # Return with appropriate mimetype
+            response = Response(
+                output_content,
+                mimetype=format_info['mimetype']
+            )
+
+            # Add Content-Disposition header for file download
+            base_filename = os.path.splitext(file.filename)[0]
+            download_filename = f"{base_filename}_DDICDI{format_info['extension']}"
+            response.headers['Content-Disposition'] = (
+                f'attachment; filename="{download_filename}"'
+            )
+
+            return response, 200
 
         except Exception as e:
             return jsonify({
@@ -233,6 +280,16 @@ def register_api_routes(server):
         """Get API information and available endpoints"""
         api_key_required = bool(os.environ.get(API_KEY_ENV_VAR))
 
+        # Get format information
+        formats_info = {}
+        for fmt_key, fmt_config in FormatConverter.FORMATS.items():
+            formats_info[fmt_key] = {
+                'name': fmt_config['name'],
+                'mimetype': fmt_config['mimetype'],
+                'extension': fmt_config['extension'],
+                'description': fmt_config['description']
+            }
+
         return jsonify({
             'version': '1.0',
             'service': 'DDI-CDI Converter API',
@@ -244,10 +301,13 @@ def register_api_routes(server):
             'endpoints': {
                 'GET /api/health': 'Health check (no auth)',
                 'GET /api/info': 'API information (no auth)',
-                'POST /api/convert': 'Convert file to DDI-CDI JSON-LD (requires auth if configured)'
+                'POST /api/convert': 'Convert file to DDI-CDI format (requires auth if configured)'
             },
-            'supported_formats': ['.sav', '.dta', '.csv', '.json'],
+            'supported_input_formats': ['.sav', '.dta', '.csv', '.json'],
+            'supported_output_formats': formats_info,
             'parameters': {
+                'output_format': f'Output RDF format (default: "{DEFAULT_OUTPUT_FORMAT}")',
+                'base_uri': 'Base URI for instance data (default: http://example.org/ddi/ or DDI_BASE_URI env var)',
                 'max_rows': 'Number of rows to process (default: 5)',
                 'process_all_rows': 'Process all rows: true/false (default: false)',
                 'decompose_keys': 'Decompose JSON hierarchical keys: true/false (default: false)',

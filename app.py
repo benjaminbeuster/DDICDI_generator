@@ -19,6 +19,7 @@ from dash.exceptions import PreventUpdate
 import rdflib
 from rdflib import Graph
 from api import register_api_routes
+from format_converter import FormatConverter
 
 # Configuration parameters
 MAX_ROWS_TO_PROCESS = 5  # Maximum number of rows to process by default
@@ -368,24 +369,25 @@ app.layout = dbc.Container([
             ]),
 
             html.Br(),
-            # Group the buttons together in a ButtonGroup
-            dbc.ButtonGroup(
-                [
-                    dbc.Button([html.I(className="fas fa-download mr-2"), 'JSON-LD'], 
-                              id='btn-download-json', 
-                              color="primary", 
-                              className="mr-1"),
-                    # N-Triples button hidden but still in the DOM for callback functionality
-                    dbc.Button([html.I(className="fas fa-download mr-2"), 'N-Triples'], 
-                              id='btn-download-nt', 
-                              color="info", 
-                              className="mr-1",
-                              style={'display': 'none'}),
-                ],
-                style=get_button_group_style(visible=False),  # Use helper function
-                id='button-group',
-                className="shadow-sm"
-            ),
+            # Download section with format selector
+            html.Div([
+                html.Label('Output Format:', style={'marginRight': '10px', 'fontWeight': 'bold', 'color': colors['secondary']}),
+                dcc.Dropdown(
+                    id='output-format-dropdown',
+                    options=[
+                        {'label': 'JSON-LD (.jsonld)', 'value': 'jsonld'},
+                        {'label': 'Turtle (.ttl) - Human-readable', 'value': 'turtle'},
+                        {'label': 'N-Triples (.nt) - Simple line-based', 'value': 'ntriples'}
+                    ],
+                    value='jsonld',
+                    clearable=False,
+                    style={'width': '350px', 'display': 'inline-block', 'marginRight': '15px'}
+                ),
+                dbc.Button([html.I(className="fas fa-download mr-2"), 'Download'],
+                          id='btn-download-format',
+                          color="primary",
+                          className="mr-1"),
+            ], style=get_button_group_style(visible=False), id='download-controls'),
             # Add switch using dbc.Switch
             dbc.Switch(
                 id="include-metadata",
@@ -427,8 +429,7 @@ app.layout = dbc.Container([
                     'display': 'none'
                 }
             ),
-            dcc.Download(id='download-json'),
-            dcc.Download(id='download-nt'),
+            dcc.Download(id='download-format'),
             html.Br(),
             dbc.Row([
                 dbc.Col([
@@ -661,7 +662,7 @@ def truncate_for_display(json_str, max_length=500000, include_metadata=False):
      Output('table2', 'data'),
      Output('table2', 'columns'),
      Output('table2', 'style_data_conditional'),
-     Output('button-group', 'style'),
+     Output('download-controls', 'style'),
      Output('table1-instruction', 'children'),
      Output('table2-instruction', 'children'),
      Output('json-ld-output', 'children'),
@@ -1496,6 +1497,59 @@ def download_nt(n_clicks, full_json, displayed_json, filename):
         # Ensure temporary files are removed in case of error
         if 'temp_jsonld_path' in locals():
             os.unlink(temp_jsonld_path)
+        return None
+
+# Unified download callback for all RDF formats
+@app.callback(
+    Output('download-format', 'data'),
+    [Input('btn-download-format', 'n_clicks')],
+    [State('output-format-dropdown', 'value'),
+     State('full-json-store', 'data'),
+     State('json-ld-output', 'children'),
+     State('upload-data', 'filename')]
+)
+def download_format(n_clicks, output_format, full_json, displayed_json, filename):
+    """Unified download callback for all RDF formats"""
+    if n_clicks is None or n_clicks == 0:
+        raise PreventUpdate
+
+    if not full_json and not displayed_json:
+        return None
+
+    # Use the full JSON if available, otherwise use the displayed JSON
+    json_data = full_json if full_json else displayed_json
+
+    # Remove the truncation message if it exists
+    if isinstance(json_data, str) and "... Output truncated for display." in json_data:
+        truncation_msg_pos = json_data.find("\n\n... Output truncated for display.")
+        if truncation_msg_pos > 0:
+            json_data = json_data[:truncation_msg_pos]
+
+    try:
+        # Get base URI from environment or use default
+        base_uri = os.environ.get('DDI_BASE_URI', None)
+
+        # Convert to requested format using FormatConverter
+        output_content = FormatConverter.convert(
+            json_data,
+            output_format,
+            base_uri=base_uri
+        )
+
+        # Get format info for file extension
+        format_info = FormatConverter.get_format_info(output_format)
+
+        # Create download filename
+        base_filename = os.path.splitext(filename)[0] if filename else 'output'
+        download_filename = f"{base_filename}_DDICDI{format_info['extension']}"
+
+        return dict(
+            content=output_content.decode('utf-8'),
+            filename=download_filename
+        )
+
+    except Exception as e:
+        print(f"Error converting to {output_format}: {str(e)}")
         return None
 
 # Add callback to show performance warning for large datasets
