@@ -816,7 +816,8 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     {'display': 'none'},  # decompose-keys style (hidden for non-JSON)
                     None,  # Clear the upload contents
                     full_json,  # full JSON for download
-                    dash.no_update  # file type (no change for metadata toggle)
+                    dash.no_update,  # file type (no change for metadata toggle)
+                    dash.no_update  # output-wrapper style (already visible)
                 )
             
         except Exception as e:
@@ -1016,7 +1017,8 @@ def combined_callback(contents, selected_rows, include_metadata, decompose_keys,
                     decompose_switch_style,  # decompose-keys style (shown for JSON with hierarchical keys)
                     None,  # Clear the upload contents
                     full_json,  # full JSON for download
-                    file_type  # file type for dropdown options
+                    file_type,  # file type for dropdown options
+                    {'display': 'block'}  # output-wrapper style
                 )
 
         except Exception as e:
