@@ -42,6 +42,7 @@ JSON_DROPDOWN_OPTIONS = [
     {'label': 'VariableValue', 'value': 'variablevalue'}
 ]
 
+
 # Define the namespaces, DDI
 nsmap = {
     'cdi': 'http://ddialliance.org/Specification/DDI-CDI/1.0/XMLSchema/',
