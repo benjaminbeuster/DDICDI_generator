@@ -2,8 +2,8 @@ setuptools
 pandas==2.2.3
 numpy==1.26.4
 pyreadstat==1.2.7
-dash==2.13.0
-dash-bootstrap-components==1.5.0
+dash==2.18.2
+dash-bootstrap-components==1.6.0
 flask==2.1.2
 lxml==4.9.3
 pyld==2.0.4
